@@ -1,0 +1,46 @@
+FROM node:18 AS frontend_build
+
+ENV DEBUG True
+
+ENV TZ Asia/Kolkata
+
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
+EXPOSE 3001
+
+WORKDIR /code
+
+COPY ./ /code
+
+# RUN npm install -g yarn
+
+RUN yarn install
+
+RUN yarn run build-linux
+
+# RUN mkdir /etc/nginx/
+# RUN mkdir /etc/nginx/conf.d/
+
+FROM nginx AS frontend_serve
+
+WORKDIR /usr/local/bin
+
+COPY --from=frontend_build /code/build /var/www/html
+
+# RUN cp -pr /code/build/ /var/www/html
+
+# RUN echo ls /etc/nginx/conf.d/
+
+COPY ./nginx_conf /etc/nginx/nginx.conf
+
+#COPY generate-config.sh .
+
+#RUN chmod +x generate-config.sh
+
+# ENTRYPOINT yarn run start
+
+RUN ["nginx", "-c", "/etc/nginx/nginx.conf"]
+
+# ENTRYPOINT nginx -g "daemon off;"
+
+#ENTRYPOINT [ "/bin/sh", "generate-config.sh"]

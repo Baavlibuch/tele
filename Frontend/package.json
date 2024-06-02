@@ -1,0 +1,92 @@
+{
+  "name": "telemedicine",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@emotion/react": "^11.11.3",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.15.2",
+    "@mui/material": "^5.14.17",
+    "@reduxjs/toolkit": "^1.9.5",
+    "axios": "^0.27.2",
+    "bson": "^4.7.0",
+    "classnames": "^2.5.0",
+    "d3": "^7.8.5",
+    "http-proxy-middleware": "^2.0.6",
+    "install": "^0.13.0",
+    "jquery": "^3.4.1",
+    "loader-utils": "3.2.1",
+    "lodash": "^4.17.21",
+    "npm": "^10.2.5",
+    "npmlog": "^7.0.1",
+    "prop-types": "^15.8.1",
+    "react": "^16.13.1",
+    "react-device-detect": "^2.2.3",
+    "react-dom": "^16.13.1",
+    "react-feather": "^2.0.3",
+    "react-hot-toast": "^2.4.1",
+    "react-lazy-load": "^3.0.13",
+    "react-loader-spinner": "^5.4.5",
+    "react-progressbar": "^15.4.1",
+    "react-redux": "^8.1.2",
+    "react-router-dom": "^5.1.2",
+    "react-scripts": "^5.0.1",
+    "react-scroll-sync": "^0.11.2",
+    "react-simple-keyboard": "^3.7.58",
+    "react-spinners": "^0.13.8",
+    "redux": "^4.2.1",
+    "sass": "^1.69.6",
+    "socket.io-client": "^4.7.2",
+    "universal-cookie": "^4.0.4"
+  },
+  "scripts": {
+    "start": "set PORT=3001 && react-scripts --openssl-legacy-provider start css-watch",
+    "build": "react-scripts build && copy build\\index.html build\\404.html && del build\\static\\js\\*.map build\\static\\css\\*.map",
+    "build-linux": "react-scripts build && cp build/index.html build/404.html && rm build/static/js/*.map build/static/css/*.map",
+    "build-linux-deobfuscated": "react-scripts build && cp build/index.html build/404.html",
+    "test": " react-scripts test --env=jsdom ",
+    "jest": "jest",
+    "eject": "react-scripts eject",
+    "css-build": "node-sass --omit-source-map-url sass/custom.scss src/App.css",
+    "css-watch": "npm run css-build -- --watch",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
+    "prettier-fix": "prettier --write '**/*.js'",
+    "prettier-check": "prettier --list-different '**/*.js'",
+    "lint-fix": "eslint --fix .",
+    "lint-check": "eslint ."
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^7.5.0",
+    "@testing-library/jest-dom": "^5.11.6",
+    "@testing-library/react": "^10.0.0",
+    "gh-pages": "^2.2.0",
+    "history": "^5.3.0-pre.0",
+    "prettier": "^2.0.4"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    }
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ]
+  }
+}

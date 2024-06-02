@@ -1,0 +1,15 @@
+FROM node:18
+
+ENV DEBUG True
+
+ENV TZ Asia/Kolkata
+
+EXPOSE 3000
+
+WORKDIR /code
+
+ADD ./ /code
+
+RUN yarn install
+
+ENTRYPOINT yarn start

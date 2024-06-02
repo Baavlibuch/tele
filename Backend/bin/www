@@ -1,0 +1,85 @@
+#!/usr/bin/env node
+const app = require('../app');
+const debug = require('debug')('server:server');
+const http = require('http');
+//const https = require('https');
+let server = http.createServer(app);
+
+const { Server } = require("socket.io");
+const { createAdapter } = require("@socket.io/redis-adapter");
+const { createClient } = require("redis");
+const { makeChatNameSpace } = require("../chat/index");
+
+const pubClient = createClient({ url: "redis://localhost:6379" });
+const subClient = pubClient.duplicate();
+pubClient.connect()
+subClient.connect()
+
+const io = new Server(server, {
+  adapter: createAdapter(pubClient, subClient),
+  cors: { origin: "*" },
+  methods: ["GET", "POST"],
+})
+// io.adapter(createAdapter(pubClient, subClient));
+
+const live_chat = makeChatNameSpace(io.of('/app_chat'))
+console.log('Log www namespaces created', io.sockets.name)
+
+let port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+  console.log('Listening on ' + bind);
+}
+
+module.exports = { io, live_chat }
+
