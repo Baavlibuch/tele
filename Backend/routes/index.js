@@ -454,6 +454,7 @@ router.get('/patient-list', authenticate, (req, res) => {
  */
 router.get('/doctor-list', authenticate, (req, res) => {
 	const { hospital, username } = req.user;
+	console.log("hospital",hospital,"username",username)
 	Doctor.find({ hospital, username: { $ne: username } }, (err, doctors) => {
 		if (err) return res.json({ error: true });
 		res.json({
@@ -504,6 +505,16 @@ router.get('/snomed-ct', authenticate, async (req, res) => {
 
         return res.status(status).json({ message });
     }
+});
+
+router.get('/Alldoctor-list', async (req, res) => {
+	try {
+		const doctors = await Doctor.find({});
+		res.json({ doctors });
+	} catch (err) {
+		console.error('Error fetching doctors:', err);
+		res.status(500).json({ error: true, message: 'Failed to fetch doctors' });
+	}
 });
 
 module.exports = router;

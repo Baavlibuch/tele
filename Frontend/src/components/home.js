@@ -5,6 +5,7 @@ import React from 'react';
 //
 // import Level from './level';
 import Chat from './chatbot';
+import DocRtc from './docRtc';
 const { register } = require("../serviceWorker");
 
 // let deferredPrompt;
@@ -51,6 +52,9 @@ function Home() {
 
 			<div className="home-right" style={{alignItems: "center"}}>
 				<div onClick={install} className="buttonAction">Install</div>
+				<div className="header fadeInUp" style={{ animationDelay: '0.5s' }}>
+				<DocRtc/>
+				</div>
         {/*<div className="helpline fadeInUp" style={{ animationDelay: '0.5s' }}>*/}
           <div className="row">
             <div className="col">

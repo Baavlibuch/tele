@@ -1287,6 +1287,13 @@ table {
     color: $gray-mid;
     width: 100%;
   }
+  .pagination button.active {
+    font-weight: bold !important;
+    background-color: #ccc;
+  }
+  .pagination button:hover {
+    background-color: #ddd;
+  }
   .is-total {
     td {
       background: $gray-hover;
@@ -2987,4 +2994,86 @@ height: 87vh;
     }
   }
   
+}
+
+
+
+.tablecontainer{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: fit-content;
+}
+
+.tablegrid{
+  width: 100%;
+  display: grid;
+  gap: 2px;
+  background: rgba(108, 117, 125, 0.062745098);
+}
+.tablehead{
+  // background: rgba(108, 117, 125, 0.062745098);
+  display: grid;
+  grid-template-columns: 60% 20% 20%;
+}
+.tablerow{
+  display: grid;
+  grid-template-columns: 60% 20% 20%;
+  background-color: white;
+  border: 1px solid rgba(108, 117, 125, 0.062745098);
+}
+.htext{
+  padding: 5px;
+  font-weight: bold;
+}
+.ctext{
+  padding: 2px;
+}
+.ofcontainer{
+  display: flex;
+  // justify-content: space-around;
+  align-items: center;
+}
+.gdot{
+  background-color: #75ff93;
+  height: 10px;
+  width: 10px;
+  border-radius: 100%;
+}
+.rdot{
+  background-color: #ff7575;
+  height: 10px;
+  width: 10px;
+  border-radius: 100%;
+}
+.oftext{
+  margin-left: 5px;
+}
+.pagination button.active {
+  font-weight: bold !important;
+  background-color: #dbeeff;
+}
+.ctextq{
+  position: relative;
+  padding: 2px;
+  text-align: left;
+}
+
+.ctextq .callnow-btn {
+  display: none;
+  position: absolute;
+  top: 0px;
+  right: 4px;
+  width: 100%;
+  padding: 2px;
+  background-color: rgb(54, 141, 255);
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.ctextq:hover .callnow-btn {
+  display: inline-block;
 }
