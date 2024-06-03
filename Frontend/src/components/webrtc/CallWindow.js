@@ -38,7 +38,7 @@ function CallWindow({ peerSrc, localSrc, config, mediaDevice, endCall }) {
 	return (
 		<div className="call-window rollDown">
 			<video id="peerVideo" ref={peerVideo} autoPlay />
-			<video id="localVideo" ref={localVideo} autoPlay muted />
+            {video && <video id="localVideo" ref={localVideo} autoPlay muted />}
 			<div className="video-control rollDown">
 				<button
 					key="btnVideo"
