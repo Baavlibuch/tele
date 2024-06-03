@@ -22,11 +22,11 @@ services:
       context: ./Frontend
       dockerfile: Dockerfile_frontend
     restart: always
-    image: node:18
+    image: frontend
     tty: true
     container_name: frontend
     ports:
-      - "3001:80"
+      # - "3001:80"
       - "80:80"
         
   backend:
@@ -34,7 +34,7 @@ services:
       context: ./Backend
       dockerfile: Dockerfile_backend
     restart: always
-    image: node:18
+    image: backend
     tty: true
     container_name: backend
     ports:

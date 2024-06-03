@@ -6,7 +6,7 @@ ENV TZ Asia/Kolkata
 
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
-EXPOSE 3001
+# EXPOSE 80
 
 WORKDIR /code
 
