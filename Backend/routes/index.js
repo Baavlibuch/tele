@@ -50,10 +50,10 @@ router.get('/cases', (req, res) => {
 router.get('/hits', (req, res) => {
 	Hits.findOneAndUpdate({}, { $inc: { hits: 1 } }, (err, result) => {
 		if (err) return res.json({});
-    let hits = 0;
-    if (result) {
-      hits = result.hits;
-    }
+		let hits = 0;
+		if (result) {
+			hits = result.hits;
+		}
 		res.json({ hits });
 	});
 });
@@ -77,10 +77,10 @@ router.post('/image', upload.any(), (req, res) => {
  * TODO: Give number based on location
  */
 router.post('/helpline', (req, res) => {
-  // const { latitude, longitude } = req.body;
+	// const { latitude, longitude } = req.body;
 	res.json({
-    helpline: '011-23978046',
-  });
+		helpline: '011-23978046',
+	});
 });
 
 /* Patient */
@@ -99,7 +99,8 @@ router.post('/assessment', (req, res) => {
 	console.log("assessment started. oldPatient = ", oldPatient)
 	console.log(`answers['23'] = ${answers['23']}. answers['2.5'] = ${answers['2.5']}. (answers['23'] === 0 || answers['2.5'] !== 'undefined') = ${(answers['23'] === 0 || answers['2.5'] !== 'undefined')}
 	 answers['24'] = ${answers['24']}. answers['25'] = ${answers['25']}. ID = ${() => {
-		 if (answers['23'] === 1) getId(answers['24'], answers['25']); else getId(answers['2.5'], answers['2.8'])}}
+			if (answers['23'] === 1) getId(answers['24'], answers['25']); else getId(answers['2.5'], answers['2.8'])
+		}}
 	 answers = ${'pass'/*JSON.stringify(answers)*/}`
 	)
 
@@ -185,9 +186,9 @@ router.post('/assessment', (req, res) => {
 								incomingChats: [
 									{
 										statement: {
-										  en: 'We could not find any doctors 🙁',
-										  hi: 'हम किसी भी डॉक्टर का पता नहीं लगा सके 🙁',
-										  bn: 'আমরা কোনও ডাক্তার খুঁজে পাইনি 🙁'
+											en: 'We could not find any doctors 🙁',
+											hi: 'हम किसी भी डॉक्टर का पता नहीं लगा सके 🙁',
+											bn: 'আমরা কোনও ডাক্তার খুঁজে পাইনি 🙁'
 										},
 										type: 'incoming'
 									}
@@ -285,7 +286,7 @@ router.post('/realtime', (req, res) => {
 			_id: conversation_session_id,
 			patient_id: patient_id
 		},
-		async function(err, session){
+		async function (err, session) {
 			if (err) {
 
 				console.debug('failed to create session in mongo - ' + err)
@@ -293,7 +294,7 @@ router.post('/realtime', (req, res) => {
 				// console.log("err instance = ", instanceof err)
 				// Session.findOneAndUpdate({ _id: session_id }, update )
 
-				Session.findOne({_id:conversation_session_id}, async function(err, sess) {
+				Session.findOne({ _id: conversation_session_id }, async function (err, sess) {
 					if (err) {
 						console.error("WTF", err)
 						// nothing done
@@ -340,15 +341,15 @@ router.post('/realtime', (req, res) => {
 
 router.get('/download/:fileUrl', (req, res) => {
 	console.log(`download : req.params.fileUrl = ${req.params.fileUrl}`)
-	console.log(`download : fileUrl path = ${/*path.join(__dirname) + */"../data/" + req.params.fileUrl }`)
-	res.sendFile(path.resolve("./data/" + req.params.fileUrl), function(err) {
-      if (err) {
-        console.log(`Failed to send file : name = ${"../data/" + req.params.fileUrl}`);
-				console.error(err)
-      } else {
-        console.log(`compute.prepareResult.sendfile : filename = ${"../data/" + req.params.fileUrl}`);
-      }
-    });
+	console.log(`download : fileUrl path = ${/*path.join(__dirname) + */"../data/" + req.params.fileUrl}`)
+	res.sendFile(path.resolve("./data/" + req.params.fileUrl), function (err) {
+		if (err) {
+			console.log(`Failed to send file : name = ${"../data/" + req.params.fileUrl}`);
+			console.error(err)
+		} else {
+			console.log(`compute.prepareResult.sendfile : filename = ${"../data/" + req.params.fileUrl}`);
+		}
+	});
 })
 
 /**
@@ -387,26 +388,26 @@ router.get('/questions', (req, res) => {
 							return {
 								nextQuestion: hospital === 'AIIMS Jodhpur' ? 27 : 26.1,
 								value: index,
-                statement: {
-                  en: hospital + paymentDetail,
-                  hi: hospital + paymentDetail,
-                  bn: hospital + paymentDetail
-                },
+								statement: {
+									en: hospital + paymentDetail,
+									hi: hospital + paymentDetail,
+									bn: hospital + paymentDetail
+								},
 								dbValue: hospital
 							};
 						})
 					};
-				} else if (typeof question.id=="string") {
+				} else if (typeof question.id == "string") {
 					return question;
 				} else return question;
 			}),
 			incomingChats: [
 				{
-          statement: {
-            en: 'We welcome you 🙏👩‍⚕️',
-            hi: 'आपका स्वागत है 🙏👩‍⚕️',
-            bn: 'আপনি স্বাগত জানাই 🙏👩‍⚕️'
-          },
+					statement: {
+						en: 'We welcome you 🙏👩‍⚕️',
+						hi: 'आपका स्वागत है 🙏👩‍⚕️',
+						bn: 'আপনি স্বাগত জানাই 🙏👩‍⚕️'
+					},
 					type: 'incoming'
 				}
 			]
@@ -454,7 +455,7 @@ router.get('/patient-list', authenticate, (req, res) => {
  */
 router.get('/doctor-list', authenticate, (req, res) => {
 	const { hospital, username } = req.user;
-	console.log("hospital",hospital,"username",username)
+	console.log("hospital", hospital, "username", username)
 	Doctor.find({ hospital, username: { $ne: username } }, (err, doctors) => {
 		if (err) return res.json({ error: true });
 		res.json({
@@ -476,35 +477,35 @@ router.get('/logout', authenticate, (req, res) => {
  */
 router.post('/login', authenticate, (req, res) => {
 	const { username, hospital, _id } = req.user;
-	res.json({ login: true, username, hospital , doctorId:_id});
+	res.json({ login: true, username, hospital, doctorId: _id });
 });
 
 router.get('/snomed-ct', authenticate, async (req, res) => {
-    const { term } = req.body;
+	const { term } = req.body;
 
-    try {
-        // SNOWSTORM_URL='http://localhost:8080/MAIN/concepts'
-        // must be set in .env file
+	try {
+		// SNOWSTORM_URL='http://localhost:8080/MAIN/concepts'
+		// must be set in .env file
 
-        if (!process.env.SNOWSTORM_URL) {
-            throw new Error('SNOWSTORM_URL not set in .env file');
-        }
+		if (!process.env.SNOWSTORM_URL) {
+			throw new Error('SNOWSTORM_URL not set in .env file');
+		}
 
-        let response = await axios.get(process.env.SNOWSTORM_URL, {
-            params: {
-                term: term,
-            },
-        });
+		let response = await axios.get(process.env.SNOWSTORM_URL, {
+			params: {
+				term: term,
+			},
+		});
 
-        return res.json(response.data);
-    } catch (error) {
-        console.error('Error fetching SNOMED CT terms: ', error);
+		return res.json(response.data);
+	} catch (error) {
+		console.error('Error fetching SNOMED CT terms: ', error);
 
-        const status = error.response ? error.response.status : 500;
-        const message = error.response ? error.response.data : 'No response received from SNOMED CT server';
+		const status = error.response ? error.response.status : 500;
+		const message = error.response ? error.response.data : 'No response received from SNOMED CT server';
 
-        return res.status(status).json({ message });
-    }
+		return res.status(status).json({ message });
+	}
 });
 
 router.get('/Alldoctor-list', async (req, res) => {
@@ -516,5 +517,42 @@ router.get('/Alldoctor-list', async (req, res) => {
 		res.status(500).json({ error: true, message: 'Failed to fetch doctors' });
 	}
 });
+
+router.post('/addpatient', async (req, res) => {
+	try {
+		const { id, name, number } = req.body;
+		const newPatient = new Patient({
+			_id: id,
+			name: name,
+			telephone: number
+		});
+		await newPatient.save();
+		res.status(200).json({ success: true, message: 'Patient added successfully' });
+	} catch (err) {
+		console.error('Error:', err);
+		res.status(500).json({ error: true, message: 'Failed' });
+	}
+});
+router.post('/updatepatientdochos', async (req, res) => {
+    try {
+        const { patientId, selectedHospital, selectedDoctor } = req.body;
+        const updatedPatient = await Patient.findByIdAndUpdate(
+            patientId,
+            { $set: { hospital: selectedHospital, doctor: selectedDoctor } },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedPatient) {
+            return res.status(404).json({ success: false, message: 'Patient not found' });
+        }
+
+        res.status(200).json({ success: true, message: 'Patient updated successfully', patient: updatedPatient });
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).json({ error: true, message: 'Failed to update patient' });
+    }
+});
+
+
 
 module.exports = router;

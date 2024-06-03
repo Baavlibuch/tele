@@ -489,8 +489,8 @@ h6 {
   #localVideo {
     bottom: 0;
     right: 0;
-    width: 20%;
-    height: 20%;
+    width: 40%;
+    // height: 40%;
   }
 
   #peerVideo {
@@ -3009,7 +3009,7 @@ height: 87vh;
 .tablegrid{
   width: 100%;
   display: grid;
-  gap: 2px;
+  gap: 5px;
   background: rgba(108, 117, 125, 0.062745098);
 }
 .tablehead{
@@ -3055,25 +3055,43 @@ height: 87vh;
   background-color: #dbeeff;
 }
 .ctextq{
-  position: relative;
-  padding: 2px;
-  text-align: left;
+  .send{
+    margin: 0px 15px 0px 5px !important;
+  }
+}
+.callwindowcontainer{
+  .call-window{
+    width: 500px;
+    height: 700px;
+    .video-control{
+      position: absolute;
+      bottom: 0;
+    }
+  }
+
+  
 }
 
-.ctextq .callnow-btn {
-  display: none;
-  position: absolute;
-  top: 0px;
-  right: 4px;
-  width: 100%;
-  padding: 2px;
-  background-color: rgb(54, 141, 255);
-  color: white;
-  text-decoration: none;
-  border-radius: 5px;
-  text-align: center;
+.active-tablerow{
+  display: grid;
+  grid-template-columns: 60% 20% 20%;
+  background-color: rgb(223, 235, 252);
+  border: 1px solid rgba(108, 117, 125, 0.062745098);
 }
+// .ctextq .callnow-btn {
+//   display: none;
+//   position: absolute;
+//   top: 0px;
+//   right: 4px;
+//   width: 100%;
+//   padding: 2px;
+//   background-color: rgb(54, 141, 255);
+//   color: white;
+//   text-decoration: none;
+//   border-radius: 5px;
+//   text-align: center;
+// }
 
-.ctextq:hover .callnow-btn {
-  display: inline-block;
-}
+// .ctextq:hover .callnow-btn {
+//   display: inline-block;
+// }
