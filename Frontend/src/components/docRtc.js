@@ -5,6 +5,7 @@ import * as Icon from 'react-feather';
 import CallModal from './webrtc/CallModal'
 import PeerConnection from './webrtc/PeerConnection';
 import CallWindow from './webrtc/CallWindow';
+import _ from 'lodash';
 const client = require('socket.io-client');
 
 export default function DocRtc(props) {
@@ -13,9 +14,13 @@ export default function DocRtc(props) {
     const [chatStarted, setChatStarted] = useState(false);
     const [patientId, setPatientId] = useState(null);
     const [incomingTyping, setIncomingTyping] = useState(false);
+    const [requesting, setRequesting] = useState(false);
     const [chat, setChat] = useState([]);
     const [textAnswered, setTextAnswered] = useState('');
     const [actionsReveal, setActionsReveal] = useState(false);
+    const [answerBoxHidden, setAnswerBoxHidden] = useState(true);
+    const [onlineUsers, setOnlineUsers] = useState([]);
+
     // const [doctors, setDoctors] = useState([]);
     const [doctorSelected, setDoctorSelected] = useState('');
     const [callWindow, setCallWindow] = useState('');
@@ -36,43 +41,158 @@ export default function DocRtc(props) {
     const [selectedDoctor, setSelectedDoctor] = useState(null)
     const [selectedHospital, setSelectedHospital] = useState(null)
 
-    const socketInstance = client('/app_chat', {
-        transports: ['websocket'],
-        query: {
-            patientId,
-			type: 'patient'
-        }
-    });
+    const socketRef = useRef(null);
+    const pcRef = useRef(null);
+    const configRef = useRef(null);
 
-    const peerConnection = useRef(null);
+    useEffect(() => {
+        console.log('connect() to doctor');
+        setRequesting(true);
+
+        socketRef.current = client('/app_chat', {
+            transports: ['websocket'],
+            query: {
+                patientId,
+                type: 'patient'
+            }
+        });
+
+        socketRef.current.on('doctorAlloted', (doctor) => {
+            setAnswerBoxHidden(false);
+            setRequesting(false);
+            setSelectedDoctor(doctor);
+        });
+
+        socketRef.current.on('onlineUsers', (onlineUsers) => {
+            setOnlineUsers(onlineUsers);
+        });
+
+        socketRef.current.on('message', ({ message, from }) => {
+            if (from === selectedDoctor) {
+                setIncomingTyping(false);
+                enterMessageIntoChat(message, 'incoming');
+            }
+        });
+
+        socketRef.current.on('typingChange', ({ state, from }) => {
+            if (from === selectedDoctor) {
+                setIncomingTyping(state);
+                scrollDown();
+            }
+        });
+
+        socketRef.current.on('referUser', (doctor) => {
+            endCall(false);
+            setSelectedDoctor(doctor);
+            setAnswerBoxHidden(true);
+        });
+
+        socketRef.current.on('request', (from) => {
+            if (from === selectedDoctor) {
+                setCallModal('active');
+                scrollDown();
+            }
+        });
+
+        socketRef.current.on('call', ({ data, from }) => {
+            if (from === selectedDoctor) {
+                if (data.sdp) {
+                    pcRef.current.setRemoteDescription(data.sdp);
+                    if (data.sdp.type === 'offer') pcRef.current.createAnswer();
+                } else {
+                    pcRef.current.addIceCandidate(data.candidate);
+                }
+            }
+        });
+
+        socketRef.current.on('end', (from) => {
+            if (from === selectedDocto) endCall(false);
+        });
+
+        return () => {
+            if (socketRef.current) {
+                socketRef.current.disconnect();
+            }
+        };
+    }, [patientId, selectedDoctor]);
+
+    const enterMessageIntoChat = (message, type) => {
+        // Implement your function here
+    };
+
+    const scrollDown = () => {
+        // Implement your function here
+    };
 
     const startCall = (isCaller, config) => {
-        console.log("starting call...")
-        setConfig(config);
-        peerConnection.current = new PeerConnection(socketInstance, selectedDoctor)
+        configRef.current = config;
+        pcRef.current = new PeerConnection(socketRef.current, selectedDoctor)
             .on('localStream', (src) => {
                 const newState = { callWindow: 'active', localSrc: src };
-                if (!isCaller) newState.callModal = '';
+                if (!isCaller) setCallModal('');
                 setCallWindow(newState.callWindow);
                 setLocalSrc(newState.localSrc);
-                if (!isCaller) setCallModal(newState.callModal);
             })
             .on('peerStream', (src) => setPeerSrc(src))
             .start(isCaller, config);
     };
 
+    const rejectCall = () => {
+        socketRef.current.emit('end', selectedDoctor);
+        setCallModal('');
+    };
+
     const endCall = (isStarter) => {
-        if (_.isFunction(peerConnection.current?.stop)) {
-            peerConnection.current.stop(isStarter);
+        if (pcRef.current && typeof pcRef.current.stop === 'function') {
+            pcRef.current.stop(isStarter);
         }
-        peerConnection.current = null;
-        setConfig(null);
+        pcRef.current = null;
+        configRef.current = null;
         setCallWindow('');
         setCallModal('');
         setLocalSrc(null);
         setPeerSrc(null);
-        // scrollDown(); // Assuming you have a scrollDown function
+        scrollDown();
     };
+
+
+    // const socketInstance = client('/app_chat', {
+    //     transports: ['websocket'],
+    //     query: {
+    //         patientId,
+    //         type: 'patient'
+    //     }
+    // });
+
+    // const peerConnection = useRef(null);
+
+    // const startCall = (isCaller, config) => {
+    //     console.log("starting call...")
+    //     setConfig(config);
+    //     peerConnection.current = new PeerConnection(socketInstance, selectedDoctor)
+    //         .on('localStream', (src) => {
+    //             const newState = { callWindow: 'active', localSrc: src };
+    //             if (!isCaller) newState.callModal = '';
+    //             setCallWindow(newState.callWindow);
+    //             setLocalSrc(newState.localSrc);
+    //             if (!isCaller) setCallModal(newState.callModal);
+    //         })
+    //         .on('peerStream', (src) => setPeerSrc(src))
+    //         .start(isCaller, config);
+    // };
+
+    // const endCall = (isStarter) => {
+    //     if (_.isFunction(peerConnection.current?.stop)) {
+    //         peerConnection.current.stop(isStarter);
+    //     }
+    //     peerConnection.current = null;
+    //     setConfig(null);
+    //     setCallWindow('');
+    //     setCallModal('');
+    //     setLocalSrc(null);
+    //     setPeerSrc(null);
+    //     // scrollDown(); // Assuming you have a scrollDown function
+    // };
 
     const formSub = () => {
         setShowForm(true);
@@ -80,9 +200,9 @@ export default function DocRtc(props) {
     const handleStartCall = () => {
         setPatientId(name + '-' + number)
         console.log(name + '-' + number)
-        let id=name + '-' + number
+        let id = name + '-' + number
         axios
-            .post(ENDPOINT + '/api/addpatient',{id,name,number})
+            .post(ENDPOINT + '/api/addpatient', { id, name, number })
             .then((response) => {
                 console.log(response.status)
             })
@@ -92,9 +212,9 @@ export default function DocRtc(props) {
         setShowForm(false);
     };
 
-    const callWithVideo = async(video) => {
+    const callWithVideo = async (video) => {
         await axios
-            .post(ENDPOINT + '/api/updatepatientdochos',{patientId,selectedHospital, selectedDoctor})
+            .post(ENDPOINT + '/api/updatepatientdochos', { patientId, selectedHospital, selectedDoctor })
             .then((response) => {
                 console.log(response.status)
             })
@@ -102,7 +222,7 @@ export default function DocRtc(props) {
                 console.log(err);
             });
         console.log("callWithVideo")
-        const config = { audio: true,video };
+        const config = { audio: true, video };
         startCall(true, config);
     };
 
@@ -129,21 +249,32 @@ export default function DocRtc(props) {
     const currentDoctors = doctors.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(doctors.length / itemsPerPage);
 
-    if (callWindow === 'active') {
+    if (!_.isEmpty(configRef.current)) {
         return (
             <div className='callwindowcontainer'>
-                <CallWindow
-                    status={callWindow}
-                    localSrc={localSrc}
-                    peerSrc={peerSrc}
-                    config={config}
-                    mediaDevice={peerConnection.mediaDevice}
-                    endCall={() => endCall(true)}
-                /></div>
+            <CallWindow
+                status={callWindow}
+                localSrc={localSrc}
+                peerSrc={peerSrc}
+                config={configRef.current}
+                mediaDevice={pcRef.current.mediaDevice}
+                endCall={() => endCall()}
+            />
+            </div>
         );
     }
     return (
         <>
+            {incomingTyping || requesting ? (
+                <p className="incoming-message">
+                    <div className="dots">
+                        <div className="dot" />
+                        <div className="dot" />
+                        <div className="dot" />
+                    </div>
+                </p>
+            ) : null}
+            <CallModal status={callModal} startCall={startCall} rejectCall={rejectCall} />
             {!showForm && (<div className="tablecontainer">
 
                 <div className="tablegrid">
@@ -184,14 +315,16 @@ export default function DocRtc(props) {
                                         {
                                             patientId === null && (
                                                 <>
-                                                    <button type="button" onClick={()=>{formSub();
-                                                        setDocindex(index); setSelectedDoctor(doctors[index].username);setSelectedHospital(doctors[index].hospital);  
+                                                    <button type="button" onClick={() => {
+                                                        formSub();
+                                                        setDocindex(index); setSelectedDoctor(doctors[index].username); setSelectedHospital(doctors[index].hospital);
                                                     }} className="send"
                                                     >
                                                         <Icon.Video />
                                                     </button>
-                                                    <button type="button" onClick={()=>{formSub();
-                                                        setDocindex(index); setSelectedDoctor(doctors[index].username);setSelectedHospital(doctors[index].hospital);  
+                                                    <button type="button" onClick={() => {
+                                                        formSub();
+                                                        setDocindex(index); setSelectedDoctor(doctors[index].username); setSelectedHospital(doctors[index].hospital);
                                                     }} className="send">
                                                         <Icon.PhoneCall />
                                                     </button></>)

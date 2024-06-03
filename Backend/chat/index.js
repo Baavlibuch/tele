@@ -60,6 +60,7 @@ function enterPatient(patientId, hospital, username, live_chat) {
 }
 
 function getPatientSocketById(patientId, callback) {
+	console.log("getPatientSocketByIdcalled")
 	Patient.findById(patientId, (err, patient) => {
 		if (err || !patient) callback(null);
 		else callback(patient.chat_id);
@@ -231,10 +232,13 @@ const makeChatNameSpace = (live_chat) => {
 	socket.on('request', (to) => {
 		console.log('chat.index.socket_live_chat.on.connection.socket.on.Request')
 		if (type === 'doctor') {
+			console.log('chat.index.socket_live_chat.on.connection.socket.on.Request', username)
 			getPatientSocketById(to, (patient_chat_id) => {
+				console.log(patient_chat_id);
 				if (patient_chat_id) socket.to(patient_chat_id).emit('request', username);
 			});
 		} else {
+			console.log('chat.index.socket_live_chat.on.connection.socket.on.Request', patientId)
 			getDoctorSocketById(to, (doctor_chat_id) => {
 				if (doctor_chat_id) socket.to(doctor_chat_id).emit('request', patientId);
 			});
