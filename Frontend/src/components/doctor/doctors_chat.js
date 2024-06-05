@@ -271,27 +271,29 @@ export default class Chat extends React.Component {
 		return (
 			<div id="chat-box" className="chat-box" style={loading ? { marginBottom: 0 } : {}}>
 				{chat.map(({ statement, type }) => {
-          			const chatStatement = (statement && typeof statement !== 'string') ? statement['hi'] : statement;
-						return (
-							<p
-								className={`${type}-message ${type === 'outgoing' ? 'fadeInUp' : 'fadeInRight'}`}
-								style={{ animationDelay: type === 'incoming' ? '0.6s' : '0.2s' }}
-							>
-								{(statement && statement.startsWith('chat-img')) ? (
-									<img src={'/api/images/' + statement.split('-')[2]}  alt=""/>
-								) : (
-					chatStatement
-								)}
-							</p>
-						);
+					const chatStatement = (statement && typeof statement !== 'string') ? statement['hi']
+						: statement;
+					if (!chatStatement) return null;
+					return (
+						<p
+							className={`${type}-message ${type === 'outgoing' ? 'fadeInUp' : 'fadeInRight'}`}
+							style={{ animationDelay: type === 'incoming' ? '0.6s' : '0.2s' }}
+						>
+							{(statement && statement.startsWith('chat-img')) ? (
+								<img src={'/api/images/' + statement.split('-')[2]} alt="" />
+							) : (
+								chatStatement
+							)}
+						</p>
+					);
 				})}
 
 				{incomingTyping && (
 					<p className="incoming-message">
 						<div class="dots">
-							<div class="dot"/>
-							<div class="dot"/>
-							<div class="dot"/>
+							<div class="dot" />
+							<div class="dot" />
+							<div class="dot" />
 						</div>
 					</p>
 				)}
