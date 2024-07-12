@@ -52,8 +52,8 @@ export default function DocRtc(props) {
         socketRef.current = client('/app_chat', {
             transports: ['websocket'],
             query: {
-                patientId,
-                type: 'patient'
+                type: 'patient',
+                patientId
             }
         });
 
@@ -106,7 +106,7 @@ export default function DocRtc(props) {
         });
 
         socketRef.current.on('end', (from) => {
-            if (from === selectedDocto) endCall(false);
+            if (from === selectedDoctor) endCall(false);
         });
 
         return () => {
@@ -210,17 +210,10 @@ export default function DocRtc(props) {
                 console.log(err);
             });
         setShowForm(false);
+        openReadyPopup();
     };
 
     const callWithVideo = async (video) => {
-        await axios
-            .post(ENDPOINT + '/api/updatepatientdochos', { patientId, selectedHospital, selectedDoctor })
-            .then((response) => {
-                console.log(response.status)
-            })
-            .catch((err) => {
-                console.log(err);
-            });
         console.log("callWithVideo")
         const config = { audio: true, video };
         startCall(true, config);
@@ -249,17 +242,54 @@ export default function DocRtc(props) {
     const currentDoctors = doctors.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(doctors.length / itemsPerPage);
 
+    const [readyPopupOpen, setReadyPopupOpen] = useState(false);
+    const [modePopupOpen, setModePopupOpen] = useState(false);
+
+    const openReadyPopup = () => {
+        setReadyPopupOpen(true);
+    };
+
+    const closeReadyPopup = () => {
+        setReadyPopupOpen(false);
+    };
+
+    const openModePopup = () => {
+        setModePopupOpen(true);
+    };
+
+    const closeModePopup = () => {
+        setModePopupOpen(false);
+    };
+
+    const handleYesClick = async () => {
+        await axios
+            .post(ENDPOINT + '/api/updatepatientdochos', { patientId, selectedHospital, selectedDoctor })
+            .then((response) => {
+                console.log(response.status)
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+        closeReadyPopup();
+        openModePopup();
+    };
+
+    const handleNoClick = () => {
+        closeReadyPopup();
+    };
+
+
     if (!_.isEmpty(configRef.current)) {
         return (
             <div className='callwindowcontainer'>
-            <CallWindow
-                status={callWindow}
-                localSrc={localSrc}
-                peerSrc={peerSrc}
-                config={configRef.current}
-                mediaDevice={pcRef.current.mediaDevice}
-                endCall={() => endCall()}
-            />
+                <CallWindow
+                    status={callWindow}
+                    localSrc={localSrc}
+                    peerSrc={peerSrc}
+                    config={configRef.current}
+                    mediaDevice={pcRef.current.mediaDevice}
+                    endCall={() => endCall()}
+                />
             </div>
         );
     }
@@ -275,6 +305,35 @@ export default function DocRtc(props) {
                 </p>
             ) : null}
             <CallModal status={callModal} startCall={startCall} rejectCall={rejectCall} />
+            <div>
+
+                {readyPopupOpen && (
+                    <div className="popup">
+                        <div className="popup-content">
+                            <span className="close" onClick={closeReadyPopup}>&times;</span>
+                            <p>Are you ready for the call?</p>
+                            <div className="button-container">
+                                <button onClick={handleYesClick}>Yes</button>
+                                <button onClick={handleNoClick}>No</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {modePopupOpen && (
+                    <div className="popup">
+                        <div className="popup-content">
+                            <span className="close" onClick={closeModePopup}>&times;</span>
+                            <p>{`Calling ${selectedDoctor}`}</p>
+                            <p>Select call mode:</p>
+                            <div className="button-container">
+                                <button onClick={() => { callWithVideo(false) }}>Audio</button>
+                                <button onClick={() => { callWithVideo(true) }}>Video</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
             {!showForm && (<div className="tablecontainer">
 
                 <div className="tablegrid">

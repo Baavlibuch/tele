@@ -60,7 +60,7 @@ function enterPatient(patientId, hospital, username, live_chat) {
 }
 
 function getPatientSocketById(patientId, callback) {
-	console.log("getPatientSocketByIdcalled")
+	console.log("getPatientSocketByIdcalled",patientId)
 	Patient.findById(patientId, (err, patient) => {
 		if (err || !patient) callback(null);
 		else callback(patient.chat_id);
@@ -107,16 +107,22 @@ const makeChatNameSpace = (live_chat) => {
 		});
 	}
 	else if (type === 'patient' && patientId) {
-		console.log('chat.index.socket_live_chat.on.connection.patient')
+		console.log('chat.index.socket_live_chat.on.connection.patient**',patientId)
 		Patient.findByIdAndUpdate(patientId, { $set: { chat_id: socket.id } }, (err, patient) => {
-			if (err || !patient) return socket.disconnect();
+			if (err || !patient){
+				console.log("err || !patient")
+				// return socket.disconnect();
+			} 
 			else {
 				const { doctor, hospital } = patient;
+
+				console.log("doctor",patient)
 				if (doctor) {
+					console.log("doctorAlloted",doctor)
 					socket.emit('doctorAlloted', doctor);
 					enterPatient(patientId, hospital, doctor, live_chat);
 				} else {
-					socket.disconnect();
+					// socket.disconnect();
 				}
 			}
 		});
@@ -232,13 +238,13 @@ const makeChatNameSpace = (live_chat) => {
 	socket.on('request', (to) => {
 		console.log('chat.index.socket_live_chat.on.connection.socket.on.Request')
 		if (type === 'doctor') {
-			console.log('chat.index.socket_live_chat.on.connection.socket.on.Request', username)
+			console.log('chat.index.socket_live_chat.on.connection.socket.on.Request--', username)
 			getPatientSocketById(to, (patient_chat_id) => {
 				console.log(patient_chat_id);
 				if (patient_chat_id) socket.to(patient_chat_id).emit('request', username);
 			});
 		} else {
-			console.log('chat.index.socket_live_chat.on.connection.socket.on.Request', patientId)
+			console.log('chat.index.socket_live_chat.on.connection.socket.on.Request++', patientId)
 			getDoctorSocketById(to, (doctor_chat_id) => {
 				if (doctor_chat_id) socket.to(doctor_chat_id).emit('request', patientId);
 			});

@@ -37,7 +37,10 @@ class PeerConnection extends Emitter {
 					this.pc.addTrack(track, stream);
 				});
 				this.emit('localStream', stream);
-				if (isCaller) this.socket.emit('request', this.to);
+				if (isCaller){
+					console.log("localstream.iscaller",this.to,this.socket)
+					this.socket.emit('request', this.to);
+				}
 				else this.createOffer();
 			})
 			.start(config);
