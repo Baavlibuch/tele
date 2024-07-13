@@ -111,7 +111,8 @@ const makeChatNameSpace = (live_chat) => {
 		Patient.findByIdAndUpdate(patientId, { $set: { chat_id: socket.id } }, (err, patient) => {
 			if (err || !patient){
 				console.log("err || !patient")
-				// return socket.disconnect();
+				console.log("socket.disconnect1")
+				return socket.disconnect();
 			} 
 			else {
 				const { doctor, hospital } = patient;
@@ -122,7 +123,8 @@ const makeChatNameSpace = (live_chat) => {
 					socket.emit('doctorAlloted', doctor);
 					enterPatient(patientId, hospital, doctor, live_chat);
 				} else {
-					// socket.disconnect();
+					console.log("socket.disconnect2")
+					socket.disconnect();
 				}
 			}
 		});
@@ -253,6 +255,7 @@ const makeChatNameSpace = (live_chat) => {
 
 	socket.on('call', ({ data, to }) => {
 		console.log('chat.index.socket_live_chat.on.connection.socket.on.Call')
+		// console.log("type:",type," -d ",data)
 		if (type === 'doctor') {
 			getPatientSocketById(to, (patient_chat_id) => {
 				if (patient_chat_id) socket.to(patient_chat_id).emit('call', { data, from: username });

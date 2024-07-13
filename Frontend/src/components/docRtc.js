@@ -1,15 +1,14 @@
 import axios from 'axios';
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react';
 import { ENDPOINT } from '../config';
 import * as Icon from 'react-feather';
-import CallModal from './webrtc/CallModal'
+import CallModal from './webrtc/CallModal';
 import PeerConnection from './webrtc/PeerConnection';
 import CallWindow from './webrtc/CallWindow';
 import _ from 'lodash';
 const client = require('socket.io-client');
 
 export default function DocRtc(props) {
-
     const [loading, setLoading] = useState(true);
     const [chatStarted, setChatStarted] = useState(false);
     const [patientId, setPatientId] = useState(null);
@@ -20,33 +19,29 @@ export default function DocRtc(props) {
     const [actionsReveal, setActionsReveal] = useState(false);
     const [answerBoxHidden, setAnswerBoxHidden] = useState(true);
     const [onlineUsers, setOnlineUsers] = useState([]);
-
-    // const [doctors, setDoctors] = useState([]);
     const [doctorSelected, setDoctorSelected] = useState('');
     const [callWindow, setCallWindow] = useState('');
     const [callModal, setCallModal] = useState('');
     const [localSrc, setLocalSrc] = useState(null);
     const [peerSrc, setPeerSrc] = useState(null);
-    // const [currentPage, setCurrentPage] = useState(1);
     const [config, setConfig] = useState(null);
-
     const [doctors, setDoctors] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-
     const [showForm, setShowForm] = useState(false);
     const [name, setName] = useState('');
     const [number, setNumber] = useState('');
-    const [docindex, setDocindex] = useState();
-
-    const [selectedDoctor, setSelectedDoctor] = useState(null)
-    const [selectedHospital, setSelectedHospital] = useState(null)
+    const [docIndex, setDocIndex] = useState();
+    const [selectedDoctor, setSelectedDoctor] = useState(null);
+    const [selectedHospital, setSelectedHospital] = useState(null);
+    const [readyPopupOpen, setReadyPopupOpen] = useState(false);
+    const [modePopupOpen, setModePopupOpen] = useState(false);
 
     const socketRef = useRef(null);
     const pcRef = useRef(null);
     const configRef = useRef(null);
 
     useEffect(() => {
-        console.log('connect() to doctor');
+        console.log('Connecting to doctor...');
         setRequesting(true);
 
         socketRef.current = client('/app_chat', {
@@ -57,7 +52,9 @@ export default function DocRtc(props) {
             }
         });
 
+        // Event listeners for socket.io
         socketRef.current.on('doctorAlloted', (doctor) => {
+            console.log('--doctorAlloted--');
             setAnswerBoxHidden(false);
             setRequesting(false);
             setSelectedDoctor(doctor);
@@ -110,28 +107,29 @@ export default function DocRtc(props) {
         });
 
         return () => {
+            // Clean up socket connection on unmount
             if (socketRef.current) {
                 socketRef.current.disconnect();
             }
         };
-    }, [patientId, selectedDoctor]);
+    }, [modePopupOpen]); // Dependency array to ensure effect runs on modePopupOpen change
 
     const enterMessageIntoChat = (message, type) => {
-        // Implement your function here
+        // Implement message entering logic here
+        // Example: setChat([...chat, { message, type }]);
     };
 
     const scrollDown = () => {
-        // Implement your function here
+        // Implement scroll down logic here if needed
     };
 
     const startCall = (isCaller, config) => {
         configRef.current = config;
         pcRef.current = new PeerConnection(socketRef.current, selectedDoctor)
             .on('localStream', (src) => {
-                const newState = { callWindow: 'active', localSrc: src };
+                setCallWindow('active');
+                setLocalSrc(src);
                 if (!isCaller) setCallModal('');
-                setCallWindow(newState.callWindow);
-                setLocalSrc(newState.localSrc);
             })
             .on('peerStream', (src) => setPeerSrc(src))
             .start(isCaller, config);
@@ -155,56 +153,17 @@ export default function DocRtc(props) {
         scrollDown();
     };
 
-
-    // const socketInstance = client('/app_chat', {
-    //     transports: ['websocket'],
-    //     query: {
-    //         patientId,
-    //         type: 'patient'
-    //     }
-    // });
-
-    // const peerConnection = useRef(null);
-
-    // const startCall = (isCaller, config) => {
-    //     console.log("starting call...")
-    //     setConfig(config);
-    //     peerConnection.current = new PeerConnection(socketInstance, selectedDoctor)
-    //         .on('localStream', (src) => {
-    //             const newState = { callWindow: 'active', localSrc: src };
-    //             if (!isCaller) newState.callModal = '';
-    //             setCallWindow(newState.callWindow);
-    //             setLocalSrc(newState.localSrc);
-    //             if (!isCaller) setCallModal(newState.callModal);
-    //         })
-    //         .on('peerStream', (src) => setPeerSrc(src))
-    //         .start(isCaller, config);
-    // };
-
-    // const endCall = (isStarter) => {
-    //     if (_.isFunction(peerConnection.current?.stop)) {
-    //         peerConnection.current.stop(isStarter);
-    //     }
-    //     peerConnection.current = null;
-    //     setConfig(null);
-    //     setCallWindow('');
-    //     setCallModal('');
-    //     setLocalSrc(null);
-    //     setPeerSrc(null);
-    //     // scrollDown(); // Assuming you have a scrollDown function
-    // };
-
     const formSub = () => {
         setShowForm(true);
-    }
+    };
+
     const handleStartCall = () => {
-        setPatientId(name + '-' + number)
-        console.log(name + '-' + number)
-        let id = name + '-' + number
+        const id = name + '-' + number;
+        setPatientId(id);
         axios
             .post(ENDPOINT + '/api/addpatient', { id, name, number })
             .then((response) => {
-                console.log(response.status)
+                console.log(response.status);
             })
             .catch((err) => {
                 console.log(err);
@@ -214,7 +173,6 @@ export default function DocRtc(props) {
     };
 
     const callWithVideo = async (video) => {
-        console.log("callWithVideo")
         const config = { audio: true, video };
         startCall(true, config);
     };
@@ -236,14 +194,12 @@ export default function DocRtc(props) {
                 console.log(err);
             });
     };
+
     const itemsPerPage = 25;
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentDoctors = doctors.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(doctors.length / itemsPerPage);
-
-    const [readyPopupOpen, setReadyPopupOpen] = useState(false);
-    const [modePopupOpen, setModePopupOpen] = useState(false);
 
     const openReadyPopup = () => {
         setReadyPopupOpen(true);
@@ -265,7 +221,7 @@ export default function DocRtc(props) {
         await axios
             .post(ENDPOINT + '/api/updatepatientdochos', { patientId, selectedHospital, selectedDoctor })
             .then((response) => {
-                console.log(response.status)
+                console.log(response.status);
             })
             .catch((err) => {
                 console.log(err);
@@ -278,21 +234,6 @@ export default function DocRtc(props) {
         closeReadyPopup();
     };
 
-
-    if (!_.isEmpty(configRef.current)) {
-        return (
-            <div className='callwindowcontainer'>
-                <CallWindow
-                    status={callWindow}
-                    localSrc={localSrc}
-                    peerSrc={peerSrc}
-                    config={configRef.current}
-                    mediaDevice={pcRef.current.mediaDevice}
-                    endCall={() => endCall()}
-                />
-            </div>
-        );
-    }
     return (
         <>
             {incomingTyping || requesting ? (
@@ -306,7 +247,6 @@ export default function DocRtc(props) {
             ) : null}
             <CallModal status={callModal} startCall={startCall} rejectCall={rejectCall} />
             <div>
-
                 {readyPopupOpen && (
                     <div className="popup">
                         <div className="popup-content">
@@ -324,77 +264,80 @@ export default function DocRtc(props) {
                     <div className="popup">
                         <div className="popup-content">
                             <span className="close" onClick={closeModePopup}>&times;</span>
-                            <p>{`Calling ${selectedDoctor}`}</p>
+                            <p>{`Calling ...`}</p>
                             <p>Select call mode:</p>
                             <div className="button-container">
-                                <button onClick={() => { callWithVideo(false) }}>Audio</button>
-                                <button onClick={() => { callWithVideo(true) }}>Video</button>
+                                <button onClick={() => callWithVideo(false)}>Audio</button>
+                                <button onClick={() => callWithVideo(true)}>Video</button>
                             </div>
                         </div>
                     </div>
                 )}
             </div>
-            {!showForm && (<div className="tablecontainer">
-
-                <div className="tablegrid">
-                    <div className="tablehead">
-                        <div className='htext'>NAME</div>
-                        <div className='htext'>STATUS</div>
-                        <div className='htext'>CALL</div>
-                    </div>
-                    {
-                        currentDoctors.map((doc, index) => {
-                            return (
-
-                                <div key={index} className={`${docindex === index ? "active-tablerow" : "tablerow"}`}>
+            {!showForm && (
+                <div className="tablecontainer">
+                    <div className="tablegrid">
+                        <div className="tablehead">
+                            <div className='htext'>NAME</div>
+                            <div className='htext'>STATUS</div>
+                            <div className='htext'>CALL</div>
+                        </div>
+                        {
+                            currentDoctors.map((doc, index) => (
+                                <div key={index} className={`${docIndex === index ? "active-tablerow" : "tablerow"}`}>
                                     <div className="ctext">{doc.name}</div>
-                                    <div className="ctext">{
-                                        doc.attending
-                                            === '' ? (
-                                            <div className='ofcontainer'><div className='gdot'></div><div className='oftext'>online</div></div>
-                                        )
-                                            :
-                                            (
-                                                <div className='ofcontainer'><div className='rdot'></div><div className='oftext'>offline</div></div>
-                                            )
-
-                                    }
+                                    <div className="ctext">
+                                        {doc.attending === '' ? (
+                                            <div className='ofcontainer'>
+                                                <div className='gdot'></div>
+                                                <div className='oftext'>online</div>
+                                            </div>
+                                        ) : (
+                                            <div className='ofcontainer'>
+                                                <div className='rdot'></div>
+                                                <div className='oftext'>offline</div>
+                                            </div>
+                                        )}
                                     </div>
-                                    <div className="ctextq">
-                                        {
-                                            patientId !== null && (
+                                    {doc.attending === '' && (
+                                        <div className="ctextq">
+                                            {patientId !== null ? (
                                                 <>
-                                                    <button type="button" onClick={() => { callWithVideo(true); }} className="send">
+                                                    <button type="button" onClick={() => callWithVideo(true)} className="send">
                                                         <Icon.Video />
                                                     </button>
-                                                    <button type="button" onClick={() => { callWithVideo(false); }} className="send">
+                                                    <button type="button" onClick={() => callWithVideo(false)} className="send">
                                                         <Icon.PhoneCall />
-                                                    </button></>)
-                                        }
-                                        {
-                                            patientId === null && (
+                                                    </button>
+                                                </>
+                                            ) : (
                                                 <>
                                                     <button type="button" onClick={() => {
                                                         formSub();
-                                                        setDocindex(index); setSelectedDoctor(doctors[index].username); setSelectedHospital(doctors[index].hospital);
-                                                    }} className="send"
-                                                    >
+                                                        setDocIndex(index);
+                                                        setSelectedDoctor(doctors[index].username);
+                                                        setSelectedHospital(doctors[index].hospital);
+                                                    }} className="send">
                                                         <Icon.Video />
                                                     </button>
                                                     <button type="button" onClick={() => {
                                                         formSub();
-                                                        setDocindex(index); setSelectedDoctor(doctors[index].username); setSelectedHospital(doctors[index].hospital);
+                                                        setDocIndex(index);
+                                                        setSelectedDoctor(doctors[index].username);
+                                                        setSelectedHospital(doctors[index].hospital);
                                                     }} className="send">
                                                         <Icon.PhoneCall />
-                                                    </button></>)
-                                        }
-                                    </div>
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
-                            )
-                        })
-                    }
+                            ))
+                        }
+                    </div>
                 </div>
-            </div>)}
+            )}
             {showForm && (
                 <div className="form">
                     <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
@@ -413,6 +356,18 @@ export default function DocRtc(props) {
                     </button>
                 ))}
             </div>
+            {configRef.current && (
+                <div className='callwindowcontainer'>
+                    <CallWindow
+                        status={callWindow}
+                        localSrc={localSrc}
+                        peerSrc={peerSrc}
+                        config={configRef.current}
+                        mediaDevice={pcRef.current.mediaDevice}
+                        endCall={() => endCall()}
+                    />
+                </div>
+            )}
         </>
     );
 }
