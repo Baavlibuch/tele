@@ -50,9 +50,22 @@ export default class Chat extends React.Component {
 	}
 
 	componentWillReceiveProps(props) {
-		const { patient } = props;
+		const { patient, callStarted } = props;
 		if (this.state.patient !== patient && this.socket) {
 			this.socket.emit('changePatient', patient);
+		}
+
+	}
+	componentDidUpdate(prevProps) {
+		const { callStarted, patient } = this.props;
+		const { callStarted: prevCallStarted } = prevProps;
+	
+		if (callStarted !== prevCallStarted) {
+			console.log("Call Started has changed to:", callStarted);
+			if(callStarted){
+				console.log(patient)
+				// this.beginCheckupsBtn();
+			}
 		}
 	}
 
@@ -423,6 +436,19 @@ export default class Chat extends React.Component {
 		);
 	};
 
+	beginCheckupsBtn=()=>{
+		this.setState({
+			chatStarted: true,
+			chat: [
+				{
+					statement: 'हम आपके परामर्श के लिए रोगियों को खोज रहे हैं',
+					type: 'incoming'
+				}
+			]
+		});
+		this.connect();
+	}
+
 	render() {
 		const { patientId, chatStarted } = this.state;
 		const { callWindow, localSrc, peerSrc } = this.state;
@@ -433,48 +459,41 @@ export default class Chat extends React.Component {
 					<button
 						className="start is-green"
 						onClick={() => {
-							this.setState({
-								chatStarted: true,
-								chat: [
-									{
-										statement: 'हम आपके परामर्श के लिए रोगियों को खोज रहे हैं',
-										type: 'incoming'
-									}
-								]
-							});
-							this.connect();
+							this.beginCheckupsBtn();
 						}}
 					>
 						Begin checkups
 					</button>
 				</div>
-			);
-
-		if (!_.isEmpty(this.config)) {
-			return (
-				<CallWindow
-					status={callWindow}
-					localSrc={localSrc}
-					peerSrc={peerSrc}
-					config={this.config}
-					mediaDevice={this.pc.mediaDevice}
-					endCall={this.endCall}
-				/>
-			);
-		}
+		);
 		return (
-			<div className="Chat fadeInUp" style={{ animationDelay: '0.7s', marginBottom: '8rem' }}>
-				{patientId ? (
-					<>
-						<h6 style={{ margin: 0, marginBottom: 6 }}>{patientId}</h6>
-						<button className="close-icon" onClick={this.disconnectUser}>
-							<Icon.XCircle />
-						</button>
-					</>
-				) : null}
-				{this.renderChat()}
-				{this.renderAnswers()}
-				{patientId && this.renderActions()}
+			<div className='container-chat-callWindow'>
+
+				<div className="Chat fadeInUp" style={{ animationDelay: '0.7s', marginBottom: '8rem' }}>
+					{patientId ? (
+						<>
+							<h6 style={{ margin: 0, marginBottom: 6 }}>{patientId}</h6>
+							<button className="close-icon" onClick={this.disconnectUser}>
+								<Icon.XCircle />
+							</button>
+						</>
+					) : null}
+					{this.renderChat()}
+					{this.renderAnswers()}
+					{patientId && this.renderActions()}
+				</div>
+				{!_.isEmpty(this.config) &&
+					<div className='callwindowcontainer2'>
+						<CallWindow
+							status={callWindow}
+							localSrc={localSrc}
+							peerSrc={peerSrc}
+							config={this.config}
+							mediaDevice={this.pc.mediaDevice}
+							endCall={this.endCall}
+						/>
+					</div>
+				}
 			</div>
 		);
 	}

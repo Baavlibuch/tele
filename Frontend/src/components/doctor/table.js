@@ -8,6 +8,7 @@ import Row from './row';
 function Table({ username, changePatient }) {
 	const [patients, setPatients] = useState([]);
 	const [page, setPage] = useState(1);
+	const rowsPerPage = 10;
 
 	useEffect(() => {
 		const timer = setInterval(() => {
@@ -31,6 +32,7 @@ function Table({ username, changePatient }) {
 	};
 	// make a axios call every 1min
 	// setInterval(getPatients, 60 * 1000);
+	const displayedPatients = patients.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
 	return (
 		<table className="table fadeInUp" style={{ animationDelay: '1s' }}>

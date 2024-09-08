@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 // import axios from 'axios';
 // import { ENDPOINT } from '../config';
 // import LazyLoad from 'react-lazy-load';
@@ -34,7 +34,11 @@ function Home() {
 
 	console.log("home.js.  HOME()")
 	register(null);
-	
+
+	const[doctor,setDoctor]=useState("");
+	const[patient,setPatient]=useState("");
+	const[trigger,setTrigger]=useState(false);
+	const [socketRef, setSocketRef] = useState(null);
 	return (
 		<div className="Home">
 			<div className="home-left">
@@ -47,13 +51,13 @@ function Home() {
 					</div>
 				</div>
 
-				<Chat />
+				<Chat trigger={trigger} selectedDoctor={doctor} PatientID={patient} setSocketRef={setSocketRef}/>
 			</div>
 
 			<div className="home-right" style={{alignItems: "center"}}>
 				<div onClick={install} className="buttonAction">Install</div>
 				<div className="header fadeInUp" style={{ animationDelay: '0.5s' }}>
-				<DocRtc/>
+				<DocRtc setTrigger={setTrigger} setDoctor={setDoctor} setPatient={setPatient} socketRef={socketRef}/>
 				</div>
         {/*<div className="helpline fadeInUp" style={{ animationDelay: '0.5s' }}>*/}
           <div className="row">

@@ -421,7 +421,7 @@ router.get('/questions', (req, res) => {
  */
 router.get('/patient-list', authenticate, (req, res) => {
 	const { page } = req.query;
-	const pageSize = 30;
+	const pageSize = 10;
 	const { username: doctor } = req.user;
 	Patient.find(
 		{ doctor },
@@ -541,11 +541,16 @@ router.post('/updatepatientdochos', async (req, res) => {
             { $set: { hospital: selectedHospital, doctor: selectedDoctor } },
             { new: true, runValidators: true }
         );
+		// const updatedDoctor = await Doctor.findOneAndUpdate(
+        //     { username: selectedDoctor },  // Find by doctor name instead of ObjectId
+        //     { $set: { attending: patientId } },
+        //     { new: true, runValidators: true }
+        // );
 
-        if (!updatedPatient) {
+        if (!updatedPatient && !updatedDoctor) {
             return res.status(404).json({ success: false, message: 'Patient not found' });
         }
-
+		
         res.status(200).json({ success: true, message: 'Patient updated successfully', patient: updatedPatient });
     } catch (err) {
         console.error('Error:', err);

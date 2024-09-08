@@ -35,84 +35,98 @@ export default function DocRtc(props) {
     const [selectedHospital, setSelectedHospital] = useState(null);
     const [readyPopupOpen, setReadyPopupOpen] = useState(false);
     const [modePopupOpen, setModePopupOpen] = useState(false);
-
-    const socketRef = useRef(null);
+    const {setDoctor,setPatient,socketRef,setTrigger}=props
+    // const socketRef = useRef(null);
     const pcRef = useRef(null);
     const configRef = useRef(null);
 
-    useEffect(() => {
-        console.log('Connecting to doctor...');
-        setRequesting(true);
+    // useEffect(() => {
+        // console.log('Connecting to doctor...');
+        // setRequesting(true);
 
-        socketRef.current = client('/app_chat', {
-            transports: ['websocket'],
-            query: {
-                type: 'patient',
-                patientId
-            }
-        });
+        // socketRef.current = client('/app_chat', {
+        //     transports: ['websocket'],
+        //     query: {
+        //         type: 'patient',
+        //         patientId
+        //     }
+        // });
 
-        // Event listeners for socket.io
-        socketRef.current.on('doctorAlloted', (doctor) => {
-            console.log('--doctorAlloted--');
-            setAnswerBoxHidden(false);
-            setRequesting(false);
-            setSelectedDoctor(doctor);
-        });
+        // setSocketRef(socketRef.current);
 
-        socketRef.current.on('onlineUsers', (onlineUsers) => {
-            setOnlineUsers(onlineUsers);
-        });
+        // // Event listeners for socket.io
+        // socketRef.current.on('doctorAlloted', (doctor) => {
+        //     console.log("docrtc function")
+        //     console.log('--doctorAlloted--');
+        //     setAnswerBoxHidden(false);
+        //     setRequesting(false);
+        //     setSelectedDoctor(doctor);
+        //     setDoctor(doctor)
+        // });
 
-        socketRef.current.on('message', ({ message, from }) => {
-            if (from === selectedDoctor) {
-                setIncomingTyping(false);
-                enterMessageIntoChat(message, 'incoming');
-            }
-        });
+        // socketRef.current.on('onlineUsers', (onlineUsers) => {
+        //     console.log("docrtc function")
+        //     setOnlineUsers(onlineUsers);
+        // });
 
-        socketRef.current.on('typingChange', ({ state, from }) => {
-            if (from === selectedDoctor) {
-                setIncomingTyping(state);
-                scrollDown();
-            }
-        });
+        // // socketRef.current.on('message', ({ message, from }) => {
+        // //     console.log("docrtc function")
 
-        socketRef.current.on('referUser', (doctor) => {
-            endCall(false);
-            setSelectedDoctor(doctor);
-            setAnswerBoxHidden(true);
-        });
+        // //     if (from === selectedDoctor) {
+        // //         setIncomingTyping(false);
+        // //         enterMessageIntoChat(message, 'incoming');
+        // //     }
+        // // });
 
-        socketRef.current.on('request', (from) => {
-            if (from === selectedDoctor) {
-                setCallModal('active');
-                scrollDown();
-            }
-        });
+        // // socketRef.current.on('typingChange', ({ state, from }) => {
+        // //     console.log("docrtc function")
+        // //     if (from === selectedDoctor) {
+        // //         setIncomingTyping(state);
+        // //         scrollDown();
+        // //     }
+        // // });
 
-        socketRef.current.on('call', ({ data, from }) => {
-            if (from === selectedDoctor) {
-                if (data.sdp) {
-                    pcRef.current.setRemoteDescription(data.sdp);
-                    if (data.sdp.type === 'offer') pcRef.current.createAnswer();
-                } else {
-                    pcRef.current.addIceCandidate(data.candidate);
-                }
-            }
-        });
+        // socketRef.current.on('referUser', (doctor) => {
+        //     console.log("docrtc function")
+        //     endCall(false);
+        //     setSelectedDoctor(doctor);
+        //     setDoctor(doctor);
+        //     setAnswerBoxHidden(true);
+        // });
 
-        socketRef.current.on('end', (from) => {
-            if (from === selectedDoctor) endCall(false);
-        });
+        // socketRef.current.on('request', (from) => {
+        //     console.log("docrtc function")
+        //     if (from === selectedDoctor) {
+        //         setCallModal('active');
+        //         scrollDown();
+        //     }
+        // });
 
-        return () => {
-            // Clean up socket connection on unmount
-            if (socketRef.current) {
-                socketRef.current.disconnect();
-            }
-        };
-    }, [modePopupOpen]); // Dependency array to ensure effect runs on modePopupOpen change
+        // socketRef.current.on('call', ({ data, from }) => {
+        //     console.log("docrtc function")
+        //     if (from === selectedDoctor) {
+        //         if (data.sdp) {
+        //             pcRef.current.setRemoteDescription(data.sdp);
+        //             if (data.sdp.type === 'offer') pcRef.current.createAnswer();
+        //         } else {
+        //             pcRef.current.addIceCandidate(data.candidate);
+        //         }
+        //     }
+        // });
+
+        // socketRef.current.on('end', (from) => {
+        //     console.log("docrtc function")
+        //     if (from === selectedDoctor) endCall(false);
+        // });
+
+        // return () => {
+        //     // Clean up socket connection on unmount
+        //     if (socketRef.current) {
+        //         socketRef.current.disconnect();
+        //     }
+        //     setSocketRef(null);
+        // };
+    // }, [modePopupOpen]);
 
     const enterMessageIntoChat = (message, type) => {
         // Implement message entering logic here
@@ -125,7 +139,7 @@ export default function DocRtc(props) {
 
     const startCall = (isCaller, config) => {
         configRef.current = config;
-        pcRef.current = new PeerConnection(socketRef.current, selectedDoctor)
+        pcRef.current = new PeerConnection(socketRef, selectedDoctor)
             .on('localStream', (src) => {
                 setCallWindow('active');
                 setLocalSrc(src);
@@ -136,7 +150,7 @@ export default function DocRtc(props) {
     };
 
     const rejectCall = () => {
-        socketRef.current.emit('end', selectedDoctor);
+        socketRef.emit('end', selectedDoctor);
         setCallModal('');
     };
 
@@ -160,6 +174,7 @@ export default function DocRtc(props) {
     const handleStartCall = () => {
         const id = name + '-' + number;
         setPatientId(id);
+        setPatient(id);
         axios
             .post(ENDPOINT + '/api/addpatient', { id, name, number })
             .then((response) => {
@@ -173,8 +188,9 @@ export default function DocRtc(props) {
     };
 
     const callWithVideo = async (video) => {
-        const config = { audio: true, video };
-        startCall(true, config);
+        // const config = { audio: true, video };
+        // startCall(true, config);
+        closeModePopup();
     };
 
     useEffect(() => {
@@ -226,6 +242,7 @@ export default function DocRtc(props) {
             .catch((err) => {
                 console.log(err);
             });
+        setTrigger(prev => !prev); 
         closeReadyPopup();
         openModePopup();
     };
@@ -251,7 +268,7 @@ export default function DocRtc(props) {
                     <div className="popup">
                         <div className="popup-content">
                             <span className="close" onClick={closeReadyPopup}>&times;</span>
-                            <p>Are you ready for the call?</p>
+                            <p>{`Do You want to call ${selectedDoctor} ?`}</p>
                             <div className="button-container">
                                 <button onClick={handleYesClick}>Yes</button>
                                 <button onClick={handleNoClick}>No</button>
@@ -264,11 +281,11 @@ export default function DocRtc(props) {
                     <div className="popup">
                         <div className="popup-content">
                             <span className="close" onClick={closeModePopup}>&times;</span>
-                            <p>{`Calling ...`}</p>
-                            <p>Select call mode:</p>
+                            {/* <p>{`Calling ...`}</p> */}
+                            <p>Select call Options from chatbot</p>
                             <div className="button-container">
-                                <button onClick={() => callWithVideo(false)}>Audio</button>
-                                <button onClick={() => callWithVideo(true)}>Video</button>
+                                <button onClick={() => callWithVideo(false)}>Okay</button>
+                                {/* <button onClick={() => callWithVideo(true)}>Video</button> */}
                             </div>
                         </div>
                     </div>
@@ -316,6 +333,7 @@ export default function DocRtc(props) {
                                                         formSub();
                                                         setDocIndex(index);
                                                         setSelectedDoctor(doctors[index].username);
+                                                        setDoctor(doctors[index].username)
                                                         setSelectedHospital(doctors[index].hospital);
                                                     }} className="send">
                                                         <Icon.Video />
@@ -324,6 +342,7 @@ export default function DocRtc(props) {
                                                         formSub();
                                                         setDocIndex(index);
                                                         setSelectedDoctor(doctors[index].username);
+                                                        setDoctor(doctors[index].username)
                                                         setSelectedHospital(doctors[index].hospital);
                                                     }} className="send">
                                                         <Icon.PhoneCall />

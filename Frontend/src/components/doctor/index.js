@@ -33,7 +33,9 @@ class Doctor extends React.Component {
             onlineUsers: [],
             error: '',
             answerBoxHidden: true,
-            patientId: null
+            patientId: null,
+            oncall: false,
+            callStarted: false
         };
 
         this.configRef = null;
@@ -82,6 +84,7 @@ class Doctor extends React.Component {
 
         this.socketRef.on('userAlloted', ({ patientId, chat }) => {
             console.log("useralloted", patientId);
+            // this.setState({oncall:true})
             if (patientId && chat)
                 this.setState(
                     {
@@ -156,6 +159,7 @@ class Doctor extends React.Component {
 
         this.socketRef.on('end', (from) => {
             if (from === this.state.patientId) this.endCall(false);
+            // this.setState({oncall:false})
         });
     }
 
@@ -177,6 +181,9 @@ class Doctor extends React.Component {
     }
 
     endCall(isStarter) {
+        this.setState({ callStarted: false }, () => {
+            console.log("afterclick", this.state.callStarted);
+        });
         if (this.pcRef && typeof this.pcRef.stop === 'function') {
             this.pcRef.stop(isStarter);
         }
@@ -257,8 +264,16 @@ class Doctor extends React.Component {
         this.setState({ [id]: value });
     }
 
+    setchatStarted = () => {
+        this.setState({ callStarted: true }, () => {
+            console.log("afterclick", this.state.callStarted);
+        });
+    };
+
+
+
     render() {
-        const { loggedin, username, password, error, loading, patient, callWindow, localSrc, peerSrc, incomingTyping, requesting, callModal } = this.state;
+        const { loggedin, username, password, error, loading, patient, callWindow, localSrc, peerSrc, incomingTyping, requesting, callModal, callStarted } = this.state;
 
         if (!loggedin) {
             return (
@@ -297,21 +312,6 @@ class Doctor extends React.Component {
             );
         }
 
-        if (!_.isEmpty(this.configRef)) {
-            return (
-                <div className='callwindowcontainernr'>
-                    <CallWindow
-                        status={callWindow}
-                        localSrc={localSrc}
-                        peerSrc={peerSrc}
-                        config={this.configRef}
-                        mediaDevice={this.pcRef?.mediaDevice}
-                        endCall={() => this.endCall()}
-                    />
-                </div>
-            );
-        }
-
         return (
             <div className="Home">
                 <div className="home-left">
@@ -323,12 +323,37 @@ class Doctor extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <Chat username={username} changePatient={this.changePatient} patient={patient} />
+                    <Chat callStarted={callStarted} username={username} changePatient={this.changePatient} patient={patient} socket={this.socketRef} />
                 </div>
                 <div className="home-right" style={{ alignItems: 'center' }}>
                     <div onClick={() => (window.location.href = '/doctor-persona')} className="buttonAction">
                         Persona
                     </div>
+                    {incomingTyping || requesting ? (
+                        <p className="incoming-message">
+                            <div className="dots">
+                                <div className="dot" />
+                                <div className="dot" />
+                                <div className="dot" />
+                            </div>
+                        </p>
+                    ) : null}
+                    <CallModal chatStarted={this.setchatStarted} status={callModal} startCall={this.startCall} rejectCall={this.rejectCall} />
+                    {!_.isEmpty(this.configRef) ?
+                        <div className='callwindowcontainer3'>
+                            <CallWindow
+                                status={callWindow}
+                                localSrc={localSrc}
+                                peerSrc={peerSrc}
+                                config={this.configRef}
+                                mediaDevice={this.pcRef?.mediaDevice}
+                                endCall={() => this.endCall()}
+                            />
+                        </div>
+                        :
+                        <Table username={username} changePatient={this.changePatient} />
+                    }
+                    {/* {!this.oncall && <Table username={username} changePatient={this.changePatient} />} */}
                     <form onSubmit={this.logout} className="login-form fadeInUp">
                         <p>{error}</p>
                         <button
@@ -339,17 +364,6 @@ class Doctor extends React.Component {
                             Logout
                         </button>
                     </form>
-                    {incomingTyping || requesting ? (
-                        <p className="incoming-message">
-                            <div className="dots">
-                                <div className="dot" />
-                                <div className="dot" />
-                                <div className="dot" />
-                            </div>
-                        </p>
-                    ) : null}
-                    <CallModal status={callModal} startCall={this.startCall} rejectCall={this.rejectCall} />
-                    <Table username={username} changePatient={this.changePatient} />
                 </div>
             </div>
         );

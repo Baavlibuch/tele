@@ -2,7 +2,7 @@ import React from 'react';
 import * as Icon from 'react-feather';
 import PropTypes from 'prop-types';
 
-function CallModal({ status, startCall, rejectCall }) {
+function CallModal({ status, startCall, rejectCall, chatStarted }) {
 	const [reveal, setReveal] = React.useState(status);
 
 	React.useEffect(() => {
@@ -10,8 +10,14 @@ function CallModal({ status, startCall, rejectCall }) {
 	}, [status]);
 
 	const acceptWithVideo = (video) => {
-		const config = { audio: true, video };
-		return () => startCall(false, config);
+		return () => {
+			if (typeof chatStarted === 'function') {
+				chatStarted();
+			}
+			console.log("chat started clicked")
+			const config = { audio: true, video };
+			startCall(false, config);
+		};
 	};
 
 	if (!reveal) return null;
@@ -31,6 +37,7 @@ function CallModal({ status, startCall, rejectCall }) {
 		</div>
 	);
 }
+
 
 CallModal.propTypes = {
 	status: PropTypes.string.isRequired,

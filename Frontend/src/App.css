@@ -318,8 +318,8 @@ h6 {
 .call-window {
   position: fixed;
   top: 0;
-  left: 0;
-  width: 100vw;
+  right: 0;
+  width: 52vw;
   height: 100vh;
   opacity: 1;
   z-index: 1;
