@@ -264,13 +264,11 @@ class Doctor extends React.Component {
         this.setState({ [id]: value });
     }
 
-    setchatStarted = () => {
-        this.setState({ callStarted: true }, () => {
+    setchatStarted = (value) => {
+        this.setState({ callStarted: value }, () => {
             console.log("afterclick", this.state.callStarted);
         });
     };
-
-
 
     render() {
         const { loggedin, username, password, error, loading, patient, callWindow, localSrc, peerSrc, incomingTyping, requesting, callModal, callStarted } = this.state;
@@ -323,7 +321,7 @@ class Doctor extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <Chat callStarted={callStarted} username={username} changePatient={this.changePatient} patient={patient} socket={this.socketRef} />
+                    <Chat callStarted={callStarted} setchatStarted={this.setchatStarted} username={username} changePatient={this.changePatient} patient={patient} socket={this.socketRef} />
                 </div>
                 <div className="home-right" style={{ alignItems: 'center' }}>
                     <div onClick={() => (window.location.href = '/doctor-persona')} className="buttonAction">
@@ -339,7 +337,7 @@ class Doctor extends React.Component {
                         </p>
                     ) : null}
                     <CallModal chatStarted={this.setchatStarted} status={callModal} startCall={this.startCall} rejectCall={this.rejectCall} />
-                    {!_.isEmpty(this.configRef) ?
+                    {/* {!_.isEmpty(this.configRef) &&
                         <div className='callwindowcontainer3'>
                             <CallWindow
                                 status={callWindow}
@@ -349,11 +347,8 @@ class Doctor extends React.Component {
                                 mediaDevice={this.pcRef?.mediaDevice}
                                 endCall={() => this.endCall()}
                             />
-                        </div>
-                        :
-                        <Table username={username} changePatient={this.changePatient} />
-                    }
-                    {/* {!this.oncall && <Table username={username} changePatient={this.changePatient} />} */}
+                        </div>} */}
+                    {!callStarted&&<Table username={username} changePatient={this.changePatient} />}
                     <form onSubmit={this.logout} className="login-form fadeInUp">
                         <p>{error}</p>
                         <button

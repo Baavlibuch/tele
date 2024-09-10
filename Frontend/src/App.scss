@@ -3075,13 +3075,13 @@ height: 87vh;
   display: flex;
 }
 .container-chat-callWindow{
-  width: 100vw;
+  width: 90vw;
   .callwindowcontainer2{
-    width: 100vw;
+    // width: 100vw;
     .call-window{
       position: relative;
-      width: 500px;
-      height: 700px;
+      width: 45vw;
+      height: 90vh;
       .video-control{
         position: absolute;
         bottom: 0;

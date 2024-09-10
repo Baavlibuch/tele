@@ -186,6 +186,7 @@ export default class Chat extends React.Component {
 			})
 			.on('peerStream', (src) => this.setState({ peerSrc: src }))
 			.start(isCaller, config);
+		this.props.setchatStarted(true);
 	};
 
 	rejectCall = () => {
@@ -209,6 +210,7 @@ export default class Chat extends React.Component {
 			},
 			this.scrollDown
 		);
+		this.props.setchatStarted(false);
 	};
 
 	disconnectUser = () => {
