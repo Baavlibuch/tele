@@ -59,10 +59,10 @@ export default class Chat extends React.Component {
 	componentDidUpdate(prevProps) {
 		const { callStarted, patient } = this.props;
 		const { callStarted: prevCallStarted } = prevProps;
-	
+
 		if (callStarted !== prevCallStarted) {
 			console.log("Call Started has changed to:", callStarted);
-			if(callStarted){
+			if (callStarted) {
 				console.log(patient)
 				// this.beginCheckupsBtn();
 			}
@@ -285,35 +285,44 @@ export default class Chat extends React.Component {
 
 		return (
 			<div id="chat-box" className="chat-box" style={loading ? { marginBottom: 0 } : {}}>
-				{chat.map(({ statement, type }) => {
-					const chatStatement = (statement && typeof statement !== 'string') ? statement['hi']
-						: statement;
-					if (!chatStatement) return null;
-					return (
-						<p
-							className={`${type}-message ${type === 'outgoing' ? 'fadeInUp' : 'fadeInRight'}`}
-							style={{ animationDelay: type === 'incoming' ? '0.6s' : '0.2s' }}
-						>
-							{(statement && statement.startsWith('chat-img')) ? (
-								<img src={'/api/images/' + statement.split('-')[2]} alt="" />
-							) : (
-								chatStatement
-							)}
-						</p>
-					);
-				})}
+				{chat.length === 0 ? (
+					<p className="no-messages">No messages were shared</p>
+				) : chat.every(({ statement }) => statement === undefined) ? (
+					<p className="no-messages">No messages were shared</p>
+				) : (
+					chat.map(({ statement, type }, index) => {
+						const chatStatement = (statement && typeof statement !== 'string') ? statement['hi'] : statement;
+						if (!chatStatement) return null;
+
+						return (
+							<p
+								key={index}
+								className={`${type}-message ${type === 'outgoing' ? 'fadeInUp' : 'fadeInRight'}`}
+								style={{ animationDelay: type === 'incoming' ? '0.6s' : '0.2s' }}
+							>
+								{(statement && statement.startsWith('chat-img')) ? (
+									<img src={'/api/images/' + statement.split('-')[2]} alt="" />
+								) : (
+									chatStatement
+								)}
+							</p>
+						);
+					})
+				)}
 
 				{incomingTyping && (
 					<p className="incoming-message">
-						<div class="dots">
-							<div class="dot" />
-							<div class="dot" />
-							<div class="dot" />
+						<div className="dots">
+							<div className="dot" />
+							<div className="dot" />
+							<div className="dot" />
 						</div>
 					</p>
 				)}
+
 				<CallModal status={callModal} startCall={this.startCall} rejectCall={this.rejectCall} />
 			</div>
+
 		);
 	};
 
@@ -438,7 +447,7 @@ export default class Chat extends React.Component {
 		);
 	};
 
-	beginCheckupsBtn=()=>{
+	beginCheckupsBtn = () => {
 		this.setState({
 			chatStarted: true,
 			chat: [
@@ -467,7 +476,7 @@ export default class Chat extends React.Component {
 						Begin checkups
 					</button>
 				</div>
-		);
+			);
 		return (
 			<div className='container-chat-callWindow'>
 

@@ -53,7 +53,7 @@ function Row(props) {
 	// 	console.log(key + ' | ' + patientCopy[key]);
 	// 	console.log(key + ' | ' + JSON.stringify(getObjByID(patient.timestamps, key)));
 	// }
-
+	const filteredKeys = ['symptoms', 'latitude', 'longitude', 'doctor', 'Last Visited', 'Registered'];
 	return (
 		<React.Fragment>
 			<span
@@ -66,7 +66,7 @@ function Row(props) {
 			</span>
 			<tr
 				className={props.total ? 'patient is-total' : 'patient'}
-				className={props.total ? 'is-total' : ''}
+				// className={props.total ? 'is-total' : ''}
 				onClick={() => {
 					handleReveal();
 				}}
@@ -79,7 +79,7 @@ function Row(props) {
 				</td>
 				<td style={{ color: '#B5B5B5' }}>{patient.age}</td>
 				<td style={{ color: '#B5B5B5' }}>{patient.gender}</td>
-				<td style={{ color: '#B5B5B5' }}>{patient.type}</td>
+				{/* <td style={{ color: '#B5B5B5' }}>{patient.type}</td> */}
 			</tr>
 
 			<tr className={`spacer`} style={{ display: reveal && !props.total ? '' : 'none' }}>
@@ -88,7 +88,7 @@ function Row(props) {
 				<td/>
 			</tr>
 
-			{sortedkeys.map((dataKey, index) => {
+			{filteredKeys.map((dataKey, index) => {
 				return (
 					<tr
 						key={index}

@@ -50,7 +50,8 @@ const SessionSchema = new Schema(
     patient_id: String,
     temp_patient: [],
     message_history_stack: [String],
-    topics_stack: []
+    topics_stack: [],
+    answers: Schema.Types.Mixed
   }
 );
 

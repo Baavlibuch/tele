@@ -66,17 +66,17 @@ function Table({ username, changePatient }) {
 					<th>
 						<div className="heading-content">
 							<abbr className={`${window.innerWidth <= 769 ? 'is-green' : ''}`} title="Gender">
-								{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'G' : 'Gen') : 'Gender'}
+								{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'G' : 'Gen') : 'Sex'}
 							</abbr>
 						</div>
 					</th>
-					<th>
+					{/* <th>
 						<div className="heading-content">
 							<abbr className={`${window.innerWidth <= 769 ? 'is-gray' : ''}`} title="Type">
 								{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'T' : 'Typ') : 'Type'}
 							</abbr>
 						</div>
-					</th>
+					</th> */}
 				</tr>
 			</thead>
 

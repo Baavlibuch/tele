@@ -16,6 +16,8 @@ function Row(props) {
 	const [reveal, setReveal] = useState(false);
 	const [editing, setEditing] = useState(props.doctor._id ? false : true);
 
+
+
 	useEffect(() => {
 		setDoctor(props.doctor);
 		setUsername(props.doctor.username);
@@ -47,7 +49,7 @@ function Row(props) {
 			</span>
 			<tr
 				className={props.total ? 'doctor is-total' : 'doctor'}
-				className={props.total ? 'is-total' : ''}
+				// className={props.total ? 'is-total' : ''}
 				onClick={editing ? null : handleReveal}
 			>
 				<td style={{ fontWeight: 600, textTransform: 'none' }}>

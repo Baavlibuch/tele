@@ -35,97 +35,97 @@ export default function DocRtc(props) {
     const [selectedHospital, setSelectedHospital] = useState(null);
     const [readyPopupOpen, setReadyPopupOpen] = useState(false);
     const [modePopupOpen, setModePopupOpen] = useState(false);
-    const {setDoctor,setPatient,socketRef,setTrigger}=props
+    const { setDoctor, setPatient, socketRef, setTrigger } = props
     // const socketRef = useRef(null);
     const pcRef = useRef(null);
     const configRef = useRef(null);
 
     // useEffect(() => {
-        // console.log('Connecting to doctor...');
-        // setRequesting(true);
+    // console.log('Connecting to doctor...');
+    // setRequesting(true);
 
-        // socketRef.current = client('/app_chat', {
-        //     transports: ['websocket'],
-        //     query: {
-        //         type: 'patient',
-        //         patientId
-        //     }
-        // });
+    // socketRef.current = client('/app_chat', {
+    //     transports: ['websocket'],
+    //     query: {
+    //         type: 'patient',
+    //         patientId
+    //     }
+    // });
 
-        // setSocketRef(socketRef.current);
+    // setSocketRef(socketRef.current);
 
-        // // Event listeners for socket.io
-        // socketRef.current.on('doctorAlloted', (doctor) => {
-        //     console.log("docrtc function")
-        //     console.log('--doctorAlloted--');
-        //     setAnswerBoxHidden(false);
-        //     setRequesting(false);
-        //     setSelectedDoctor(doctor);
-        //     setDoctor(doctor)
-        // });
+    // // Event listeners for socket.io
+    // socketRef.current.on('doctorAlloted', (doctor) => {
+    //     console.log("docrtc function")
+    //     console.log('--doctorAlloted--');
+    //     setAnswerBoxHidden(false);
+    //     setRequesting(false);
+    //     setSelectedDoctor(doctor);
+    //     setDoctor(doctor)
+    // });
 
-        // socketRef.current.on('onlineUsers', (onlineUsers) => {
-        //     console.log("docrtc function")
-        //     setOnlineUsers(onlineUsers);
-        // });
+    // socketRef.current.on('onlineUsers', (onlineUsers) => {
+    //     console.log("docrtc function")
+    //     setOnlineUsers(onlineUsers);
+    // });
 
-        // // socketRef.current.on('message', ({ message, from }) => {
-        // //     console.log("docrtc function")
+    // // socketRef.current.on('message', ({ message, from }) => {
+    // //     console.log("docrtc function")
 
-        // //     if (from === selectedDoctor) {
-        // //         setIncomingTyping(false);
-        // //         enterMessageIntoChat(message, 'incoming');
-        // //     }
-        // // });
+    // //     if (from === selectedDoctor) {
+    // //         setIncomingTyping(false);
+    // //         enterMessageIntoChat(message, 'incoming');
+    // //     }
+    // // });
 
-        // // socketRef.current.on('typingChange', ({ state, from }) => {
-        // //     console.log("docrtc function")
-        // //     if (from === selectedDoctor) {
-        // //         setIncomingTyping(state);
-        // //         scrollDown();
-        // //     }
-        // // });
+    // // socketRef.current.on('typingChange', ({ state, from }) => {
+    // //     console.log("docrtc function")
+    // //     if (from === selectedDoctor) {
+    // //         setIncomingTyping(state);
+    // //         scrollDown();
+    // //     }
+    // // });
 
-        // socketRef.current.on('referUser', (doctor) => {
-        //     console.log("docrtc function")
-        //     endCall(false);
-        //     setSelectedDoctor(doctor);
-        //     setDoctor(doctor);
-        //     setAnswerBoxHidden(true);
-        // });
+    // socketRef.current.on('referUser', (doctor) => {
+    //     console.log("docrtc function")
+    //     endCall(false);
+    //     setSelectedDoctor(doctor);
+    //     setDoctor(doctor);
+    //     setAnswerBoxHidden(true);
+    // });
 
-        // socketRef.current.on('request', (from) => {
-        //     console.log("docrtc function")
-        //     if (from === selectedDoctor) {
-        //         setCallModal('active');
-        //         scrollDown();
-        //     }
-        // });
+    // socketRef.current.on('request', (from) => {
+    //     console.log("docrtc function")
+    //     if (from === selectedDoctor) {
+    //         setCallModal('active');
+    //         scrollDown();
+    //     }
+    // });
 
-        // socketRef.current.on('call', ({ data, from }) => {
-        //     console.log("docrtc function")
-        //     if (from === selectedDoctor) {
-        //         if (data.sdp) {
-        //             pcRef.current.setRemoteDescription(data.sdp);
-        //             if (data.sdp.type === 'offer') pcRef.current.createAnswer();
-        //         } else {
-        //             pcRef.current.addIceCandidate(data.candidate);
-        //         }
-        //     }
-        // });
+    // socketRef.current.on('call', ({ data, from }) => {
+    //     console.log("docrtc function")
+    //     if (from === selectedDoctor) {
+    //         if (data.sdp) {
+    //             pcRef.current.setRemoteDescription(data.sdp);
+    //             if (data.sdp.type === 'offer') pcRef.current.createAnswer();
+    //         } else {
+    //             pcRef.current.addIceCandidate(data.candidate);
+    //         }
+    //     }
+    // });
 
-        // socketRef.current.on('end', (from) => {
-        //     console.log("docrtc function")
-        //     if (from === selectedDoctor) endCall(false);
-        // });
+    // socketRef.current.on('end', (from) => {
+    //     console.log("docrtc function")
+    //     if (from === selectedDoctor) endCall(false);
+    // });
 
-        // return () => {
-        //     // Clean up socket connection on unmount
-        //     if (socketRef.current) {
-        //         socketRef.current.disconnect();
-        //     }
-        //     setSocketRef(null);
-        // };
+    // return () => {
+    //     // Clean up socket connection on unmount
+    //     if (socketRef.current) {
+    //         socketRef.current.disconnect();
+    //     }
+    //     setSocketRef(null);
+    // };
     // }, [modePopupOpen]);
 
     const enterMessageIntoChat = (message, type) => {
@@ -242,13 +242,23 @@ export default function DocRtc(props) {
             .catch((err) => {
                 console.log(err);
             });
-        setTrigger(prev => !prev); 
+        setTrigger(prev => !prev);
         closeReadyPopup();
         openModePopup();
     };
 
     const handleNoClick = () => {
         closeReadyPopup();
+    };
+
+    const handleChange = (e) => {
+        // Ensure that +91 stays as a prefix and user inputs only after that
+        const input = e.target.value;
+        if (input.startsWith('+91')) {
+            setNumber(input);
+        } else {
+            setNumber('+91' + input.replace(/^\+91/, ''));
+        }
     };
 
     return (
@@ -360,7 +370,12 @@ export default function DocRtc(props) {
             {showForm && (
                 <div className="form">
                     <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
-                    <input type="text" placeholder="Number" value={number} onChange={(e) => setNumber(e.target.value)} />
+                    <input
+                        type="text"
+                        placeholder="Number"
+                        value={number}
+                        onChange={handleChange}
+                    />
                     <button onClick={handleStartCall}>Start Call</button>
                 </div>
             )}
