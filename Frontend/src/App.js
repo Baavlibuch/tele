@@ -15,11 +15,9 @@ import Admin from './components/admin';
 // import Banner from './components/banner';
 import axios from 'axios';
 import { ENDPOINT } from './config';
-import Persona from './components/doctor/persona';
 import { Toaster } from 'react-hot-toast';
 
 import { useSelector, useDispatch } from 'react-redux';
-import Verification from './components/doctor/verification';
 
 const history = require('history').createBrowserHistory;
 
@@ -79,22 +77,6 @@ function App() {
 							<Switch location={location}>
 								<Route exact path="/" render={(props) => <Home {...props} />} />
 								<Route exact path="/doctor" render={(props) => <Doctor {...props} />} />
-								<Route
-									exact
-									path="/doctor-persona"
-									render={
-										doctor ? (props) => <Persona {...props} /> : () => <Redirect to="/doctor" />
-									}
-								/>
-								<Route
-									exact
-									path="/doctor-verification"
-									render={
-										doctor
-											? (props) => <Verification {...props} />
-											: () => <Redirect to="/doctor" />
-									}
-								/>
 								<Route exact path="/admin_dashboard" render={(props) => <Admin {...props} />} />
 								{/* <Route exact path="/links" render={(props) => <Links {...props} />} /> */}
 								<Route exact path="/faq" render={(props) => <FAQ {...props} />} />
