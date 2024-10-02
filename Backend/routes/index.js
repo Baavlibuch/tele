@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 const crypto = require('crypto');
-
 const storage = multer.diskStorage({
 	destination: function (req, file, cb) {
 		cb(null, 'public/images/');
@@ -308,7 +307,6 @@ router.post('/realtime', (req, res) => {
 					// push into old session
 					sess.messages.push(message)
 					sess.answers = answers
-					console.log("thisissessans", sess.answers)
 					console.log(`router.realtime : historyPush.message.currentQuestion[ID] = ${message.currentQuestion[ID]}. currentQuestion = ${currentQuestion}`)
 					if (!back) sess.message_history_stack.push(message.currentQuestion[ID])
 					console.log(`router.realtime : session.message_history_stack = ${sess.message_history_stack}`)
@@ -538,28 +536,28 @@ router.post('/addpatient', async (req, res) => {
 	}
 });
 router.post('/updatepatientdochos', async (req, res) => {
-	try {
-		const { patientId, selectedHospital, selectedDoctor } = req.body;
-		const updatedPatient = await Patient.findByIdAndUpdate(
-			patientId,
-			{ $set: { hospital: selectedHospital, doctor: selectedDoctor } },
-			{ new: true, runValidators: true }
-		);
+    try {
+        const { patientId, selectedHospital, selectedDoctor } = req.body;
+        const updatedPatient = await Patient.findByIdAndUpdate(
+            patientId,
+            { $set: { hospital: selectedHospital, doctor: selectedDoctor } },
+            { new: true, runValidators: true }
+        );
 		// const updatedDoctor = await Doctor.findOneAndUpdate(
-		//     { username: selectedDoctor },  // Find by doctor name instead of ObjectId
-		//     { $set: { attending: patientId } },
-		//     { new: true, runValidators: true }
-		// );
+        //     { username: selectedDoctor },  // Find by doctor name instead of ObjectId
+        //     { $set: { attending: patientId } },
+        //     { new: true, runValidators: true }
+        // );
 
-		if (!updatedPatient && !updatedDoctor) {
-			return res.status(404).json({ success: false, message: 'Patient not found' });
-		}
-
-		res.status(200).json({ success: true, message: 'Patient updated successfully', patient: updatedPatient });
-	} catch (err) {
-		console.error('Error:', err);
-		res.status(500).json({ error: true, message: 'Failed to update patient' });
-	}
+        if (!updatedPatient && !updatedDoctor) {
+            return res.status(404).json({ success: false, message: 'Patient not found' });
+        }
+		
+        res.status(200).json({ success: true, message: 'Patient updated successfully', patient: updatedPatient });
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).json({ error: true, message: 'Failed to update patient' });
+    }
 });
 
 

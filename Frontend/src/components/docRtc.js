@@ -172,9 +172,16 @@ export default function DocRtc(props) {
     };
 
     const handleStartCall = () => {
+        console.log(number.length)
+        if (number.length !== 13) {
+            alert("The phone number must be 10 digits.");
+            return;
+        }
+
         const id = name + '-' + number;
         setPatientId(id);
         setPatient(id);
+
         axios
             .post(ENDPOINT + '/api/addpatient', { id, name, number })
             .then((response) => {
@@ -183,9 +190,11 @@ export default function DocRtc(props) {
             .catch((err) => {
                 console.log(err);
             });
+
         setShowForm(false);
         openReadyPopup();
     };
+
 
     const callWithVideo = async (video) => {
         // const config = { audio: true, video };

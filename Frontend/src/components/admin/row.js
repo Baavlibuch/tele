@@ -16,8 +16,6 @@ function Row(props) {
 	const [reveal, setReveal] = useState(false);
 	const [editing, setEditing] = useState(props.doctor._id ? false : true);
 
-
-
 	useEffect(() => {
 		setDoctor(props.doctor);
 		setUsername(props.doctor.username);

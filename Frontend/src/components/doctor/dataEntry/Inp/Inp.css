@@ -1,0 +1,25 @@
+.main {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.inp {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100vw;
+  height: 10vh;
+}
+input {
+  height: 5vh;
+  width: 100%;
+}
+.i1 {
+}
+.i2 {
+}
+.i3 {
+}
+.i4 {
+}
+.i5 {
+}
