@@ -96,7 +96,7 @@ function Row(props) {
 						style={{ display: reveal && !props.total ? '' : 'none' }}
 					>
 						<td style={{ fontWeight: 600 }} colspan='3'>{dataKey}</td>
-						<td colspan='2'>
+						<td style={{ paddingRight: '20px' }} colspan='2'>
 							{patientCopy[dataKey] ? (patientCopy[dataKey] === true ? 'Yes' : patientCopy[dataKey]) : '-'}
 						</td>
 					</tr>
