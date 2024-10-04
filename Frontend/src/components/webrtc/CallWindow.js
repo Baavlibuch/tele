@@ -2,11 +2,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import * as Icon from 'react-feather';
 import PropTypes from 'prop-types';
 
-function CallWindow({ peerSrc, localSrc, config, mediaDevice, endCall }) {
+function CallWindow({ peerSrc, localSrc, config, mediaDevice, endCall, callBtn }) {
 	const peerVideo = useRef(null);
 	const localVideo = useRef(null);
 	const [video, setVideo] = useState(config.video);
 	const [audio, setAudio] = useState(config.audio);
+
+	// useEffect(() => {
+    //     console.log("callbtnvalue", callBtn);
+	// 	toggleMediaDevice('video')
+    // }, [callBtn]);
+	
 
 	useEffect(() => {
 		if (peerVideo.current && peerSrc) peerVideo.current.srcObject = peerSrc;
@@ -73,7 +79,8 @@ CallWindow.propTypes = {
 		video: PropTypes.bool.isRequired
 	}).isRequired,
 	mediaDevice: PropTypes.object, // eslint-disable-line
-	endCall: PropTypes.func.isRequired
+	endCall: PropTypes.func.isRequired,
+	callBtn: PropTypes.bool.isRequired
 };
 
 export default CallWindow;

@@ -532,7 +532,9 @@ h6 {
     }
   }
 }
-
+.Chati{
+  width: 40vw !important;
+}
 .Chat {
   //font-family: "cambay", Arial;
   font-size: 1.2rem;
@@ -542,7 +544,7 @@ h6 {
   flex-direction: column;
   margin: 1.5rem;
   height: 80vh;
-  width: 40vw;
+  // width: 40vw;
   padding: 1rem;
   border-radius: 0.5rem;
   box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.302), 0 1px 3px 1px rgba(60, 64, 67, 0.149);
@@ -2393,6 +2395,12 @@ height: 87vh;
 }
 
 
+@media (max-width: 1140px) {
+  .gridoutcontainer{
+    display: grid !important;
+    justify-self: center;
+  }
+}
 @media (max-width: 769px) {
   // .TimeSeries,
   table,
@@ -3041,6 +3049,12 @@ height: 87vh;
   width: 10px;
   border-radius: 100%;
 }
+.ydot{
+  background-color: #ffd375;
+  height: 10px;
+  width: 10px;
+  border-radius: 100%;
+}
 .rdot{
   background-color: #ff7575;
   height: 10px;
@@ -3059,10 +3073,30 @@ height: 87vh;
     margin: 0px 15px 0px 5px !important;
   }
 }
+// .callwindowcontainer{
+//   width: 100vw;
+//   position: absolute;
+//   right: 0;
+//   .call-window{
+//     width: 500px;
+//     height: 700px;
+//     .video-control{
+//       width: 100px;
+//       height: 70px;
+//       position: absolute;
+//       bottom: 0;
+//     }
+//   }
+
+  
+// }
 .callwindowcontainer{
+  // width: 100vw;
   .call-window{
-    width: 500px;
-    height: 700px;
+    position: relative !important;
+    width: 92vw;
+    min-width: 500px;
+    height: 90vh;
     .video-control{
       position: absolute;
       bottom: 0;

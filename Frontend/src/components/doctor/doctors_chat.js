@@ -29,7 +29,7 @@ export default class Chat extends React.Component {
 		callWindow: '',
 		callModal: '',
 		localSrc: null,
-		peerSrc: null
+		peerSrc: null,
 	};
 
 	socket = null;
@@ -40,6 +40,7 @@ export default class Chat extends React.Component {
 			.get(ENDPOINT + '/api/doctor-list')
 			.then((response) => {
 				const { doctors } = response.data;
+				console.log("doctorList",response.data)
 				if (doctors) {
 					this.setState({ doctors });
 				}
@@ -90,9 +91,9 @@ export default class Chat extends React.Component {
 		);
 	};
 
-	scrollDown = () => {
-		$('#chat-box').animate({ scrollTop: $('#chat-box')[0].scrollHeight }, 800);
-	};
+	// scrollDown = () => {
+	// 	$('#chat-box').animate({ scrollTop: $('#chat-box')[0].scrollHeight }, 800);
+	// };
 
 	connect = () => {
 		const { username } = this.props;
@@ -121,6 +122,7 @@ export default class Chat extends React.Component {
 					},
 					this.scrollDown
 				);
+				this.socket.emit('changeStatus', { username: this.props.username, status: "buzy" });
 		});
 
 		this.socket.on('userDisconnected', () => {
@@ -214,7 +216,12 @@ export default class Chat extends React.Component {
 	};
 
 	disconnectUser = () => {
-		this.socket.emit('disconnectUser');
+		this.socket.emit('changeStatus', { username: this.props.username, status: "online" });
+		this.setState({
+			chatStarted: false,
+		});
+		// this.socket.emit('disconnectUser');
+		
 	};
 
 	referUser = () => {
@@ -471,6 +478,9 @@ export default class Chat extends React.Component {
 						className="start is-green"
 						onClick={() => {
 							this.beginCheckupsBtn();
+							this.socket.emit('changeStatus', { username: this.props.username, status: "online" });
+
+
 						}}
 					>
 						Begin checkups
@@ -480,7 +490,7 @@ export default class Chat extends React.Component {
 		return (
 			<div className='container-chat-callWindow'>
 
-				<div className="Chat fadeInUp" style={{ animationDelay: '0.7s', marginBottom: '8rem' }}>
+				<div className="Chat Chati fadeInUp" style={{ animationDelay: '0.7s', marginBottom: '8rem' }}>
 					{patientId ? (
 						<>
 							<h6 style={{ margin: 0, marginBottom: 6 }}>{patientId}</h6>

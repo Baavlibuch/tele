@@ -39,6 +39,16 @@ function Home() {
 	const[patient,setPatient]=useState("");
 	const[trigger,setTrigger]=useState(false);
 	const [socketRef, setSocketRef] = useState(null);
+	const [callBtn,setCallBtn] = useState(false);
+
+	const triggerCall = () => {
+		console.log("calling started! from home");
+		setCallBtn((prev) => !prev);
+	};
+
+	const callParentFunc = () => {
+		triggerCall();
+	}
 	return (
 		<div className="Home">
 			<div className="home-left">
@@ -51,13 +61,15 @@ function Home() {
 					</div>
 				</div>
 
-				<Chat trigger={trigger} selectedDoctor={doctor} PatientID={patient} setSocketRef={setSocketRef}/>
+				<Chat trigger={trigger} selectedDoctor={doctor} PatientID={patient} setSocketRef={setSocketRef} callBtn={callBtn}/>
 			</div>
 
 			<div className="home-right" style={{alignItems: "center"}}>
 				<div onClick={install} className="buttonAction">Install</div>
 				<div className="header fadeInUp" style={{ animationDelay: '0.5s' }}>
-				<DocRtc setTrigger={setTrigger} setDoctor={setDoctor} setPatient={setPatient} socketRef={socketRef}/>
+				<DocRtc setTrigger={setTrigger} setDoctor={setDoctor} setPatient={setPatient} socketRef={socketRef} callParentFunc={()=>{
+					callParentFunc();
+				}}/>
 				</div>
         {/*<div className="helpline fadeInUp" style={{ animationDelay: '0.5s' }}>*/}
           <div className="row">
