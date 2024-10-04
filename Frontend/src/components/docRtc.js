@@ -35,7 +35,7 @@ export default function DocRtc(props) {
     const [selectedHospital, setSelectedHospital] = useState(null);
     const [readyPopupOpen, setReadyPopupOpen] = useState(false);
     const [modePopupOpen, setModePopupOpen] = useState(false);
-    const { setDoctor, setPatient, socketRef, setTrigger } = props
+    const { setDoctor, setPatient, socketRef, setTrigger, callParentFunc } = props
     // const socketRef = useRef(null);
     const pcRef = useRef(null);
     const configRef = useRef(null);
@@ -254,6 +254,7 @@ export default function DocRtc(props) {
         setTrigger(prev => !prev);
         closeReadyPopup();
         openModePopup();
+        callParentFunc();
     };
 
     const handleNoClick = () => {
@@ -295,20 +296,6 @@ export default function DocRtc(props) {
                         </div>
                     </div>
                 )}
-
-                {modePopupOpen && (
-                    <div className="popup">
-                        <div className="popup-content">
-                            <span className="close" onClick={closeModePopup}>&times;</span>
-                            {/* <p>{`Calling ...`}</p> */}
-                            <p>Select call Options from chatbot</p>
-                            <div className="button-container">
-                                <button onClick={() => callWithVideo(false)}>Okay</button>
-                                {/* <button onClick={() => callWithVideo(true)}>Video</button> */}
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
             {!showForm && (
                 <div className="tablecontainer">
@@ -323,19 +310,26 @@ export default function DocRtc(props) {
                                 <div key={index} className={`${docIndex === index ? "active-tablerow" : "tablerow"}`}>
                                     <div className="ctext">{doc.name}</div>
                                     <div className="ctext">
-                                        {doc.attending === '' ? (
+                                        {(doc.status === "online") ? (
                                             <div className='ofcontainer'>
                                                 <div className='gdot'></div>
                                                 <div className='oftext'>online</div>
                                             </div>
-                                        ) : (
+                                        ) : doc.status === "buzy" ? (
                                             <div className='ofcontainer'>
-                                                <div className='rdot'></div>
-                                                <div className='oftext'>offline</div>
+                                                <div className='ydot'></div>
+                                                <div className='oftext'>buzy</div>
                                             </div>
-                                        )}
+                                        )
+                                            :
+                                            (
+                                                <div className='ofcontainer'>
+                                                    <div className='rdot'></div>
+                                                    <div className='oftext'>offline</div>
+                                                </div>
+                                            )}
                                     </div>
-                                    {doc.attending === '' && (
+                                    {(doc.status === "online") && (
                                         <div className="ctextq">
                                             {patientId !== null ? (
                                                 <>

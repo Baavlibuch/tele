@@ -333,7 +333,7 @@ class Doctor extends React.Component {
                             </div>
                         </p>
                     ) : null}
-                    <CallModal chatStarted={this.setchatStarted} status={callModal} startCall={this.startCall} rejectCall={this.rejectCall} />
+                    {/* <CallModal chatStarted={this.setchatStarted} status={callModal} startCall={this.startCall} rejectCall={this.rejectCall} /> */}
                     {/* {!_.isEmpty(this.configRef) &&
                         <div className='callwindowcontainer3'>
                             <CallWindow
@@ -350,7 +350,8 @@ class Doctor extends React.Component {
                     <form onSubmit={this.logout} className="login-form fadeInUp">
                         <p>{error}</p>
                         <button
-                            onClick={this.logout}
+                            onClick={()=>{this.socketRef.emit('changeStatus', { username: username, status: "offline" });
+                            ;this.logout();}}
                             className="logout fadeInUp"
                             style={{ animationDelay: '0.8s' }}
                         >

@@ -83,7 +83,7 @@ export default class Chat extends React.Component {
 
 	socket = null;
 	pc = {};
-
+	
 	componentDidMount() {
 		// generate sessionID for mongodb.
 		this.state.conversation_session_id = new bson.ObjectId().toString();
@@ -132,7 +132,7 @@ export default class Chat extends React.Component {
 		const { selectedDoctor, PatientID, trigger } = this.props;
 
 		// Check if selectedDoctor or PatientID has changed
-		if (prevProps.selectedDoctor !== selectedDoctor || prevProps.PatientID !== PatientID || prevProps.trigger != trigger ) {
+		if (prevProps.selectedDoctor !== selectedDoctor || prevProps.PatientID !== PatientID || prevProps.trigger != trigger) {
 			// Update the state and reconnect to the socket after updating state
 			this.setState({ doctor: selectedDoctor, patientId: PatientID }, () => {
 				console.log("Updated doctor:", this.state.doctor);
@@ -141,6 +141,14 @@ export default class Chat extends React.Component {
 				// Reconnect to the socket after updating state
 				this.connect();
 			});
+		}
+		console.log("Previous callBtn value:", prevProps.callBtn);
+		console.log("Current callBtn value:", this.props.callBtn);
+		
+		if (prevProps.callBtn !== this.props.callBtn) {
+			console.log("calling started! from chat");
+			const config = { audio: true, video:true };
+			this.startCall(true, config);
 		}
 	}
 
@@ -374,7 +382,7 @@ export default class Chat extends React.Component {
 		console.log('connect() to doctor');
 		const { patientId } = this.state;
 		const { setSocketRef, PatientID } = this.props;  // Receive socketRef as a prop
-	
+
 		// Check if socketRef exists, otherwise create a new socket
 		const idToUse = PatientID || patientId;
 
@@ -389,9 +397,9 @@ export default class Chat extends React.Component {
 
 		setSocketRef(this.socket);
 
-	
+
 		console.log("this is socket", this.socket);
-	
+
 		// Ensure event listeners are set up
 		this.socket.on('doctorAlloted', (doctor) => {
 			console.log("chatbot function doctorAlloted");
@@ -401,12 +409,12 @@ export default class Chat extends React.Component {
 				doctor
 			});
 		});
-	
+
 		this.socket.on('onlineUsers', (onlineUsers) => {
 			console.log("chatbot function onlineUsers");
 			this.setState({ onlineUsers });
 		});
-	
+
 		this.socket.on('message', ({ message, from }) => {
 			console.log("chatbot function message");
 			if (from === this.state.doctor) {
@@ -414,7 +422,7 @@ export default class Chat extends React.Component {
 				this.enterMessageIntoChat(message, 'incoming');
 			}
 		});
-	
+
 		this.socket.on('typingChange', ({ state, from }) => {
 			console.log("chatbot function typingChange");
 			if (from === this.state.doctor) {
@@ -422,13 +430,13 @@ export default class Chat extends React.Component {
 				this.scrollDown();
 			}
 		});
-	
+
 		this.socket.on('referUser', (doctor) => {
 			console.log("chatbot function referUser");
 			this.endCall(false);
 			this.setState({ doctor, answerBoxHidden: true });
 		});
-	
+
 		this.socket.on('request', (from) => {
 			console.log("chatbot function request");
 			if (from === this.state.doctor) {
@@ -436,7 +444,7 @@ export default class Chat extends React.Component {
 				this.scrollDown();
 			}
 		});
-	
+
 		this.socket.on('call', ({ data, from }) => {
 			console.log("chatbot function call");
 			if (from === this.state.doctor) {
@@ -448,13 +456,13 @@ export default class Chat extends React.Component {
 				}
 			}
 		});
-	
+
 		this.socket.on('end', (from) => {
 			console.log("chatbot function end");
 			if (from === this.state.doctor) this.endCall(false);
 		});
 	};
-	
+
 
 	startCall = (isCaller, config) => {
 		this.config = config;
@@ -1412,14 +1420,31 @@ export default class Chat extends React.Component {
 
 		if (!_.isEmpty(this.config)) {
 			return (
-				<CallWindow
-					status={callWindow}
-					localSrc={localSrc}
-					peerSrc={peerSrc}
-					config={this.config}
-					mediaDevice={this.pc.mediaDevice}
-					endCall={this.endCall}
-				/>
+				<div className="gridoutcontainer" >
+					<div>
+						<div className="chat-options expand">
+							{this.renderLanguageSelect()}
+						</div>
+						<div className="Chat fadeInUp" style={{ animationDelay: '0.7s' }}>
+							{loadingChat && <div className="lds-dual-ring" />}
+							{this.renderChat()}
+							<div style={{ height: '1px', backgroundColor: 'grey', boxShadow: '1px 2px 9px grey', marginBottom: '10px' }} />
+							{this.renderAnswers()}
+						</div>
+					</div>
+					<div className='callwindowcontainer'>
+						<CallWindow
+							status={callWindow}
+							localSrc={localSrc}
+							peerSrc={peerSrc}
+							config={this.config}
+							mediaDevice={this.pc.mediaDevice}
+							endCall={this.endCall}
+							buttonRef={this.buttonRef}
+							callBtn={this.props.callBtn}
+						/>
+					</div>
+				</div>
 			);
 		}
 

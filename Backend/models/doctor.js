@@ -53,6 +53,7 @@ const DoctorSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Branch"
     }],
+	status:{type:String, default: "Offline"}
 }, { timestamps: true });
 
 // create the model
