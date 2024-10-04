@@ -65,7 +65,7 @@ function Home() {
 			</div>
 
 			<div className="home-right" style={{alignItems: "center"}}>
-				<div onClick={install} className="buttonAction">Install</div>
+				{/*<div onClick={install} className="buttonAction">Install</div>*/}
 				<div className="header fadeInUp" style={{ animationDelay: '0.5s' }}>
 				<DocRtc setTrigger={setTrigger} setDoctor={setDoctor} setPatient={setPatient} socketRef={socketRef} callParentFunc={()=>{
 					callParentFunc();
