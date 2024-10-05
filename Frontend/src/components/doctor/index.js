@@ -324,9 +324,6 @@ class Doctor extends React.Component {
                     <Chat callStarted={callStarted} setchatStarted={this.setchatStarted} username={username} changePatient={this.changePatient} patient={patient} socket={this.socketRef} />
                 </div>
                 <div className="home-right" style={{ alignItems: 'center' }}>
-                    <div onClick={() => (window.location.href = '/doctor-persona')} className="buttonAction">
-                        Persona
-                    </div>
                     {incomingTyping || requesting ? (
                         <p className="incoming-message">
                             <div className="dots">

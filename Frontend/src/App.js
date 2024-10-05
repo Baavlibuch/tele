@@ -111,12 +111,12 @@ function App() {
 			<footer className="fadeInUp" style={{ animationDelay: '0s' }}>
 				{/*<h6>हम आपके साथ हैं।</h6>*/}
 				<div className="logo-display">
-					<a href="https://www.aiimsjodhpur.edu.in" target="_noblank">
-						<img src="/images/aiims-logo.png" alt="aiims j logo" />
-					</a>
-					<a href="http://iitj.ac.in" target="_noblank">
-						<img src="/images/iitj-logo.png" alt="iit j logo" />
-					</a>
+					{/*<a href="https://www.aiimsjodhpur.edu.in" target="_noblank">*/}
+					{/*	<img src="/images/aiims-logo.png" alt="aiims j logo" />*/}
+					{/*</a>*/}
+					{/*<a href="http://iitj.ac.in" target="_noblank">*/}
+					{/*	<img src="/images/iitj-logo.png" alt="iit j logo" />*/}
+					{/*</a>*/}
 				</div>
 				<br />
 				{/*<div className="footer-sources">*/}
