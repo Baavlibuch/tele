@@ -1,5 +1,5 @@
 node_modules
 build
-public/images
+# public/images
 cases.json
 .env

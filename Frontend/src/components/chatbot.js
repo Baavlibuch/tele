@@ -83,7 +83,7 @@ export default class Chat extends React.Component {
 
 	socket = null;
 	pc = {};
-	
+
 	componentDidMount() {
 		// generate sessionID for mongodb.
 		this.state.conversation_session_id = new bson.ObjectId().toString();
@@ -144,10 +144,10 @@ export default class Chat extends React.Component {
 		}
 		console.log("Previous callBtn value:", prevProps.callBtn);
 		console.log("Current callBtn value:", this.props.callBtn);
-		
+
 		if (prevProps.callBtn !== this.props.callBtn) {
 			console.log("calling started! from chat");
-			const config = { audio: true, video:true };
+			const config = { audio: true, video: true };
 			this.startCall(true, config);
 		}
 	}
@@ -1003,9 +1003,24 @@ export default class Chat extends React.Component {
 							{description_image && <div>
 								<img src={require("../data/" + description_image)} style={{ maxHeight: `${type === OUTGOING_MESSAGE ? '150px' : undefined}` }} alt='' />
 							</div>}
-							{(typeof statement === 'string') && statement.startsWith('chat-img') ? (
-								<img src={'/api/images/' + statement.split('-')[2]} alt='' />
-							) : (chatStatement)}
+							{(typeof statement === 'string') && (statement.endsWith('.jpg') || statement.endsWith('.jpeg') || statement.endsWith('.png')) ? (
+								<img
+									src={`http://${window.location.hostname}:3000/aa/images/` + statement.split('-')[2]}
+									alt=""
+								/>
+							) : (typeof statement === 'string') && statement.endsWith('.pdf') ? (
+								<a
+									href={`http://${window.location.hostname}:3000/aa/images/` + statement.split('-')[2]}
+									target="_blank"
+									rel="noopener noreferrer"
+									download
+									style={{ fontSize: '18px' }}
+								>
+									Download PDF
+								</a>
+							) : (
+								chatStatement
+							)}
 						</p>
 					);
 				})}
@@ -1168,7 +1183,7 @@ export default class Chat extends React.Component {
 								id="imageInput"
 								name="imageInput"
 								onChange={this.imageUpload}
-								accept="image/*"
+								accept="image/*,application/pdf"
 							/>
 						</div>
 					</form>
@@ -1318,7 +1333,7 @@ export default class Chat extends React.Component {
 									id="imageInput"
 									name="imageInput"
 									onChange={this.imageUpload}
-									accept="*/*"
+									accept="image/*,application/pdf"
 								/>
 							</div>
 						</form>

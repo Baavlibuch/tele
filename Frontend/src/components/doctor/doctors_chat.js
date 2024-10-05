@@ -40,7 +40,7 @@ export default class Chat extends React.Component {
 			.get(ENDPOINT + '/api/doctor-list')
 			.then((response) => {
 				const { doctors } = response.data;
-				console.log("doctorList",response.data)
+				console.log("doctorList", response.data)
 				if (doctors) {
 					this.setState({ doctors });
 				}
@@ -91,9 +91,9 @@ export default class Chat extends React.Component {
 		);
 	};
 
-	// scrollDown = () => {
-	// 	$('#chat-box').animate({ scrollTop: $('#chat-box')[0].scrollHeight }, 800);
-	// };
+	scrollDown = () => {
+		$('#chat-box').animate({ scrollTop: $('#chat-box')[0].scrollHeight }, 800);
+	};
 
 	connect = () => {
 		const { username } = this.props;
@@ -122,7 +122,7 @@ export default class Chat extends React.Component {
 					},
 					this.scrollDown
 				);
-				this.socket.emit('changeStatus', { username: this.props.username, status: "buzy" });
+			this.socket.emit('changeStatus', { username: this.props.username, status: "buzy" });
 		});
 
 		this.socket.on('userDisconnected', () => {
@@ -221,7 +221,7 @@ export default class Chat extends React.Component {
 			chatStarted: false,
 		});
 		// this.socket.emit('disconnectUser');
-		
+
 	};
 
 	referUser = () => {
@@ -307,8 +307,21 @@ export default class Chat extends React.Component {
 								className={`${type}-message ${type === 'outgoing' ? 'fadeInUp' : 'fadeInRight'}`}
 								style={{ animationDelay: type === 'incoming' ? '0.6s' : '0.2s' }}
 							>
-								{(statement && statement.startsWith('chat-img')) ? (
-									<img src={'/api/images/' + statement.split('-')[2]} alt="" />
+								{(typeof statement === 'string') && (statement.endsWith('.jpg')||statement.endsWith('.jpeg')|| statement.endsWith('.png')) ? (
+									<img
+										src={`http://${window.location.hostname}:3000/aa/images/` + statement.split('-')[2]}
+										alt=""
+									/>
+								) : (typeof statement === 'string') && statement.endsWith('.pdf') ? (
+									<a
+										href={`http://${window.location.hostname}:3000/aa/images/` + statement.split('-')[2]}
+										target="_blank"
+										rel="noopener noreferrer"
+										download
+										style={{fontSize:'18px'}}
+									>
+										Download PDF
+									</a>
 								) : (
 									chatStatement
 								)}
@@ -397,7 +410,7 @@ export default class Chat extends React.Component {
 								id="imageInput"
 								name="imageInput"
 								onChange={this.imageUpload}
-								accept="image/*"
+								accept="image/*,application/pdf"
 							/>
 						</div>
 					</form>
@@ -473,7 +486,7 @@ export default class Chat extends React.Component {
 
 		if (!chatStarted)
 			return (
-				<div className="Chat fadeInUp" style={{ animationDelay: '0.7s' }}>
+				<div className="Chat Chati fadeInUp" style={{ animationDelay: '0.7s' }}>
 					<button
 						className="start is-green"
 						onClick={() => {

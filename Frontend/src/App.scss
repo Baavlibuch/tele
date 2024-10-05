@@ -532,8 +532,10 @@ h6 {
     }
   }
 }
-.Chati{
-  width: 40vw !important;
+@media screen and (min-width: 1170px) {
+  .Chati {
+    width: 40vw !important;
+  }
 }
 .Chat {
   //font-family: "cambay", Arial;
