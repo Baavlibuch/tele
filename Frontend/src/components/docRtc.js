@@ -318,7 +318,7 @@ export default function DocRtc(props) {
                                         ) : doc.status === "buzy" ? (
                                             <div className='ofcontainer'>
                                                 <div className='ydot'></div>
-                                                <div className='oftext'>buzy</div>
+                                                <div className='oftext'>busy</div>
                                             </div>
                                         )
                                             :

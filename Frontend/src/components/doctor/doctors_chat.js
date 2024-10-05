@@ -221,7 +221,7 @@ export default class Chat extends React.Component {
 			chatStarted: false,
 		});
 		// this.socket.emit('disconnectUser');
-
+		window.location.reload();
 	};
 
 	referUser = () => {
