@@ -95,6 +95,8 @@ export default class Chat extends React.Component {
 		$('#chat-box').animate({ scrollTop: $('#chat-box')[0].scrollHeight }, 800);
 	};
 
+
+
 	connect = () => {
 		const { username } = this.props;
 
@@ -122,11 +124,12 @@ export default class Chat extends React.Component {
 					},
 					this.scrollDown
 				);
+			
 			this.socket.emit('changeStatus', { username: this.props.username, status: "buzy" });
 		});
 
 		this.socket.on('userDisconnected', () => {
-			this.endCall(false);
+			// this.endCall(false);
 			this.setState({
 				loading: true,
 				patientId: null,
@@ -137,6 +140,9 @@ export default class Chat extends React.Component {
 					}
 				]
 			});
+			this.socket.emit('changeStatus', { username: this.props.username, status: "online" });
+			window.location.reload();
+
 		});
 
 		this.socket.on('onlineUsers', (onlineUsers) => {
@@ -216,12 +222,20 @@ export default class Chat extends React.Component {
 	};
 
 	disconnectUser = () => {
-		this.socket.emit('changeStatus', { username: this.props.username, status: "online" });
-		this.setState({
-			chatStarted: false,
-		});
-		// this.socket.emit('disconnectUser');
-		window.location.reload();
+		// this.socket.emit('changeStatus', { username: this.props.username, status: "idle" });
+		// this.setState({
+		// 	loading: true,
+		// 	patientId: null,
+		// 	chat: [
+		// 		{
+		// 			statement: 'हम आपके परामर्श के लिए रोगियों को खोज रहे हैं',
+		// 			type: 'incoming'
+		// 		}
+		// 	]
+		// });
+		const { patientId } = this.state;
+		console.log(patientId)
+		this.socket.emit('disconnectUser', { patientId });
 	};
 
 	referUser = () => {
@@ -491,7 +505,7 @@ export default class Chat extends React.Component {
 						className="start is-green"
 						onClick={() => {
 							this.beginCheckupsBtn();
-							this.socket.emit('changeStatus', { username: this.props.username, status: "online" });
+							this.socket.emit('changeStatus', { username: this.props.username, status: "idle" });
 
 
 						}}

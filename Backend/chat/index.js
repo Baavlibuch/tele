@@ -75,9 +75,23 @@ function getDoctorSocketById(username, callback) {
 }
 
 function disconnectPatient(id) {
-	Patient.findByIdAndUpdate(id, { $set: { chat_id: '' } }, (err, res) => { });
-}
-
+	console.log(id)
+	Patient.findByIdAndUpdate(
+	  {_id: id}, 
+	  { $set: { chat_id: '' } },  // Update the chat_id to an empty string
+	  { new: true },              // Return the updated document
+	  (err, patient) => {
+		if (err) {
+		  console.error('Error disconnecting patient:', err);  // Log the error if there is one
+		} else if (!patient) {
+		  console.error('Patient not found');                  // Handle case when no patient is found
+		} else {
+		  console.log('Patient disconnected successfully:', patient);  // Log the updated patient details
+		}
+	  }
+	);
+  }
+  
 let online_user_count = 0;
 
 const makeChatNameSpace = (live_chat) => {
@@ -135,14 +149,25 @@ const makeChatNameSpace = (live_chat) => {
 		}
 
 		/* from doctor to patient */
-		socket.on('disconnectUser', () => {
+		socket.on('disconnectUser', (patientId) => {
 			console.log('chat.index.socket_live_chat.on.connection.socket.on.disconnectUser')
-			socket.emit('userDisconnected');
 
-			Doctor.findOneAndUpdate({ username }, { $set: { attending: '', status: "online" } },
-				{ new: true }, (err, doctor) => {
-				if (err || !doctor) return console.error(err);
-			});
+			Doctor.findOneAndUpdate(
+				{ username },                      // Query: Find the doctor by username
+				{ $set: { attending: '' } },        // Update: Set attending field to an empty string
+				{ new: true },                      // Options: Return the updated document
+				(err, doctor) => {
+				  if (err) {
+					console.error("Error updating doctor:", err);  // Log the error
+				  } else if (!doctor) {
+					console.error("Doctor not found");             // Log if no doctor was found
+				  } else {
+					console.log("Doctor updated successfully:", doctor);  // Log success and the updated doctor
+					disconnectPatient(patientId.patientId);
+					socket.emit('userDisconnected');
+				  }
+				}
+			  );
 		});
 
 		socket.on('changePatient', (patient) => {
@@ -283,7 +308,7 @@ const makeChatNameSpace = (live_chat) => {
 
 		socket.on('changeStatus', ({ username, status }) => {
 			console.log('Received changeStatus event for:', username, 'with status:', status);
-		
+
 			Doctor.findOneAndUpdate(
 				{ username: username },
 				{ status: status },
@@ -298,11 +323,11 @@ const makeChatNameSpace = (live_chat) => {
 						return;
 					}
 					console.log('Doctor status updated successfully:', doctor);
+					socket.emit("statusChanged");
 				}
 			);
-			
 		});
-		
+
 
 		socket.on('disconnect', () => {
 			console.log(type, type === 'patient' ? patientId : username, 'disconnected');

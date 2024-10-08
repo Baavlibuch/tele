@@ -144,7 +144,7 @@ router.post('/assessment', (req, res) => {
 		answersToModel(answers, timestamps, (model) => {
 			console.log('post /assessment new patient callback')
 			const { name, telephone, hospital } = model;
-			Doctor.findOne({ hospital }, (err, doc) => {
+			Doctor.findOne({ hospital, status: "idle" }, (err, doc) => {
 				console.log('post /assessment new patient callback find hospital')
 				if (err || !doc) {
 					console.log('post /assessment new patient doctor not found')

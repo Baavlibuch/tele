@@ -40,7 +40,30 @@ export default function DocRtc(props) {
     const pcRef = useRef(null);
     const configRef = useRef(null);
 
+    useEffect(() => {
+        const fetchDoctorsWithTimeout = () => {
+          getDoctors();
+          setTimeout(fetchDoctorsWithTimeout, 5000);
+        };
+    
+        fetchDoctorsWithTimeout();
+    
+        return () => {
+          clearTimeout(fetchDoctorsWithTimeout);
+        };
+      }, []);
+
+    //   useEffect(() => {
+    //     console.log("aftersdfsad")
+    //     if (selectedDoctor) {
+    //       if (selectedDoctor.status === "online") {
+    //         alert("Your Session Is Over");
+    //       }
+    //     }
+    //   }, [selectedDoctor]);
     // useEffect(() => {
+
+
     // console.log('Connecting to doctor...');
     // setRequesting(true);
 
@@ -51,6 +74,8 @@ export default function DocRtc(props) {
     //         patientId
     //     }
     // });
+
+    // socketRef.on("statusChanged",()=>{console.log("statusChanged")});
 
     // setSocketRef(socketRef.current);
 
@@ -126,7 +151,7 @@ export default function DocRtc(props) {
     //     }
     //     setSocketRef(null);
     // };
-    // }, [modePopupOpen]);
+    // }, []);
 
     const enterMessageIntoChat = (message, type) => {
         // Implement message entering logic here
@@ -173,7 +198,7 @@ export default function DocRtc(props) {
 
     const handleStartCall = () => {
         console.log(number.length)
-        if (number.length !== 13) {
+        if (number.length !== 10) {
             alert("The phone number must be 10 digits.");
             return;
         }
@@ -262,13 +287,10 @@ export default function DocRtc(props) {
     };
 
     const handleChange = (e) => {
-        // Ensure that +91 stays as a prefix and user inputs only after that
+
         const input = e.target.value;
-        if (input.startsWith('+91')) {
-            setNumber(input);
-        } else {
-            setNumber('+91' + input.replace(/^\+91/, ''));
-        }
+
+        setNumber(input);
     };
 
     return (
@@ -321,15 +343,20 @@ export default function DocRtc(props) {
                                                 <div className='oftext'>busy</div>
                                             </div>
                                         )
-                                            :
-                                            (
+                                            : doc.status === "idle" ? (
                                                 <div className='ofcontainer'>
-                                                    <div className='rdot'></div>
-                                                    <div className='oftext'>offline</div>
+                                                    <div className='bdot'></div>
+                                                    <div className='oftext'>idle</div>
                                                 </div>
-                                            )}
+                                            ) :
+                                                (
+                                                    <div className='ofcontainer'>
+                                                        <div className='rdot'></div>
+                                                        <div className='oftext'>offline</div>
+                                                    </div>
+                                                )}
                                     </div>
-                                    {(doc.status === "online") && (
+                                    {(doc.status === "idle") && (
                                         <div className="ctextq">
                                             {patientId !== null ? (
                                                 <>

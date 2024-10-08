@@ -96,6 +96,7 @@ export default class Chat extends React.Component {
 		this.setState({ languageSelected })//, conversation_session_id})
 
 		this.realtime()
+		
 
 		// axios
 		// 	.get(ENDPOINT + '/api/questions')
