@@ -177,7 +177,8 @@ router.post('/assessment', (req, res) => {
 						last_messaged_at: Date.now(),
 						chat: chat.slice(4),
 						conversation_sessions: [conversation_session_id],
-						symptoms:[answers['2.4']]
+						symptoms:[answers['2.4']],
+						symptoms_Duration: answers['2.41']
 					},
 					(err, patient) => {
 						if (err) {

@@ -309,8 +309,8 @@ module.exports = {
                     "dbValue": "AIIMS Jodhpur",
                     "nextQuestion": NEXT_QUESTION_ENDS_FLOW,//27.0,
                     "statement": {
-                        "hi": "एम्स जोधपुर",
-                        "en": "AIIMS Jodhpur"
+                        "hi": "NIIRNCD",
+                        "en": "NIIRNCD"
                     },
                     "value": 0
                 }

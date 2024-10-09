@@ -109,6 +109,7 @@ const PatientSchema = new Schema(
 			default: 'NA'
 		},
 		symptoms: { type: [String], default: [] },
+		symptoms_Duration : String,
 		vaccination_status: String,
 		symptomatic_forcovid: Boolean,
 
