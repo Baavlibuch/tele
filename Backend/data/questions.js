@@ -306,14 +306,33 @@ module.exports = {
             "id": 26.0,
             "options": [
                 {
-                    "dbValue": "AIIMS Jodhpur",
+                    "dbValue": "NIIRNCD",
                     "nextQuestion": NEXT_QUESTION_ENDS_FLOW,//27.0,
                     "statement": {
                         "hi": "NIIRNCD",
                         "en": "NIIRNCD"
                     },
                     "value": 0
+                },
+                {
+                    "dbValue": "ICMR",
+                    "nextQuestion": NEXT_QUESTION_ENDS_FLOW,//27.0,
+                    "statement": {
+                        "hi": "ICMR",
+                        "en": "ICMR"
+                    },
+                    "value": 0
+                },
+                {
+                    "dbValue": "AIIMS Jodhpur",
+                    "nextQuestion": NEXT_QUESTION_ENDS_FLOW,//27.0,
+                    "statement": {
+                        "hi": "AIIMS Jodhpur",
+                        "en": "AIIMS Jodhpur"
+                    },
+                    "value": 0
                 }
+                
             ],
             "statement": {
                 "hi": "डॉक्टर या अस्पताल चुनकर जांच शुरू करें",

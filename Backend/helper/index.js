@@ -64,6 +64,8 @@ function answersToModel(answers, timestamps, mongooseModelCallback) {
       let type;
       console.log("answersToModel()")
       if (err || !hospitals) return mongooseModelCallback({});
+      console.log(answers[26]);
+      console.log("answers.26",hospitals[answers["26"]])
       let hospital = hospitals[answers["26"]];
       let aiims_id = hospital === "AIIMS Jodhpur" ? answers["27"] : "";
 
