@@ -323,15 +323,15 @@ module.exports = {
                     },
                     "value": 0
                 },
-                {
-                    "dbValue": "AIIMS Jodhpur",
-                    "nextQuestion": NEXT_QUESTION_ENDS_FLOW,//27.0,
-                    "statement": {
-                        "hi": "AIIMS Jodhpur",
-                        "en": "AIIMS Jodhpur"
-                    },
-                    "value": 0
-                }
+                // {
+                //     "dbValue": "AIIMS Jodhpur",
+                //     "nextQuestion": NEXT_QUESTION_ENDS_FLOW,//27.0,
+                //     "statement": {
+                //         "hi": "AIIMS Jodhpur",
+                //         "en": "AIIMS Jodhpur"
+                //     },
+                //     "value": 0
+                // }
                 
             ],
             "statement": {

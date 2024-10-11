@@ -188,21 +188,38 @@ router.post('/assessment', (req, res) => {
 					},
 					(err, patient) => {
 						if (err) {
-							// doctor not found
-							console.error(err);
-							return res.json({
-								incomingChats: [
-									{
-										statement: {
-											en: 'We could not find any doctors 🙁',
-											hi: 'हम किसी भी डॉक्टर का पता नहीं लगा सके 🙁',
-											bn: 'আমরা কোনও ডাক্তার খুঁজে পাইনি 🙁'
-										},
-										type: 'incoming'
-									}
-								]
-							});
+							if (err.code === 11000 && err.message.includes('dup key')) {
+								// Duplicate key error (patient already registered)
+								return res.json({
+									incomingChats: [
+										{
+											statement: {
+												en: 'You have already registered. You can call your doctor directly by choosing from the table.',
+												hi: 'आप पहले से पंजीकृत हैं। आप सीधे तालिका से अपने डॉक्टर को कॉल कर सकते हैं।',
+												bn: 'আপনি ইতিমধ্যেই নিবন্ধিত হয়েছেন। আপনি টেবিল থেকে সরাসরি আপনার ডাক্তারকে কল করতে পারেন।'
+											},
+											type: 'incoming'
+										}
+									]
+								});
+							} else {
+								// Other errors (e.g., doctor not found)
+								console.error(err);
+								return res.json({
+									incomingChats: [
+										{
+											statement: {
+												en: 'We could not find any doctors 🙁',
+												hi: 'हम किसी भी डॉक्टर का पता नहीं लगा सके 🙁',
+												bn: 'আমরা কোনও ডাক্তার খুঁজে পাইনি 🙁'
+											},
+											type: 'incoming'
+										}
+									]
+								});
+							}
 						}
+					
 
 						// no error in patient creation - begin call
 
