@@ -5,7 +5,7 @@ import { ENDPOINT } from '../../config';
 
 import Row from './row';
 
-function Table({ username, changePatient }) {
+function Table({ username, changePatient, callStarted }) {
 	const [patients, setPatients] = useState([]);
 	const [page, setPage] = useState(1);
 	const rowsPerPage = 10;
@@ -16,9 +16,10 @@ function Table({ username, changePatient }) {
 		}, 20000 * 1000);
 		return () => clearInterval(timer);
 	}, []);
+
 	useEffect(() => {
 		getPatients();
-	}, [page]);
+	}, [page, callStarted]);
 
 	const getPatients = () => {
 		axios

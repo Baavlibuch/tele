@@ -346,7 +346,7 @@ class Doctor extends React.Component {
                             />
                         </div>} */}
                     {/* {!callStarted&&<Table username={username} changePatient={this.changePatient} />} */}
-                    <Table username={username} changePatient={this.changePatient} />
+                    <Table username={username} changePatient={this.changePatient} callStarted={callStarted} />
                     <form onSubmit={this.logout} className="login-form fadeInUp">
                         <p>{error}</p>
                         <button

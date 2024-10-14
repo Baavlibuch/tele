@@ -9,6 +9,16 @@ function Table(props) {
 	const [doctors, setDoctors] = useState([]);
 	const [page, setPage] = useState(1);
 
+	// useEffect(() => {
+	// 	const timer = setTimeout(() => {
+	// 		console.log("refresh")
+	// 		getDoctors();
+	// 	}, 3000);
+
+	// 	return () => clearTimeout(timer);
+	// }, []);
+
+
 	useEffect(() => {
 		getDoctors();
 	}, [page]);

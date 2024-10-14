@@ -126,6 +126,7 @@ export default class Chat extends React.Component {
 				);
 			
 			this.socket.emit('changeStatus', { username: this.props.username, status: "buzy" });
+			this.props.setchatStarted(true);
 		});
 
 		this.socket.on('userDisconnected', () => {
@@ -236,6 +237,7 @@ export default class Chat extends React.Component {
 		const { patientId } = this.state;
 		console.log(patientId)
 		this.socket.emit('disconnectUser', { patientId });
+		this.props.setchatStarted(false);
 	};
 
 	referUser = () => {
