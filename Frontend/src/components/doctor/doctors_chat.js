@@ -325,12 +325,12 @@ export default class Chat extends React.Component {
 							>
 								{(typeof statement === 'string') && (statement.endsWith('.jpg')||statement.endsWith('.jpeg')|| statement.endsWith('.png')) ? (
 									<img
-										src={`http://${window.location.hostname}:3000/aa/images/` + statement.split('-')[2]}
+										src={`https://${window.location.hostname}:3000/aa/images/` + statement.split('-')[2]}
 										alt=""
 									/>
 								) : (typeof statement === 'string') && statement.endsWith('.pdf') ? (
 									<a
-										href={`http://${window.location.hostname}:3000/aa/images/` + statement.split('-')[2]}
+										href={`https://${window.location.hostname}:3000/aa/images/` + statement.split('-')[2]}
 										target="_blank"
 										rel="noopener noreferrer"
 										download
