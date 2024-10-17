@@ -19,9 +19,9 @@ COPY --from=frontend_build /app/build /var/www/tele
 # RUN cp -pr /code/build/ /var/www/html
 # RUN echo ls /etc/nginx/conf.d/
 
-COPY ./nginx_conf /etc/nginx/nginx.conf
+COPY ./nginx_default /etc/nginx/sites-enabled/nginx_default
 COPY nginx.sh /app/nginx.sh
 RUN chmod +x /app/nginx.sh
 
-ENV PORT 8080
+ENV PORT 80
 CMD ["/app/nginx.sh"]
