@@ -402,14 +402,23 @@ export default class Chat extends React.Component {
 		console.log("this is socket", this.socket);
 
 		// Ensure event listeners are set up
-		this.socket.on('doctorAlloted', (doctor) => {
+		this.socket.on('doctorAlloted', ({ doctor, chat }) => {
 			console.log("chatbot function doctorAlloted");
-			this.setState({
-				answerBoxHidden: false,
-				requesting: false,
-				doctor
-			});
+		
+			this.setState(
+				{
+					answerBoxHidden: false,
+					requesting: false,
+					doctor,
+					chat: chat ? chat.map(({ statement, type }) => ({
+						statement,
+						type: type === 'incoming' ? 'outgoing' : 'incoming'
+					})) : [] // Process chat if available, else set it to an empty array
+				},
+				this.scrollDown
+			);
 		});
+		
 
 		this.socket.on('onlineUsers', (onlineUsers) => {
 			console.log("chatbot function onlineUsers");
@@ -1006,12 +1015,12 @@ export default class Chat extends React.Component {
 							</div>}
 							{(typeof statement === 'string') && (statement.endsWith('.jpg') || statement.endsWith('.jpeg') || statement.endsWith('.png')) ? (
 								<img
-									src={`https://${window.location.hostname}:3000/aa/images/` + statement.split('-')[2]}
+									src={`/aa/images/` + statement.split('-')[2]}
 									alt=""
 								/>
 							) : (typeof statement === 'string') && statement.endsWith('.pdf') ? (
 								<a
-									href={`https://${window.location.hostname}:3000/aa/images/` + statement.split('-')[2]}
+									href={`/aa/images/` + statement.split('-')[2]}
 									target="_blank"
 									rel="noopener noreferrer"
 									download

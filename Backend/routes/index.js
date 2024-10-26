@@ -547,6 +547,12 @@ router.get('/Alldoctor-list', async (req, res) => {
 router.post('/addpatient', async (req, res) => {
 	try {
 		const { id, name, number } = req.body;
+
+		const existingPatient = await Patient.findById(id);
+		if (existingPatient) {
+			return res.status(200).json({ success: false, message: 'Patient ID already exists' });
+		}
+
 		const newPatient = new Patient({
 			_id: id,
 			name: name,
@@ -559,6 +565,7 @@ router.post('/addpatient', async (req, res) => {
 		res.status(500).json({ error: true, message: 'Failed' });
 	}
 });
+
 router.post('/updatepatientdochos', async (req, res) => {
     try {
         const { patientId, selectedHospital, selectedDoctor } = req.body;

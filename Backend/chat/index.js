@@ -129,12 +129,12 @@ const makeChatNameSpace = (live_chat) => {
 					return socket.disconnect();
 				}
 				else {
-					const { doctor, hospital } = patient;
+					const { doctor, hospital, chat} = patient;
 
 					console.log("doctor", patient)
 					if (doctor) {
 						console.log("doctorAlloted", doctor)
-						socket.emit('doctorAlloted', doctor);
+						socket.emit('doctorAlloted', {doctor, chat});
 						enterPatient(patientId, hospital, doctor, live_chat);
 					} else {
 						console.log("socket.disconnect2")
@@ -203,9 +203,10 @@ const makeChatNameSpace = (live_chat) => {
 			console.log('chat.index.socket_live_chat.on.connection.socket.on.Message')
 			if (type === 'doctor') {
 				// sent by doctor
+				console.log("sentbydoctor")
 				Patient.findById(to, (err, patient) => {
 					if (err || !patient) return console.error(err);
-
+					console.log("no error")
 					const { chat_id, _id } = patient;
 					if (!chat_id) {
 						const { last_messaged_at = Date.now() + 2000, last_notified_at = Date.now() } = patient;
@@ -218,9 +219,11 @@ const makeChatNameSpace = (live_chat) => {
 						}
 					} else {
 						// sent by patient
+						console.log("chatid present")
 						socket.to(chat_id).emit('message', { message, from: username });
 						patient.last_notified_at = Date.now();
 					}
+					console.log("updatepatientchat")
 					patient.chat.push({
 						statement: message,
 						type: 'incoming'
@@ -230,6 +233,7 @@ const makeChatNameSpace = (live_chat) => {
 					});
 				});
 			} else {
+				console.log("sentbypatient")
 				Patient.findById(patientId, (err, patient) => {
 					if (err || !patient) return console.error(err);
 					getDoctorSocketById(patient.doctor, (doctor_chat_id) => {
@@ -237,6 +241,7 @@ const makeChatNameSpace = (live_chat) => {
 							socket.to(doctor_chat_id).emit('message', { message, from: patientId });
 						}
 					});
+					console.log("updatepatientchat")
 					patient.chat.push({
 						statement: message,
 						type: 'outgoing'
