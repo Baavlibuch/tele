@@ -412,7 +412,7 @@ export default class Chat extends React.Component {
 					doctor,
 					chat: chat ? chat.map(({ statement, type }) => ({
 						statement,
-						type: type === 'incoming' ? 'outgoing' : 'incoming'
+						type: type === 'incoming' ? 'incoming' : 'outgoing'
 					})) : [] // Process chat if available, else set it to an empty array
 				},
 				this.scrollDown

@@ -50,16 +50,20 @@ export default class Chat extends React.Component {
 			});
 	}
 
-	componentWillReceiveProps(props) {
-		const { patient, callStarted } = props;
-		if (this.state.patient !== patient && this.socket) {
-			this.socket.emit('changePatient', patient);
-		}
+	// componentWillReceiveProps(props) {
+	// 	const { patient, callStarted } = props;
+	// 	if (this.state.patient !== patient && this.socket) {
+	// 		this.socket.emit('changePatient', patient);
+	// 	}
 
-	}
+	// }
 	componentDidUpdate(prevProps) {
 		const { callStarted, patient } = this.props;
 		const { callStarted: prevCallStarted } = prevProps;
+
+		if (prevProps.patient !== patient && this.socket) {
+			this.socket.emit('changePatient', patient);
+		}
 
 		if (callStarted !== prevCallStarted) {
 			console.log("Call Started has changed to:", callStarted);
@@ -124,7 +128,6 @@ export default class Chat extends React.Component {
 					},
 					this.scrollDown
 				);
-			
 			this.socket.emit('changeStatus', { username: this.props.username, status: "buzy" });
 			this.props.setchatStarted(true);
 		});
