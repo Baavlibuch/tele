@@ -235,15 +235,20 @@ export default function DocRtc(props) {
         // setPatient(id);
 
         axios
-            .post(ENDPOINT + '/api/seepatientchat', { id, name, number, selectedDoctor })
-            .then((response) => {
-                console.log(response.data); 
-                setChatHistory(response.data);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-
+        .post(ENDPOINT + '/api/seepatientchat', { id, name, number, selectedDoctor })
+        .then((response) => {
+            console.log(response.data); 
+            if(response.data.success) {
+                setChatHistory(response.data.chat);
+            } else {
+                alert(response.data.message); 
+            }
+        })
+        .catch((err) => {
+            console.error("Error fetching chat history:", err);
+            alert("An error occurred while fetching chat history. Please try again.");
+        });
+    
 
         setShowForm2(false);
     };

@@ -616,7 +616,7 @@ router.post('/seepatientchat', async (req, res) => {
 		if(selectedDoctor!==existingPatient.doctor){
 			return res.status(200).json({ success: false, message: 'Chat with this Doctor do no exist' });
 		}
-		return res.status(200).json(existingPatient.chat)
+		return res.status(200).json({ success: true, chat: existingPatient.chat });
 	} catch (err) {
 		console.error('Error:', err);
 		res.status(500).json({ error: true, message: 'Failed' });
