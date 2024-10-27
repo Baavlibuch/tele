@@ -28,6 +28,7 @@ export default function DocRtc(props) {
     const [doctors, setDoctors] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [showForm, setShowForm] = useState(false);
+    const [showForm2, setShowForm2] = useState(false);
     const [name, setName] = useState('');
     const [number, setNumber] = useState('');
     const [docIndex, setDocIndex] = useState();
@@ -35,23 +36,23 @@ export default function DocRtc(props) {
     const [selectedHospital, setSelectedHospital] = useState(null);
     const [readyPopupOpen, setReadyPopupOpen] = useState(false);
     const [modePopupOpen, setModePopupOpen] = useState(false);
-    const { setDoctor, setPatient, socketRef, setTrigger, callParentFunc } = props
+    const { setDoctor, setPatient, socketRef, setTrigger, callParentFunc, setChatHistory } = props
     // const socketRef = useRef(null);
     const pcRef = useRef(null);
     const configRef = useRef(null);
 
     useEffect(() => {
         const fetchDoctorsWithTimeout = () => {
-          getDoctors();
-          setTimeout(fetchDoctorsWithTimeout, 5000);
+            getDoctors();
+            setTimeout(fetchDoctorsWithTimeout, 5000);
         };
-    
+
         fetchDoctorsWithTimeout();
-    
+
         return () => {
-          clearTimeout(fetchDoctorsWithTimeout);
+            clearTimeout(fetchDoctorsWithTimeout);
         };
-      }, []);
+    }, []);
 
     //   useEffect(() => {
     //     console.log("aftersdfsad")
@@ -195,6 +196,9 @@ export default function DocRtc(props) {
     const formSub = () => {
         setShowForm(true);
     };
+    const formSub2 = () => {
+        setShowForm2(true);
+    };
 
     const handleStartCall = () => {
         console.log(number.length)
@@ -218,6 +222,30 @@ export default function DocRtc(props) {
 
         setShowForm(false);
         openReadyPopup();
+    };
+    const handleStartCall2 = () => {
+        console.log(number.length)
+        if (number.length !== 10) {
+            alert("The phone number must be 10 digits.");
+            return;
+        }
+
+        const id = name + '-' + number;
+        setPatientId(id);
+        // setPatient(id);
+
+        axios
+            .post(ENDPOINT + '/api/seepatientchat', { id, name, number, selectedDoctor })
+            .then((response) => {
+                console.log(response.data); 
+                setChatHistory(response.data);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+
+
+        setShowForm2(false);
     };
 
 
@@ -319,7 +347,7 @@ export default function DocRtc(props) {
                     </div>
                 )}
             </div>
-            {!showForm && (
+            {!showForm && !showForm2 && (
                 <div className="tablecontainer">
                     <div className="tablegrid">
                         <div className="tablehead">
@@ -356,7 +384,7 @@ export default function DocRtc(props) {
                                                     </div>
                                                 )}
                                     </div>
-                                    {(doc.status === "idle") && (
+                                    {(doc.status === "idle" || doc.status === "online") ? (
                                         <div className="ctextq">
                                             {patientId !== null ? (
                                                 <>
@@ -390,6 +418,18 @@ export default function DocRtc(props) {
                                                 </>
                                             )}
                                         </div>
+                                    ) : (
+                                        <div className='ctextq'>
+                                            <button type="button" onClick={() => {
+                                                formSub2();
+                                                setDocIndex(index);
+                                                setSelectedDoctor(doctors[index].username);
+                                                setDoctor(doctors[index].username)
+                                                setSelectedHospital(doctors[index].hospital);
+                                            }} className="send">
+                                                <Icon.MessageCircle />
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
                             ))
@@ -407,6 +447,18 @@ export default function DocRtc(props) {
                         onChange={handleChange}
                     />
                     <button onClick={handleStartCall}>Start Call</button>
+                </div>
+            )}
+            {showForm2 && (
+                <div className="form">
+                    <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
+                    <input
+                        type="text"
+                        placeholder="Number"
+                        value={number}
+                        onChange={handleChange}
+                    />
+                    <button onClick={handleStartCall2}>See Chat</button>
                 </div>
             )}
             <div className="pagination">

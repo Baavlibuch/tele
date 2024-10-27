@@ -144,8 +144,8 @@ export default class Chat extends React.Component {
 					}
 				]
 			});
-			this.socket.emit('changeStatus', { username: this.props.username, status: "online" });
-			window.location.reload();
+			this.socket.emit('changeStatus', { username: this.props.username, status: "idle" });
+			// window.location.reload();
 
 		});
 
@@ -227,16 +227,16 @@ export default class Chat extends React.Component {
 
 	disconnectUser = () => {
 		// this.socket.emit('changeStatus', { username: this.props.username, status: "idle" });
-		// this.setState({
-		// 	loading: true,
-		// 	patientId: null,
-		// 	chat: [
-		// 		{
-		// 			statement: 'हम आपके परामर्श के लिए रोगियों को खोज रहे हैं',
-		// 			type: 'incoming'
-		// 		}
-		// 	]
-		// });
+		this.setState({
+			loading: true,
+			patientId: null,
+			chat: [
+				{
+					statement: 'हम आपके परामर्श के लिए रोगियों को खोज रहे हैं',
+					type: 'incoming'
+				}
+			]
+		});
 		const { patientId } = this.state;
 		console.log(patientId)
 		this.socket.emit('disconnectUser', { patientId });

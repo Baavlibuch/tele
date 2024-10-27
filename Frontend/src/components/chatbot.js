@@ -130,7 +130,7 @@ export default class Chat extends React.Component {
 	}
 
 	componentDidUpdate(prevProps) {
-		const { selectedDoctor, PatientID, trigger } = this.props;
+		const { selectedDoctor, PatientID, trigger, chathistory } = this.props;
 
 		// Check if selectedDoctor or PatientID has changed
 		if (prevProps.selectedDoctor !== selectedDoctor || prevProps.PatientID !== PatientID || prevProps.trigger != trigger) {
@@ -142,6 +142,11 @@ export default class Chat extends React.Component {
 				// Reconnect to the socket after updating state
 				this.connect();
 			});
+		}
+		if(prevProps.chathistory !== chathistory){
+			console.log(chathistory)
+			this.setState({chat:chathistory})
+			this.renderChat();
 		}
 		console.log("Previous callBtn value:", prevProps.callBtn);
 		console.log("Current callBtn value:", this.props.callBtn);

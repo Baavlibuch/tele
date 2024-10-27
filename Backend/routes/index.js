@@ -604,6 +604,24 @@ router.post('/addpatient', async (req, res) => {
 		res.status(500).json({ error: true, message: 'Failed' });
 	}
 });
+router.post('/seepatientchat', async (req, res) => {
+	try {
+		const { id, name, number, selectedDoctor} = req.body;
+
+		const existingPatient = await Patient.findById(id);
+		if (!existingPatient) {
+			return res.status(200).json({ success: false, message: 'Patient ID not exists' });
+		}
+		console.log("sD",selectedDoctor)
+		if(selectedDoctor!==existingPatient.doctor){
+			return res.status(200).json({ success: false, message: 'Chat with this Doctor do no exist' });
+		}
+		return res.status(200).json(existingPatient.chat)
+	} catch (err) {
+		console.error('Error:', err);
+		res.status(500).json({ error: true, message: 'Failed' });
+	}
+});
 
 router.post('/updatepatientdochos', async (req, res) => {
 	try {
