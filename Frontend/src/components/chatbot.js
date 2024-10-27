@@ -257,15 +257,22 @@ export default class Chat extends React.Component {
 	};
 
 	setOutput(statement) {
-		console.log('setOutput() : statement = ', statement)
+		console.log('setOutput() : statement = ', statement);
+	
+		// Handle the case where statement is undefined or null
+		if (!statement) {
+			return { chatStatement: "", audio: undefined };
+		}
+	
 		let audio = undefined;
 		let chatStatement = (typeof statement === "string") ? statement : statement[this.state.languageSelected];
-		// console.log('setOutput() : chatStatement = ', chatStatement)
+	
 		if (chatStatement && typeof chatStatement !== "string") {
 			audio = chatStatement["audio"];
 			chatStatement = chatStatement["text"];
 		}
-		// fallback to default behaviour if no values exist
+	
+		// Fallback to default behavior if no values exist
 		if (!chatStatement) chatStatement = statement[LANG_HINDI];
 		if (chatStatement && typeof chatStatement !== "string") {
 			audio = chatStatement["audio"];
@@ -276,9 +283,11 @@ export default class Chat extends React.Component {
 			audio = chatStatement["audio"];
 			chatStatement = chatStatement["text"];
 		}
-		console.log('chatStatement = ', chatStatement)
+	
+		console.log('chatStatement = ', chatStatement);
 		return { chatStatement, audio };
 	}
+	
 
 	/**
 	 * formats the data of statement and associated data of message
@@ -991,49 +1000,54 @@ export default class Chat extends React.Component {
 			requesting,
 			mute
 		} = this.state;
-
+	
 		if (loadingChat) return null;
-		console.log("renderChat : chat.length = ", chat.length, ". chat = ", chat)
+		console.log("renderChat : chat.length = ", chat.length, ". chat = ", chat);
+		
 		return (
 			<div id="chat-box" className="chat-box" style={answerBoxHidden ? { marginBottom: 0 } : {}}>
-				{chat.map(({ statement, type }) => {
-					// latest message render
-					let { chatStatement, audio } = this.setOutput(statement)
-					let description_image = getDescriptionImage(statement, this.state.languageSelected);
-
-					return (
-						<p
-							// key={{chatStatement}}
-							className={`${type}-message ${type === OUTGOING_MESSAGE ? 'fadeInUp' : 'fadeInRight'}`}
-							style={{ animationDelay: type === 'incoming' ? '0.6s' : '0.2s' }}
-							onMouseEnter={() => { if (mute === SPEAK_ALL) this.speak(chatStatement, true, audio, statement) }}
-							onTouchStart={() => { if (mute === SPEAK_ALL) this.speak(chatStatement, true, audio, statement) }}
-							onMouseLeave={() => { this.stopAudio() }}
-						>
-							{description_image && <div>
-								<img src={require("../data/" + description_image)} style={{ maxHeight: `${type === OUTGOING_MESSAGE ? '150px' : undefined}` }} alt='' />
-							</div>}
-							{(typeof statement === 'string') && (statement.endsWith('.jpg') || statement.endsWith('.jpeg') || statement.endsWith('.png')) ? (
-								<img
-									src={`/aa/images/` + statement.split('-')[2]}
-									alt=""
-								/>
-							) : (typeof statement === 'string') && statement.endsWith('.pdf') ? (
-								<a
-									href={`/aa/images/` + statement.split('-')[2]}
-									target="_blank"
-									rel="noopener noreferrer"
-									download
-									style={{ fontSize: '18px' }}
-								>
-									Download PDF
-								</a>
-							) : (
-								chatStatement
-							)}
-						</p>
-					);
-				})}
+				{chat
+					.filter(item => item !== undefined && item !== null) // Filter out undefined or null entries
+					.map(({ statement, type }) => {
+						if (!statement) return null;
+						// latest message render
+						let { chatStatement, audio } = this.setOutput(statement);
+						let description_image = getDescriptionImage(statement, this.state.languageSelected);
+	
+						return (
+							<p
+								className={`${type}-message ${type === OUTGOING_MESSAGE ? 'fadeInUp' : 'fadeInRight'}`}
+								style={{ animationDelay: type === 'incoming' ? '0.6s' : '0.2s' }}
+								onMouseEnter={() => { if (mute === SPEAK_ALL) this.speak(chatStatement, true, audio, statement); }}
+								onTouchStart={() => { if (mute === SPEAK_ALL) this.speak(chatStatement, true, audio, statement); }}
+								onMouseLeave={() => { this.stopAudio(); }}
+							>
+								{description_image && (
+									<div>
+										<img src={require("../data/" + description_image)} style={{ maxHeight: `${type === OUTGOING_MESSAGE ? '150px' : undefined}` }} alt='' />
+									</div>
+								)}
+								{(typeof statement === 'string') && (statement.endsWith('.jpg') || statement.endsWith('.jpeg') || statement.endsWith('.png')) ? (
+									<img
+										src={`/aa/images/` + statement.split('-')[2]}
+										alt=""
+									/>
+								) : (typeof statement === 'string') && statement.endsWith('.pdf') ? (
+									<a
+										href={`/aa/images/` + statement.split('-')[2]}
+										target="_blank"
+										rel="noopener noreferrer"
+										download
+										style={{ fontSize: '18px' }}
+									>
+										Download PDF
+									</a>
+								) : (
+									chatStatement
+								)}
+							</p>
+						);
+					})}
 				{incomingTyping || requesting ? (
 					<p className="incoming-message">
 						<div className="dots">
@@ -1047,6 +1061,7 @@ export default class Chat extends React.Component {
 			</div>
 		);
 	};
+	
 
 	stopAudio() {
 		window.speechSynthesis.cancel();
