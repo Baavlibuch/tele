@@ -185,7 +185,7 @@ module.exports = {
             [ID]: 1.0,
             [OPTIONS]: [
                 {
-                    [NEXT_QUESTION]: 2.5,//23.0,
+                    [NEXT_QUESTION]: 23.0,
                     [STATEMENT]: {
                         [LANG_ENGLISH]: "Consultation 👨‍⚕️",
                         [LANG_HINDI]: "डॉक्टर से बात 👨‍⚕️"
@@ -224,7 +224,7 @@ module.exports = {
             "options": [
                 {
                     "dbValue": "Yes",
-                    "nextQuestion": 23,
+                    "nextQuestion": 23.0,
                     "statement": {
                         "hi": "हाँ",
                         "en": "Yes"
@@ -252,7 +252,7 @@ module.exports = {
             [ID]: 23.0,
             [OPTIONS]: [
                 {
-                    [NEXT_QUESTION]: 28.0,
+                    [NEXT_QUESTION]: 2.5,
                     [STATEMENT]: {
                         [LANG_ENGLISH]: "New consultation",
                         [LANG_HINDI]: "नया परामर्श"
@@ -267,15 +267,15 @@ module.exports = {
                     },
                     [VALUE]: 1
                 },
-                {
-                    [NEXT_QUESTION]: "9997.0 Redirecting",
-                    [STATEMENT]: {
-                        [LANG_ENGLISH]: "AIIMS portal",
-                        [LANG_HINDI]: "एम्स पोर्टल"
-                    },
-                    [VALUE]: 2,
-                    [URL]: "https://www.aiimsjodhpur.edu.in/Patient_Portal/"
-                }
+                // {
+                //     [NEXT_QUESTION]: "9997.0 Redirecting",
+                //     [STATEMENT]: {
+                //         [LANG_ENGLISH]: "AIIMS portal",
+                //         [LANG_HINDI]: "एम्स पोर्टल"
+                //     },
+                //     [VALUE]: 2,
+                //     [URL]: "https://www.aiimsjodhpur.edu.in/Patient_Portal/"
+                // }
             ],
             [STATEMENT]: {
                 [LANG_HINDI]: "डॉक्टर से बात के लिए अपना विकल्प चुनें",

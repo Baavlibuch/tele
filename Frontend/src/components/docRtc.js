@@ -463,7 +463,7 @@ export default function DocRtc(props) {
                         value={number}
                         onChange={handleChange}
                     />
-                    <button onClick={handleStartCall2}>See Chat</button>
+                    <button onClick={handleStartCall2}>View Chat</button>
                 </div>
             )}
             <div className="pagination">

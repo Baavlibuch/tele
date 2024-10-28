@@ -108,8 +108,10 @@ router.post('/assessment', (req, res) => {
 	if (oldPatient) {
 		console.log('routes /assessment() oldPatient')
 		// TODO : add sessions
-		Patient.findById(oldPatient, (err, patient) => {
+		console.log(oldPatient);
+		Patient.findById(oldPatient, async(err, patient) => {
 			if (err || !patient) {
+				console.log(err,patient)
 				return res.json({
 					incomingChats: [
 						{
@@ -131,12 +133,29 @@ router.post('/assessment', (req, res) => {
 			// );
 			console.log('routes /assessment creating session for new patient')
 			// patient.conversation_sessions.push(conversation_session_id)
-			res.json({
-				connectToDoctor: true,
-				patientId: _id,
-				incomingChats: patient.chat,
-				question: questions[questions.length - 1]
-			});
+			const doctorModel = await Doctor.findOne({username : doctor});
+			if(doctorModel.status==='idle'||doctorModel.status==='online'){
+				res.json({
+					connectToDoctor: true,
+					patientId: _id,
+					// incomingChats: patient.chat,
+					question: questions[questions.length - 1]
+				});
+			}
+			else{
+				return res.json({
+					incomingChats: [
+						{
+							statement: {
+								en: "The doctor is currently unavailable, but you can view your chat history by clicking the chat icon next to the doctor 🙁",
+								hi: "डॉक्टर इस समय उपलब्ध नहीं हैं, लेकिन आप डॉक्टर के पास चैट आइकन पर क्लिक करके अपनी चैट हिस्ट्री देख सकते हैं 🙁",
+								bn: "ডাক্তার বর্তমানে উপলব্ধ নেই, তবে আপনি ডাক্তারের পাশে চ্যাট আইকনে ক্লিক করে আপনার চ্যাট ইতিহাস দেখতে পারেন 🙁"
+							},							
+							type: 'incoming'
+						}
+					]
+				});
+			}
 		});
 		// TODO : add self screening here and link to consultation. Save data before adding user
 	} else {
@@ -168,126 +187,89 @@ router.post('/assessment', (req, res) => {
 						]
 					});
 				}
-				const patientId = getId(name, telephone)
-				const patientExist = Patient.findOne({ _id: patientId });
-				if (patientExist) {
-					// console.log("patientid",patientId,"patientExist",patientExist)
-					Patient.findById(patientId, (err, patient) => {
-						if (err || !patient) {
-							return res.json({
-								incomingChats: [
-									{
-										statement: {
-											en: 'We are unable to find your previous records 🙁',
-											hi: 'हम आपके पिछले रिकॉर्ड नहीं ढूंढ पा रहे हैं 🙁',
-											bn: 'আমরা আপনার আগের রেকর্ডগুলি সন্ধান করতে অক্ষম 🙁'
-										},
-										type: 'incoming'
-									}
-								]
-							});
+
+				// Actual push into DB
+				Patient.create(
+					{
+						_id: getId(name, telephone),
+						...model,																			// data prepared through callback from answersToModel
+						latitude,
+						longitude,
+						ip: req.headers['x-real-ip'] || req.ip,
+						created_at: Date.now(),
+						last_notified_at: Date.now() - 2000,
+						chat_id: '',
+						doctor: doc.username,
+						last_messaged_at: Date.now(),
+						chat: chat.slice(4),
+						conversation_sessions: [conversation_session_id],
+						symptoms: [answers['2.4']],
+						symptoms_Duration: answers['2.41']
+					},
+					(err, patient) => {
+						if (err) {
+							if (err.code === 11000 && err.message.includes('dup key')) {
+								// Duplicate key error (patient already registered)
+								return res.json({
+									incomingChats: [
+										{
+											statement: {
+												en: 'You have already registered. You can call your doctor directly by choosing from the table.',
+												hi: 'आप पहले से पंजीकृत हैं। आप सीधे तालिका से अपने डॉक्टर को कॉल कर सकते हैं।',
+												bn: 'আপনি ইতিমধ্যেই নিবন্ধিত হয়েছেন। আপনি টেবিল থেকে সরাসরি আপনার ডাক্তারকে কল করতে পারেন।'
+											},
+											type: 'incoming'
+										}
+									]
+								});
+							} else {
+								// Other errors (e.g., doctor not found)
+								console.error(err);
+								return res.json({
+									incomingChats: [
+										{
+											statement: {
+												en: 'We could not find any doctors 🙁',
+												hi: 'हम किसी भी डॉक्टर का पता नहीं लगा सके 🙁',
+												bn: 'আমরা কোনও ডাক্তার খুঁজে পাইনি 🙁'
+											},
+											type: 'incoming'
+										}
+									]
+								});
+							}
 						}
-						const { _id, doctor, name, telephone } = patient;
+
+
+						// no error in patient creation - begin call
+
+						const { _id } = patient;
+
 						// mail(
-						// 	doctor,
+						// 	doc.username,
 						// 	'Your Patient is Online',
 						// 	`Your patient ${name.toUpperCase()}, ${telephone}, has paid a visit, and is waiting for you.`
 						// );
-						console.log('routes /assessment creating session for new patient')
-						// patient.conversation_sessions.push(conversation_session_id)
-						console.log(patient.chat)
+
+						console.log('post /assessment new patient connect to doctor')
 						res.json({
-							connectToDoctor: true,
+							question: questions[questions.length - 1],
 							patientId: _id,
-							// incomingChats: patient.chat,
-							question: questions[questions.length - 1]
-						});
-					});
-				}
-				else {
-
-					// Actual push into DB
-					Patient.create(
-						{
-							_id: getId(name, telephone),
-							...model,																			// data prepared through callback from answersToModel
-							latitude,
-							longitude,
-							ip: req.headers['x-real-ip'] || req.ip,
-							created_at: Date.now(),
-							last_notified_at: Date.now() - 2000,
-							chat_id: '',
-							doctor: doc.username,
-							last_messaged_at: Date.now(),
-							chat: chat.slice(4),
-							conversation_sessions: [conversation_session_id],
-							symptoms: [answers['2.4']],
-							symptoms_Duration: answers['2.41']
-						},
-						(err, patient) => {
-							if (err) {
-								if (err.code === 11000 && err.message.includes('dup key')) {
-									// Duplicate key error (patient already registered)
-									return res.json({
-										incomingChats: [
-											{
-												statement: {
-													en: 'You have already registered. You can call your doctor directly by choosing from the table.',
-													hi: 'आप पहले से पंजीकृत हैं। आप सीधे तालिका से अपने डॉक्टर को कॉल कर सकते हैं।',
-													bn: 'আপনি ইতিমধ্যেই নিবন্ধিত হয়েছেন। আপনি টেবিল থেকে সরাসরি আপনার ডাক্তারকে কল করতে পারেন।'
-												},
-												type: 'incoming'
-											}
-										]
-									});
-								} else {
-									// Other errors (e.g., doctor not found)
-									console.error(err);
-									return res.json({
-										incomingChats: [
-											{
-												statement: {
-													en: 'We could not find any doctors 🙁',
-													hi: 'हम किसी भी डॉक्टर का पता नहीं लगा सके 🙁',
-													bn: 'আমরা কোনও ডাক্তার খুঁজে পাইনি 🙁'
-												},
-												type: 'incoming'
-											}
-										]
-									});
+							connectToDoctor: true,
+							incomingChats: [
+								{
+									statement: {
+										en: `Now you will speak with ${doc.name}`,
+										hi: `अब आप ${doc.name} से बात करेंगे,`,
+										bn: `এখন আপনি ${doc.name} এর সাথে কথা বলবেন,`
+									},
+									type: 'incoming'
 								}
-							}
+							]
+						});
+					}
+				);
 
-
-							// no error in patient creation - begin call
-
-							const { _id } = patient;
-
-							// mail(
-							// 	doc.username,
-							// 	'Your Patient is Online',
-							// 	`Your patient ${name.toUpperCase()}, ${telephone}, has paid a visit, and is waiting for you.`
-							// );
-
-							console.log('post /assessment new patient connect to doctor')
-							res.json({
-								question: questions[questions.length - 1],
-								patientId: _id,
-								connectToDoctor: true,
-								incomingChats: [
-									{
-										statement: {
-											en: `Now you will speak with ${doc.name}`,
-											hi: `अब आप ${doc.name} से बात करेंगे,`,
-											bn: `এখন আপনি ${doc.name} এর সাথে কথা বলবেন,`
-										},
-										type: 'incoming'
-									}
-								]
-							});
-						}
-					);
-				}
 			});
 		});
 	}
@@ -606,14 +588,14 @@ router.post('/addpatient', async (req, res) => {
 });
 router.post('/seepatientchat', async (req, res) => {
 	try {
-		const { id, name, number, selectedDoctor} = req.body;
+		const { id, name, number, selectedDoctor } = req.body;
 
 		const existingPatient = await Patient.findById(id);
 		if (!existingPatient) {
 			return res.status(200).json({ success: false, message: 'Patient ID not exists' });
 		}
-		console.log("sD",selectedDoctor)
-		if(selectedDoctor!==existingPatient.doctor){
+		console.log("sD", selectedDoctor)
+		if (selectedDoctor !== existingPatient.doctor) {
 			return res.status(200).json({ success: false, message: 'Chat with this Doctor do no exist' });
 		}
 		return res.status(200).json({ success: true, chat: existingPatient.chat });

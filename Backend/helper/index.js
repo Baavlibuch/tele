@@ -70,8 +70,8 @@ function answersToModel(answers, timestamps, mongooseModelCallback) {
       let aiims_id = hospital === "AIIMS Jodhpur" ? answers["27"] : "";
 
       try {
-        type = getQuestionById(28).options[answers["28"]].dbValue;    // check if conversation type is OPD
-        console.log("type = ", type)
+        // type = getQuestionById(28).options[answers["28"]].dbValue;    // check if conversation type is OPD
+        // console.log("type = ", type)
       } catch (typeError){
         // type = getQuestionById(2.5).options[answers["2.5"]].dbValue;    // check if conversation type is OPD
         type = undefined
