@@ -27,6 +27,21 @@ function App() {
 	const [hits, setHits] = useState(0);
 	const doctor = useSelector((state) => state.doctor.doctor);
 
+	const incrementHitCount = async () => {
+		try {
+			const response = await fetch(ENDPOINT + '/api/hits', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+			const data = await response.json();
+			console.log('Current Hits:', data.hits);
+		} catch (error) {
+			console.error('Error updating hit count:', error);
+		}
+	};
+
 	const normalise = (hits) => {
 		if (!hits) return hits;
 		const digits = Math.floor(Math.log10(hits)) + 1;
@@ -34,16 +49,22 @@ function App() {
 	};
 
 	useEffect(() => {
-		axios
-			.get(ENDPOINT + '/api/hits')
-			.then((response) => {
+		const fetchHits = async () => {
+			try {
+				const response = await axios.get(ENDPOINT + '/api/hits');
 				const { hits } = response.data;
-				if (hits) setHits(hits);
-			})
-			.catch((err) => {
+				if (hits) {
+					setHits(hits/2);
+				}
+			} catch (err) {
 				console.log(err);
-			});
+			}
+		};
+
+		incrementHitCount(); // Increment on mount
+		fetchHits(); // Fetch the current hits
 	}, []);
+
 
 	// useEffect(() => {
 	//   $(window).on("load", function () {

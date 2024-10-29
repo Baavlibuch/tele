@@ -96,7 +96,7 @@ export default class Chat extends React.Component {
 		this.setState({ languageSelected })//, conversation_session_id})
 
 		this.realtime()
-		
+
 
 		// axios
 		// 	.get(ENDPOINT + '/api/questions')
@@ -143,9 +143,9 @@ export default class Chat extends React.Component {
 				this.connect();
 			});
 		}
-		if(prevProps.chathistory !== chathistory){
+		if (prevProps.chathistory !== chathistory) {
 			console.log(chathistory)
-			this.setState({chat:chathistory})
+			this.setState({ chat: chathistory })
 			this.renderChat();
 		}
 		console.log("Previous callBtn value:", prevProps.callBtn);
@@ -263,20 +263,20 @@ export default class Chat extends React.Component {
 
 	setOutput(statement) {
 		console.log('setOutput() : statement = ', statement);
-	
+
 		// Handle the case where statement is undefined or null
 		if (!statement) {
 			return { chatStatement: "", audio: undefined };
 		}
-	
+
 		let audio = undefined;
 		let chatStatement = (typeof statement === "string") ? statement : statement[this.state.languageSelected];
-	
+
 		if (chatStatement && typeof chatStatement !== "string") {
 			audio = chatStatement["audio"];
 			chatStatement = chatStatement["text"];
 		}
-	
+
 		// Fallback to default behavior if no values exist
 		if (!chatStatement) chatStatement = statement[LANG_HINDI];
 		if (chatStatement && typeof chatStatement !== "string") {
@@ -288,11 +288,11 @@ export default class Chat extends React.Component {
 			audio = chatStatement["audio"];
 			chatStatement = chatStatement["text"];
 		}
-	
+
 		console.log('chatStatement = ', chatStatement);
 		return { chatStatement, audio };
 	}
-	
+
 
 	/**
 	 * formats the data of statement and associated data of message
@@ -418,7 +418,7 @@ export default class Chat extends React.Component {
 		// Ensure event listeners are set up
 		this.socket.on('doctorAlloted', ({ doctor, chat }) => {
 			console.log("chatbot function doctorAlloted");
-		
+
 			this.setState(
 				{
 					answerBoxHidden: false,
@@ -432,7 +432,7 @@ export default class Chat extends React.Component {
 				this.scrollDown
 			);
 		});
-		
+
 
 		this.socket.on('onlineUsers', (onlineUsers) => {
 			console.log("chatbot function onlineUsers");
@@ -1005,10 +1005,10 @@ export default class Chat extends React.Component {
 			requesting,
 			mute
 		} = this.state;
-	
+
 		if (loadingChat) return null;
 		console.log("renderChat : chat.length = ", chat.length, ". chat = ", chat);
-		
+
 		return (
 			<div id="chat-box" className="chat-box" style={answerBoxHidden ? { marginBottom: 0 } : {}}>
 				{chat
@@ -1018,7 +1018,7 @@ export default class Chat extends React.Component {
 						// latest message render
 						let { chatStatement, audio } = this.setOutput(statement);
 						let description_image = getDescriptionImage(statement, this.state.languageSelected);
-	
+
 						return (
 							<p
 								className={`${type}-message ${type === OUTGOING_MESSAGE ? 'fadeInUp' : 'fadeInRight'}`}
@@ -1033,10 +1033,13 @@ export default class Chat extends React.Component {
 									</div>
 								)}
 								{(typeof statement === 'string') && (statement.endsWith('.jpg') || statement.endsWith('.jpeg') || statement.endsWith('.png')) ? (
-									<img
-										src={`/aa/images/` + statement.split('-')[2]}
-										alt=""
-									/>
+									<a href={`/aa/images/` + statement.split('-')[2]} download>
+										<img
+											src={`/aa/images/` + statement.split('-')[2]}
+											alt=""
+											style={{ cursor: 'pointer' }}
+										/>
+									</a>
 								) : (typeof statement === 'string') && statement.endsWith('.pdf') ? (
 									<a
 										href={`/aa/images/` + statement.split('-')[2]}
@@ -1066,7 +1069,7 @@ export default class Chat extends React.Component {
 			</div>
 		);
 	};
-	
+
 
 	stopAudio() {
 		window.speechSynthesis.cancel();

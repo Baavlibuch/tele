@@ -326,18 +326,21 @@ export default class Chat extends React.Component {
 								className={`${type}-message ${type === 'outgoing' ? 'fadeInUp' : 'fadeInRight'}`}
 								style={{ animationDelay: type === 'incoming' ? '0.6s' : '0.2s' }}
 							>
-								{(typeof statement === 'string') && (statement.endsWith('.jpg')||statement.endsWith('.jpeg')|| statement.endsWith('.png')) ? (
-									<img
-										src={`/aa/images/` + statement.split('-')[2]}
-										alt=""
-									/>
+								{(typeof statement === 'string') && (statement.endsWith('.jpg') || statement.endsWith('.jpeg') || statement.endsWith('.png')) ? (
+									<a href={`/aa/images/` + statement.split('-')[2]} download>
+										<img
+											src={`/aa/images/` + statement.split('-')[2]}
+											alt=""
+											style={{ cursor: 'pointer' }}
+										/>
+									</a>
 								) : (typeof statement === 'string') && statement.endsWith('.pdf') ? (
 									<a
 										href={`/aa/images/` + statement.split('-')[2]}
 										target="_blank"
 										rel="noopener noreferrer"
 										download
-										style={{fontSize:'18px'}}
+										style={{ fontSize: '18px' }}
 									>
 										Download PDF
 									</a>

@@ -14,7 +14,10 @@ const storage = multer.diskStorage({
 		cb(null, customFileName + '.' + extension);
 	}
 });
-const upload = multer({ storage });
+const upload = multer({
+	storage: storage,
+	limits: { fileSize: 1024 * 1024 * 50 },
+});
 
 const { realTimeAnswersToModel, answersToModel, getId, computeAndReply } = require('../helper');
 const { mail } = require('../helper/mail');
@@ -57,6 +60,23 @@ router.get('/hits', (req, res) => {
 		res.json({ hits });
 	});
 });
+// Change from `router.get` to `router.post`
+router.post('/hits', async (req, res) => {
+	try {
+		let result = await Hits.findOneAndUpdate({}, { $inc: { hits: 1 } }, { new: true });
+
+		// If no document was found, create one with initial hits of 1
+		if (!result) {
+			result = await Hits.create({ hits: 1, totalHits: 1, totalHosts: 1 });
+		}
+
+		res.json({ hits: result.hits });
+	} catch (err) {
+		res.status(500).json({ error: 'An error occurred' });
+	}
+});
+
+
 /**
  * upload any image
  * this is used in chat of doctor and patient.
