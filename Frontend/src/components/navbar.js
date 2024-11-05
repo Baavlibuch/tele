@@ -55,7 +55,7 @@ function Navbar(props) {
 						</span>
 					</Link>
 
-					<Link
+					{/* <Link
 						to="/faq"
 						onClick={() => {
 							setView('FAQs');
@@ -67,7 +67,7 @@ function Navbar(props) {
 						>
 							FAQs
 						</span>
-					</Link>
+					</Link> */}
 
 					<Link
 						to="/acknowledgement"
@@ -84,18 +84,18 @@ function Navbar(props) {
 					</Link>
 
 					<Link
-            to="/doctor"
-            onClick={() => {
-              setView("Doctor");
-            }}
-          >
-            <span
-              className={`fadeInUp ${view === "Doctor" ? "focused" : ""}`}
-              style={{ animationDelay: "0.6s" }}
-            >
-              Doctor
-            </span>
-          </Link>
+						to="/doctor"
+						onClick={() => {
+							setView("Doctor");
+						}}
+					>
+						<span
+							className={`fadeInUp ${view === "Doctor" ? "focused" : ""}`}
+							style={{ animationDelay: "0.6s" }}
+						>
+							Doctor
+						</span>
+					</Link>
 				</div>
 
 				{/*<div className="navbar-right"/>*/}

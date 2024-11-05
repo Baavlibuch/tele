@@ -4,7 +4,11 @@ const { Schema } = mongoose;
 
 const Chat = new Schema({
 	statement: String,
-	type: String
+	type: String,
+	timestamp: {
+        type: Date,
+        default: Date.now
+    }
 });
 
 const Timestamps = new Schema({
@@ -242,6 +246,7 @@ const PatientSchema = new Schema(
 		 * this field changes only at referral
 		 */
 		doctor: String,
+		village: String,
 		hospital: String,
 		aiims_id: String,
 		/**

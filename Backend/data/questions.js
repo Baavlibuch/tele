@@ -294,7 +294,7 @@ module.exports = {
         },
         {
             "id": 25.0,
-            "nextQuestion": 26,
+            "nextQuestion": 25.1,
             "pattern": "[0-9]{10}",
             "statement": {
                 "hi": "आपका संपर्क नंबर? जिसे आपने पहले पंजीकृत किया था",
@@ -303,17 +303,117 @@ module.exports = {
             "type": "tel"
         },
         {
-            "id": 26.0,
+            "id": 25.1,
             "options": [
                 {
-                    "dbValue": "NIIRNCD",
-                    "nextQuestion": NEXT_QUESTION_ENDS_FLOW,//27.0,
+                    "dbValue": "Ramniya-Kathadi",
+                    "nextQuestion": 26,
                     "statement": {
-                        "hi": "NIIRNCD",
-                        "en": "NIIRNCD"
+                        "hi": "रामनिया-कठाडी",
+                        "en": "Ramniya-Kathadi"
                     },
                     "value": 0
                 },
+                {
+                    "dbValue": "Ramniya-Mangi",
+                    "nextQuestion": 26,
+                    "statement": {
+                        "hi": "रामनिया-मेंगी",
+                        "en": "Ramniya-Mangi"
+                    },
+                    "value": 1
+                },
+                {
+                    "dbValue": "Ramniya-Dhira",
+                    "nextQuestion": 26,
+                    "statement": {
+                        "hi": "रामनिया-धीर",
+                        "en": "Ramniya-Dhira"
+                    },
+                    "value": 2
+                },
+                {
+                    "dbValue": "Ramniya-Bhagva",
+                    "nextQuestion": 26,
+                    "statement": {
+                        "hi": "रामनिया-भगवा",
+                        "en": "Ramniya-Bhagva"
+                    },
+                    "value": 3
+                },
+                {
+                    "dbValue": "Ramniya-Telvada",
+                    "nextQuestion": 26,
+                    "statement": {
+                        "hi": "रामनिया-तेलवाड़ा",
+                        "en": "Ramniya-Telvada"
+                    },
+                    "value": 4
+                },
+                {
+                    "dbValue": "Ramniya-Raghunath Gad",
+                    "nextQuestion": 26,
+                    "statement": {
+                        "hi": "रामनिया-रघुनाथ गढ़",
+                        "en": "Ramniya-Raghunath Gad"
+                    },
+                    "value": 5
+                },
+                {
+                    "dbValue": "Ramniya-Dharbahlo Ki Dhani",
+                    "nextQuestion": 26,
+                    "statement": {
+                        "hi": "रामनिया-धरबाहलो की ढाणी",
+                        "en": "Ramniya-Dharbahlo Ki Dhani"
+                    },
+                    "value": 6
+                },
+                {
+                    "dbValue": "Siner-Dharna",
+                    "nextQuestion": 26,
+                    "statement": {
+                        "hi": "सिनेर-धारना",
+                        "en": "Siner-Dharna"
+                    },
+                    "value": 7
+                },
+                {
+                    "dbValue": "Siner-Anpurna Nagar",
+                    "nextQuestion": 26,
+                    "statement": {
+                        "hi": "सिनेर-आनंदपुर नगर",
+                        "en": "Siner-Anpurna Nagar"
+                    },
+                    "value": 8
+                },
+                {
+                    "dbValue": "Siner-Guda",
+                    "nextQuestion": 26,
+                    "statement": {
+                        "hi": "सिनेर-गुड़ा",
+                        "en": "Siner-Guda"
+                    },
+                    "value": 9
+                }
+            ],
+            "statement": {
+                "hi": "अपना गांव चुनें",
+                "en": "Choose your village"
+            },
+            "type": "select"
+        },        
+        {
+            "id": 26.0,
+            "options": [
+                // {
+                //     "dbValue": "NIIRNCD",
+                //     "nextQuestion": NEXT_QUESTION_ENDS_FLOW,//27.0,
+                //     "statement": {
+                //         "hi": "NIIRNCD",
+                //         "en": "NIIRNCD"
+                //     },
+                //     "value": 0
+                // },
                 {
                     "dbValue": "ICMR",
                     "nextQuestion": NEXT_QUESTION_ENDS_FLOW,//27.0,
@@ -550,7 +650,7 @@ module.exports = {
         },
         {
             "id": 2.41,
-            "nextQuestion": 26,
+            "nextQuestion": 25.1,
             "statement": {
                 "hi": "आपको यह समस्या कब से है?",
                 "en": "How long have you had this problem?"

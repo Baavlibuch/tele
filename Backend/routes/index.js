@@ -207,7 +207,19 @@ router.post('/assessment', (req, res) => {
 						]
 					});
 				}
-
+				let villages = [
+					"Ramniya-Kathadi",
+					"Ramniya-Mangi",
+					"Ramniya-Dhira",
+					"Ramniya-Bhagva",
+					"Ramniya-Telvada",
+					"Ramniya-Raghunath Gad",
+					"Ramniya-Dharbahlo Ki Dhani",
+					"Siner-Dharna",
+					"Siner-Anpurna Nagar",
+					"Siner-Guda"
+				];
+				
 				// Actual push into DB
 				Patient.create(
 					{
@@ -223,6 +235,7 @@ router.post('/assessment', (req, res) => {
 						last_messaged_at: Date.now(),
 						chat: chat.slice(4),
 						conversation_sessions: [conversation_session_id],
+						village: villages[answers['25.1']],
 						symptoms: [answers['2.4']],
 						symptoms_Duration: answers['2.41']
 					},

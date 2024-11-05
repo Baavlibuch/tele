@@ -54,17 +54,16 @@ function App() {
 				const response = await axios.get(ENDPOINT + '/api/hits');
 				const { hits } = response.data;
 				if (hits) {
-					setHits(hits/2);
+					setHits(Math.floor(hits/2));
 				}
 			} catch (err) {
 				console.log(err);
 			}
 		};
-
+		fetchHits();
 		incrementHitCount(); // Increment on mount
-		fetchHits(); // Fetch the current hits
+	 // Fetch the current hits
 	}, []);
-
 
 	// useEffect(() => {
 	//   $(window).on("load", function () {

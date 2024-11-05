@@ -145,6 +145,7 @@ export default class Chat extends React.Component {
 				]
 			});
 			this.socket.emit('changeStatus', { username: this.props.username, status: "idle" });
+			this.props.setchatStarted(false);
 			// window.location.reload();
 
 		});
@@ -304,7 +305,10 @@ export default class Chat extends React.Component {
 				this.setState({ uploadingImage: 0 });
 			});
 	};
-
+	formatTimestamp = (timestamp) => {
+		const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+		return new Date(timestamp).toLocaleDateString('en-US', options);
+	};
 	renderChat = () => {
 		const { callModal, chat, loading, incomingTyping } = this.state;
 		console.log('chat = ', chat)
@@ -316,7 +320,7 @@ export default class Chat extends React.Component {
 				) : chat.every(({ statement }) => statement === undefined) ? (
 					<p className="no-messages">No messages were shared</p>
 				) : (
-					chat.map(({ statement, type }, index) => {
+					chat.map(({ statement, type, timestamp }, index) => {
 						const chatStatement = (statement && typeof statement !== 'string') ? statement['hi'] : statement;
 						if (!chatStatement) return null;
 
@@ -347,23 +351,31 @@ export default class Chat extends React.Component {
 								) : (
 									chatStatement
 								)}
+								{timestamp && (
+									<span className="timestamp" style={{ fontSize: '12px', color: '#999', marginLeft: 'auto' }}>
+										{this.formatTimestamp(timestamp)}
+									</span>
+								)}
 							</p>
 						);
 					})
-				)}
+				)
+				}
 
-				{incomingTyping && (
-					<p className="incoming-message">
-						<div className="dots">
-							<div className="dot" />
-							<div className="dot" />
-							<div className="dot" />
-						</div>
-					</p>
-				)}
+				{
+					incomingTyping && (
+						<p className="incoming-message">
+							<div className="dots">
+								<div className="dot" />
+								<div className="dot" />
+								<div className="dot" />
+							</div>
+						</p>
+					)
+				}
 
 				<CallModal status={callModal} startCall={this.startCall} rejectCall={this.rejectCall} />
-			</div>
+			</div >
 
 		);
 	};

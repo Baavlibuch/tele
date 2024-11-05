@@ -49,7 +49,7 @@ function enterPatient(patientId, hospital, username, live_chat) {
 		{
 			username,
 			// attending: '',
-			hospital,
+			// hospital,
 			chat_id: { $ne: '' }
 		},
 		(err, doctor) => {
