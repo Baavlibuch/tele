@@ -256,6 +256,7 @@ const PatientSchema = new Schema(
 		opd_symptoms: String,
 		opd_symptoms_age: String,
 		timestamps: [Timestamps],
+		followup: Number
 	},
 	{ _id: false }
 );

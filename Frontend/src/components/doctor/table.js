@@ -8,6 +8,7 @@ import Row from './row';
 function Table({ username, changePatient, callStarted }) {
 	const [patients, setPatients] = useState([]);
 	const [page, setPage] = useState(1);
+	const [searchQuery, setSearchQuery] = useState('');
 	const rowsPerPage = 10;
 
 	useEffect(() => {
@@ -35,55 +36,71 @@ function Table({ username, changePatient, callStarted }) {
 	// setInterval(getPatients, 60 * 1000);
 	const displayedPatients = patients.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
+	const filteredKeys = ['symptoms', 'symptoms_Duration', 'village', 'latitude', 'longitude', 'doctor', 'Last Visited', 'Registered', 'followup'];
+
+	const filteredPatients = patients.filter(patient => {
+		return filteredKeys.some(key => {
+			return patient[key] && patient[key].toString().toLowerCase().includes(searchQuery.toLowerCase());
+		});
+	});
+
 	return (
-		<table className="table fadeInUp" style={{ animationDelay: '1s' }}>
-			<h5 className="affected-count">
-				<button onClick={getPatients} class="refresh">
-					<Icon.RefreshCw size={10} />
-				</button>
-				Patients
-			</h5>
-			<thead>
-				<tr>
-					<th className="state-heading">
-						<div className="heading-content">
-							<abbr title="Name">Name</abbr>
-						</div>
-					</th>
-					<th>
-						<div className="heading-content">
-							<abbr className={`${window.innerWidth <= 769 ? 'is-cherry' : ''}`} title="Telephone">
-								{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'T' : 'Tel') : 'Telephone'}
-							</abbr>
-						</div>
-					</th>
-					<th>
-						<div className="heading-content">
-							<abbr className={`${window.innerWidth <= 769 ? 'is-blue' : ''}`} title="Age">
-								{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'A' : 'Age') : 'Age'}
-							</abbr>
-						</div>
-					</th>
-					<th>
-						<div className="heading-content">
-							<abbr className={`${window.innerWidth <= 769 ? 'is-green' : ''}`} title="Gender">
-								{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'G' : 'Gen') : 'Sex'}
-							</abbr>
-						</div>
-					</th>
-					{/* <th>
+		<div>
+			<input
+				type="text"
+				placeholder="Search patients..."
+				value={searchQuery}
+				onChange={(e) => setSearchQuery(e.target.value)}
+				className="search-input"
+				style={{height:'20px',width:"300px"}}
+			/>
+			<table className="table fadeInUp" style={{ animationDelay: '1s' }}>
+				<h5 className="affected-count">
+					<button onClick={getPatients} class="refresh">
+						<Icon.RefreshCw size={10} />
+					</button>
+					Patients
+				</h5>
+				<thead>
+					<tr>
+						<th className="state-heading">
+							<div className="heading-content">
+								<abbr title="Name">Name</abbr>
+							</div>
+						</th>
+						<th>
+							<div className="heading-content">
+								<abbr className={`${window.innerWidth <= 769 ? 'is-cherry' : ''}`} title="Telephone">
+									{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'T' : 'Tel') : 'Telephone'}
+								</abbr>
+							</div>
+						</th>
+						<th>
+							<div className="heading-content">
+								<abbr className={`${window.innerWidth <= 769 ? 'is-blue' : ''}`} title="Age">
+									{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'A' : 'Age') : 'Age'}
+								</abbr>
+							</div>
+						</th>
+						<th>
+							<div className="heading-content">
+								<abbr className={`${window.innerWidth <= 769 ? 'is-green' : ''}`} title="Gender">
+									{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'G' : 'Gen') : 'Sex'}
+								</abbr>
+							</div>
+						</th>
+						{/* <th>
 						<div className="heading-content">
 							<abbr className={`${window.innerWidth <= 769 ? 'is-gray' : ''}`} title="Type">
 								{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'T' : 'Typ') : 'Type'}
 							</abbr>
 						</div>
 					</th> */}
-				</tr>
-			</thead>
+					</tr>
+				</thead>
 
-			{patients.map((patient, index) => {
-				return (
-					<tbody>
+				{filteredPatients.map((patient, index) => (
+					<tbody key={index}>
 						<Row key={index} patient={patient} />
 						{patient.doctor === username ? (
 							<button
@@ -98,17 +115,18 @@ function Table({ username, changePatient, callStarted }) {
 							</button>
 						) : null}
 					</tbody>
-				);
-			})}
-			<div className="pagination">
-				<button onClick={() => setPage(Math.max(1, page - 1))} className="arrow">
-					<Icon.ArrowLeft size={16} />
-				</button>
-				<button onClick={() => setPage(patients.length ? page + 1 : page)} className="arrow">
-					<Icon.ArrowRight size={16} />
-				</button>
-			</div>
-		</table>
+				))}
+				<div style={{fontSize:'12px'}}>count: {filteredPatients.length}</div>
+				<div className="pagination">
+					<button onClick={() => setPage(Math.max(1, page - 1))} className="arrow">
+						<Icon.ArrowLeft size={16} />
+					</button>
+					<button onClick={() => setPage(patients.length ? page + 1 : page)} className="arrow">
+						<Icon.ArrowRight size={16} />
+					</button>
+				</div>
+			</table>
+		</div>
 	);
 }
 

@@ -54,7 +54,7 @@ function Row(props) {
 	// 	console.log(key + ' | ' + JSON.stringify(getObjByID(patient.timestamps, key)));
 	// }
 
-	const filteredKeys = ['symptoms', 'symptoms_Duration', 'village', 'latitude', 'longitude', 'doctor', 'Last Visited', 'Registered'];
+	const filteredKeys = ['symptoms', 'symptoms_Duration', 'village', 'latitude', 'longitude', 'doctor', 'Last Visited', 'Registered', 'followup'];
 
 	return (
 		<React.Fragment>
@@ -91,6 +91,7 @@ function Row(props) {
 			</tr>
 
 			{filteredKeys.map((dataKey, index) => {
+				console.log(patientCopy[dataKey])
 				return (
 					<tr
 						key={index}

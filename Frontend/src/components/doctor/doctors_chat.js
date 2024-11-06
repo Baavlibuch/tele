@@ -119,10 +119,11 @@ export default class Chat extends React.Component {
 						loading: false,
 						textAnswered: '',
 						patientId,
-						chat: chat.map(({ statement, type }) => {
+						chat: chat.map(({ statement, type, timestamp }) => {
 							return {
 								statement,
-								type: type === 'incoming' ? 'outgoing' : 'incoming'
+								type: type === 'incoming' ? 'outgoing' : 'incoming',
+								timestamp
 							};
 						})
 					},
@@ -305,14 +306,22 @@ export default class Chat extends React.Component {
 				this.setState({ uploadingImage: 0 });
 			});
 	};
-	formatTimestamp = (timestamp) => {
-		const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-		return new Date(timestamp).toLocaleDateString('en-US', options);
-	};
+
 	renderChat = () => {
 		const { callModal, chat, loading, incomingTyping } = this.state;
-		console.log('chat = ', chat)
-
+		console.log('chat = ', chat);
+	
+		const formatDateHeader = (timestamp) => {
+			const date = new Date(timestamp);
+			return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+		};
+	
+		const formatTime = (timestamp) => {
+			const date = new Date(timestamp);
+			return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+		};
+	
+		let lastDate = null;
 		return (
 			<div id="chat-box" className="chat-box" style={loading ? { marginBottom: 0 } : {}}>
 				{chat.length === 0 ? (
@@ -323,62 +332,70 @@ export default class Chat extends React.Component {
 					chat.map(({ statement, type, timestamp }, index) => {
 						const chatStatement = (statement && typeof statement !== 'string') ? statement['hi'] : statement;
 						if (!chatStatement) return null;
-
+	
+						const currentDate = timestamp ? formatDateHeader(timestamp) : null;
+						const showDateHeader = currentDate && currentDate !== lastDate;
+						lastDate = currentDate;
+	
 						return (
-							<p
-								key={index}
-								className={`${type}-message ${type === 'outgoing' ? 'fadeInUp' : 'fadeInRight'}`}
-								style={{ animationDelay: type === 'incoming' ? '0.6s' : '0.2s' }}
-							>
-								{(typeof statement === 'string') && (statement.endsWith('.jpg') || statement.endsWith('.jpeg') || statement.endsWith('.png')) ? (
-									<a href={`/aa/images/` + statement.split('-')[2]} download>
-										<img
-											src={`/aa/images/` + statement.split('-')[2]}
-											alt=""
-											style={{ cursor: 'pointer' }}
-										/>
-									</a>
-								) : (typeof statement === 'string') && statement.endsWith('.pdf') ? (
-									<a
-										href={`/aa/images/` + statement.split('-')[2]}
-										target="_blank"
-										rel="noopener noreferrer"
-										download
-										style={{ fontSize: '18px' }}
-									>
-										Download PDF
-									</a>
-								) : (
-									chatStatement
+							<div key={index}>
+								{showDateHeader && (
+									<div className="date-header" style={{ textAlign: 'center', fontWeight: 'bold', marginTop: '10px', marginBottom: '10px', color: '#666' }}>
+										{currentDate}
+									</div>
 								)}
-								{timestamp && (
-									<span className="timestamp" style={{ fontSize: '12px', color: '#999', marginLeft: 'auto' }}>
-										{this.formatTimestamp(timestamp)}
-									</span>
-								)}
-							</p>
+								<p
+									className={`${type}-message ${type === 'outgoing' ? 'fadeInUp' : 'fadeInRight'}`}
+									style={{ animationDelay: type === 'incoming' ? '0.6s' : '0.2s', display: 'flex', alignItems: 'center', marginBottom: '10px' }}
+								>
+									{/* Display images or files */}
+									{(typeof statement === 'string') && (statement.endsWith('.jpg') || statement.endsWith('.jpeg') || statement.endsWith('.png')) ? (
+										<a href={`/aa/images/` + statement.split('-')[2]} download>
+											<img
+												src={`/aa/images/` + statement.split('-')[2]}
+												alt=""
+												style={{ cursor: 'pointer' }}
+											/>
+										</a>
+									) : (typeof statement === 'string') && statement.endsWith('.pdf') ? (
+										<a
+											href={`/aa/images/` + statement.split('-')[2]}
+											target="_blank"
+											rel="noopener noreferrer"
+											download
+											style={{ fontSize: '18px' }}
+										>
+											Download PDF
+										</a>
+									) : (
+										chatStatement
+									)}
+									{timestamp && (
+										<span className="timestamp" style={{ fontSize: '12px', color: '#999', marginLeft: '10px' }}>
+											{formatTime(timestamp)}
+										</span>
+									)}
+								</p>
+							</div>
 						);
 					})
-				)
-				}
-
-				{
-					incomingTyping && (
-						<p className="incoming-message">
-							<div className="dots">
-								<div className="dot" />
-								<div className="dot" />
-								<div className="dot" />
-							</div>
-						</p>
-					)
-				}
-
+				)}
+	
+				{incomingTyping && (
+					<p className="incoming-message">
+						<div className="dots">
+							<div className="dot" />
+							<div className="dot" />
+							<div className="dot" />
+						</div>
+					</p>
+				)}
+	
 				<CallModal status={callModal} startCall={this.startCall} rejectCall={this.rejectCall} />
-			</div >
-
+			</div>
 		);
 	};
+	
 
 	renderAnswers = () => {
 		const { textAnswered, loading, patientId, uploadingImage } = this.state;

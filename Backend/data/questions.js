@@ -294,7 +294,7 @@ module.exports = {
         },
         {
             "id": 25.0,
-            "nextQuestion": 25.1,
+            "nextQuestion": 26,
             "pattern": "[0-9]{10}",
             "statement": {
                 "hi": "आपका संपर्क नंबर? जिसे आपने पहले पंजीकृत किया था",

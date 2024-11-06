@@ -129,9 +129,9 @@ router.post('/assessment', (req, res) => {
 		console.log('routes /assessment() oldPatient')
 		// TODO : add sessions
 		console.log(oldPatient);
-		Patient.findById(oldPatient, async(err, patient) => {
+		Patient.findById(oldPatient, async (err, patient) => {
 			if (err || !patient) {
-				console.log(err,patient)
+				console.log(err, patient)
 				return res.json({
 					incomingChats: [
 						{
@@ -145,6 +145,10 @@ router.post('/assessment', (req, res) => {
 					]
 				});
 			}
+
+			patient.followup = (patient.followup || 0) + 1;
+			await patient.save();
+
 			const { _id, doctor, name, telephone } = patient;
 			// mail(
 			// 	doctor,
@@ -153,8 +157,8 @@ router.post('/assessment', (req, res) => {
 			// );
 			console.log('routes /assessment creating session for new patient')
 			// patient.conversation_sessions.push(conversation_session_id)
-			const doctorModel = await Doctor.findOne({username : doctor});
-			if(doctorModel.status==='idle'||doctorModel.status==='online'){
+			const doctorModel = await Doctor.findOne({ username: doctor });
+			if (doctorModel.status === 'idle' || doctorModel.status === 'online') {
 				res.json({
 					connectToDoctor: true,
 					patientId: _id,
@@ -162,7 +166,7 @@ router.post('/assessment', (req, res) => {
 					question: questions[questions.length - 1]
 				});
 			}
-			else{
+			else {
 				return res.json({
 					incomingChats: [
 						{
@@ -170,7 +174,7 @@ router.post('/assessment', (req, res) => {
 								en: "The doctor is currently unavailable, but you can view your chat history by clicking the chat icon next to the doctor 🙁",
 								hi: "डॉक्टर इस समय उपलब्ध नहीं हैं, लेकिन आप डॉक्टर के पास चैट आइकन पर क्लिक करके अपनी चैट हिस्ट्री देख सकते हैं 🙁",
 								bn: "ডাক্তার বর্তমানে উপলব্ধ নেই, তবে আপনি ডাক্তারের পাশে চ্যাট আইকনে ক্লিক করে আপনার চ্যাট ইতিহাস দেখতে পারেন 🙁"
-							},							
+							},
 							type: 'incoming'
 						}
 					]
@@ -219,7 +223,7 @@ router.post('/assessment', (req, res) => {
 					"Siner-Anpurna Nagar",
 					"Siner-Guda"
 				];
-				
+
 				// Actual push into DB
 				Patient.create(
 					{
@@ -237,7 +241,8 @@ router.post('/assessment', (req, res) => {
 						conversation_sessions: [conversation_session_id],
 						village: villages[answers['25.1']],
 						symptoms: [answers['2.4']],
-						symptoms_Duration: answers['2.41']
+						symptoms_Duration: answers['2.41'],
+						followup: 1,
 					},
 					(err, patient) => {
 						if (err) {
