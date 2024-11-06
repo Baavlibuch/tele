@@ -146,9 +146,6 @@ router.post('/assessment', (req, res) => {
 				});
 			}
 
-			patient.followup = (patient.followup || 0) + 1;
-			await patient.save();
-
 			const { _id, doctor, name, telephone } = patient;
 			// mail(
 			// 	doctor,
@@ -159,6 +156,12 @@ router.post('/assessment', (req, res) => {
 			// patient.conversation_sessions.push(conversation_session_id)
 			const doctorModel = await Doctor.findOne({ username: doctor });
 			if (doctorModel.status === 'idle' || doctorModel.status === 'online') {
+				patient.followup = (patient.followup || 0) + 1;
+				patient.chat.push({
+					statement: "session-closed",
+					type: 'incoming',
+				});
+				await patient.save();
 				res.json({
 					connectToDoctor: true,
 					patientId: _id,
@@ -505,21 +508,19 @@ router.get('/questions', (req, res) => {
  * Provides patient list for doctor's interface
  */
 router.get('/patient-list', authenticate, (req, res) => {
-	const { page } = req.query;
-	const pageSize = 10;
 	const { username: doctor } = req.user;
+	
 	Patient.find(
 		{ doctor },
 		{ chat: 0, last_notified_at: 0, __v: 0, chat_id: 0 },
 		{
-			limit: pageSize,
-			skip: pageSize * Math.max(0, page - 1),
 			sort: {
 				last_messaged_at: -1
 			}
 		},
 		(err, patients) => {
 			if (err) return res.json({ error: true });
+			
 			res.json({
 				patients: patients.map(({ _doc: patient }) => {
 					const { created_at, last_messaged_at } = patient;
@@ -533,6 +534,7 @@ router.get('/patient-list', authenticate, (req, res) => {
 		}
 	);
 });
+
 
 /**
  * Used by doctor to get other doctors

@@ -1015,6 +1015,7 @@ export default class Chat extends React.Component {
 					.filter(item => item !== undefined && item !== null) // Filter out undefined or null entries
 					.map(({ statement, type }) => {
 						if (!statement) return null;
+						if ( statement==='session-closed' ) return null;
 						// latest message render
 						let { chatStatement, audio } = this.setOutput(statement);
 						let description_image = getDescriptionImage(statement, this.state.languageSelected);

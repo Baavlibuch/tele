@@ -226,7 +226,7 @@ const makeChatNameSpace = (live_chat) => {
 					console.log("updatepatientchat")
 					patient.chat.push({
 						statement: message,
-						type: 'incoming'
+						type: 'incoming',
 					});
 					patient.save((err) => {
 						if (err) console.error(err);
@@ -244,8 +244,8 @@ const makeChatNameSpace = (live_chat) => {
 					console.log("updatepatientchat")
 					patient.chat.push({
 						statement: message,
-						type: 'outgoing'
-					});
+						type: 'incoming',
+					});					
 					patient.last_messaged_at = Date.now();
 					patient.save((err) => {
 						if (err) console.error(err);

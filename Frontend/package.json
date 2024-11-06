@@ -37,7 +37,8 @@
     "redux": "^4.2.1",
     "sass": "^1.69.6",
     "socket.io-client": "^4.7.2",
-    "universal-cookie": "^4.0.4"
+    "universal-cookie": "^4.0.4",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "set PORT=3001 && react-scripts --openssl-legacy-provider start css-watch",

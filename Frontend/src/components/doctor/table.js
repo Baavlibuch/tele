@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import * as Icon from 'react-feather';
 import axios from 'axios';
 import { ENDPOINT } from '../../config';
-
 import Row from './row';
+import * as XLSX from 'xlsx'; // For Excel
 
 function Table({ username, changePatient, callStarted }) {
 	const [patients, setPatients] = useState([]);
@@ -20,11 +20,11 @@ function Table({ username, changePatient, callStarted }) {
 
 	useEffect(() => {
 		getPatients();
-	}, [page, callStarted]);
+	}, [callStarted]);
 
 	const getPatients = () => {
 		axios
-			.get(ENDPOINT + '/api/patient-list?page=' + page)
+			.get(ENDPOINT + '/api/patient-list')
 			.then((response) => {
 				setPatients(response.data.patients);
 			})
@@ -32,17 +32,26 @@ function Table({ username, changePatient, callStarted }) {
 				console.log(err);
 			});
 	};
-	// make a axios call every 1min
-	// setInterval(getPatients, 60 * 1000);
-	const displayedPatients = patients.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
 	const filteredKeys = ['symptoms', 'symptoms_Duration', 'village', 'latitude', 'longitude', 'doctor', 'Last Visited', 'Registered', 'followup'];
-
-	const filteredPatients = patients.filter(patient => {
-		return filteredKeys.some(key => {
+	const filteredPatients = patients.filter((patient) => {
+		return filteredKeys.some((key) => {
 			return patient[key] && patient[key].toString().toLowerCase().includes(searchQuery.toLowerCase());
 		});
 	});
+
+	const displayedPatients = filteredPatients.slice((page - 1) * rowsPerPage, page * rowsPerPage);
+	const totalPages = Math.ceil(filteredPatients.length / rowsPerPage);
+
+	const followupCount = patients.filter(patient => patient.followup > 1).length;
+
+	// Excel download function
+	const downloadExcel = () => {
+		const worksheet = XLSX.utils.json_to_sheet(patients);
+		const workbook = XLSX.utils.book_new();
+		XLSX.utils.book_append_sheet(workbook, worksheet, 'Patients');
+		XLSX.writeFile(workbook, 'patients.xlsx');
+	};
 
 	return (
 		<div>
@@ -52,11 +61,17 @@ function Table({ username, changePatient, callStarted }) {
 				value={searchQuery}
 				onChange={(e) => setSearchQuery(e.target.value)}
 				className="search-input"
-				style={{height:'20px',width:"300px"}}
+				style={{ height: '20px', width: '300px' }}
 			/>
+			<div>
+				<h5>Total Patients with Follow-up: {followupCount}</h5>
+				<button onClick={downloadExcel} className="download-btn">
+					Download Excel
+				</button>
+			</div>
 			<table className="table fadeInUp" style={{ animationDelay: '1s' }}>
 				<h5 className="affected-count">
-					<button onClick={getPatients} class="refresh">
+					<button onClick={getPatients} className="refresh">
 						<Icon.RefreshCw size={10} />
 					</button>
 					Patients
@@ -89,17 +104,9 @@ function Table({ username, changePatient, callStarted }) {
 								</abbr>
 							</div>
 						</th>
-						{/* <th>
-						<div className="heading-content">
-							<abbr className={`${window.innerWidth <= 769 ? 'is-gray' : ''}`} title="Type">
-								{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'T' : 'Typ') : 'Type'}
-							</abbr>
-						</div>
-					</th> */}
 					</tr>
 				</thead>
-
-				{filteredPatients.map((patient, index) => (
+				{displayedPatients.map((patient, index) => (
 					<tbody key={index}>
 						<Row key={index} patient={patient} />
 						{patient.doctor === username ? (
@@ -116,12 +123,23 @@ function Table({ username, changePatient, callStarted }) {
 						) : null}
 					</tbody>
 				))}
-				<div style={{fontSize:'12px'}}>count: {filteredPatients.length}</div>
+				<div style={{ fontSize: '12px' }}>Count: {filteredPatients.length}</div>
 				<div className="pagination">
-					<button onClick={() => setPage(Math.max(1, page - 1))} className="arrow">
+					<button
+						onClick={() => setPage(Math.max(1, page - 1))}
+						className="arrow"
+						disabled={page === 1}
+					>
 						<Icon.ArrowLeft size={16} />
 					</button>
-					<button onClick={() => setPage(patients.length ? page + 1 : page)} className="arrow">
+					<span>
+						Page {page} of {totalPages}
+					</span>
+					<button
+						onClick={() => setPage(Math.min(totalPages, page + 1))}
+						className="arrow"
+						disabled={page === totalPages}
+					>
 						<Icon.ArrowRight size={16} />
 					</button>
 				</div>

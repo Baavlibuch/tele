@@ -240,6 +240,7 @@ export default class Chat extends React.Component {
 			]
 		});
 		const { patientId } = this.state;
+		// this.socket.emit('message', { message: "session-closed", to: patientId });
 		console.log(patientId)
 		this.socket.emit('disconnectUser', { patientId });
 		this.props.setchatStarted(false);
@@ -309,7 +310,6 @@ export default class Chat extends React.Component {
 
 	renderChat = () => {
 		const { callModal, chat, loading, incomingTyping } = this.state;
-		console.log('chat = ', chat);
 	
 		const formatDateHeader = (timestamp) => {
 			const date = new Date(timestamp);
@@ -333,6 +333,18 @@ export default class Chat extends React.Component {
 						const chatStatement = (statement && typeof statement !== 'string') ? statement['hi'] : statement;
 						if (!chatStatement) return null;
 	
+						// Check if the statement is 'session-closed' to render a special component
+						if (statement === 'session-closed') {
+							return (
+								<div key={index} className="session-closed" style={{ textAlign: 'center', margin: '20px 0', position: 'relative' }}>
+									<hr style={{ border: '0.5px solid #ddd' }} />
+									<span style={{ position: 'absolute', top: '-10px', background: '#fff', padding: '0 10px', fontSize: '14px', color: '#666' }}>
+										Follow-Up
+									</span>
+								</div>
+							);
+						}
+	
 						const currentDate = timestamp ? formatDateHeader(timestamp) : null;
 						const showDateHeader = currentDate && currentDate !== lastDate;
 						lastDate = currentDate;
@@ -348,7 +360,6 @@ export default class Chat extends React.Component {
 									className={`${type}-message ${type === 'outgoing' ? 'fadeInUp' : 'fadeInRight'}`}
 									style={{ animationDelay: type === 'incoming' ? '0.6s' : '0.2s', display: 'flex', alignItems: 'center', marginBottom: '10px' }}
 								>
-									{/* Display images or files */}
 									{(typeof statement === 'string') && (statement.endsWith('.jpg') || statement.endsWith('.jpeg') || statement.endsWith('.png')) ? (
 										<a href={`/aa/images/` + statement.split('-')[2]} download>
 											<img
@@ -395,6 +406,7 @@ export default class Chat extends React.Component {
 			</div>
 		);
 	};
+	
 	
 
 	renderAnswers = () => {
