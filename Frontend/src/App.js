@@ -20,6 +20,7 @@ import { Toaster } from 'react-hot-toast';
 
 import { useSelector, useDispatch } from 'react-redux';
 import Verification from './components/doctor/verification';
+import PatientList from './components/doctor/showallpatients';
 
 const history = require('history').createBrowserHistory;
 
@@ -123,6 +124,7 @@ function App() {
 									path="/acknowledgement"
 									render={(props) => <Acknowledgement {...props} />}
 								/>
+								<Route exact path="/patients" render={(props) => <PatientList {...props} />}/>
 							</Switch>
 						</div>
 					)}

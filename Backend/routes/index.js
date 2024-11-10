@@ -520,17 +520,86 @@ router.get('/patient-list', authenticate, (req, res) => {
 		},
 		(err, patients) => {
 			if (err) return res.json({ error: true });
-			
-			res.json({
-				patients: patients.map(({ _doc: patient }) => {
-					const { created_at, last_messaged_at } = patient;
-					delete patient['created_at'];
-					delete patient['last_messaged_at'];
-					patient['Last Visited'] = new Date(last_messaged_at).toLocaleString();
-					patient['Registered'] = new Date(created_at).toLocaleString();
-					return patient;
-				})
+
+			const filteredPatients = patients.map(({ _doc: patient }) => {
+
+				const {
+					_id,
+					name,
+					age,
+					gender,
+					telephone,
+					hospital,
+					timestamps,
+					ip,
+					doctor,
+					village,
+					symptoms_Duration,
+					followup,
+					created_at,
+					last_messaged_at,
+					latitude,
+					longitude
+				} = patient;
+
+				return {
+					_id,
+					name,
+					age,
+					gender,
+					telephone,
+					hospital,
+					timestamps,
+					ip,
+					doctor,
+					village,
+					symptoms_Duration,
+					followup,
+					'Last Visited': new Date(last_messaged_at).toLocaleString(),
+					'Registered': new Date(created_at).toLocaleString(),
+					latitude,
+					longitude
+				};
 			});
+			
+			res.json({ patients: filteredPatients });
+		}
+	);
+});
+
+router.get('/all-patients', authenticate, (req, res) => {
+	const { username: doctor } = req.user;
+
+	Patient.find(
+		{ doctor },
+		null, 
+		{
+			sort: { last_messaged_at: -1 }
+		},
+		(err, patients) => {
+			if (err) return res.status(500).json({ error: true, message: 'Error retrieving patients' });
+
+
+			const allPatients = patients.map(({ _doc: patient }) => {
+
+				const { created_at, last_messaged_at, chat } = patient;
+
+
+				const formattedChat = chat.map(({ statement, type, timestamp }) => ({
+					statement,
+					type,
+					timestamp: new Date(timestamp).toLocaleString()
+				}));
+
+				return {
+					...patient, 
+					chat: formattedChat,
+					'Last Visited': new Date(last_messaged_at).toLocaleString(),
+					Registered: new Date(created_at).toLocaleString()
+				};
+			});
+
+			res.json({ patients: allPatients });
 		}
 	);
 });

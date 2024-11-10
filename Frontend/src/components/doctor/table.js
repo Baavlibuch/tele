@@ -4,13 +4,14 @@ import axios from 'axios';
 import { ENDPOINT } from '../../config';
 import Row from './row';
 import * as XLSX from 'xlsx'; // For Excel
+import { useHistory } from 'react-router-dom';
 
 function Table({ username, changePatient, callStarted }) {
 	const [patients, setPatients] = useState([]);
 	const [page, setPage] = useState(1);
 	const [searchQuery, setSearchQuery] = useState('');
 	const rowsPerPage = 10;
-
+	const history = useHistory();
 	useEffect(() => {
 		const timer = setInterval(() => {
 			getPatients();
@@ -53,20 +54,27 @@ function Table({ username, changePatient, callStarted }) {
 		XLSX.writeFile(workbook, 'patients.xlsx');
 	};
 
+	const handleNavigation = () => {
+		history.push('/patients');
+	};
+
 	return (
 		<div>
-			<input
+			{/* <input
 				type="text"
 				placeholder="Search patients..."
 				value={searchQuery}
 				onChange={(e) => setSearchQuery(e.target.value)}
 				className="search-input"
 				style={{ height: '20px', width: '300px' }}
-			/>
+			/> */}
 			<div>
 				<h5>Total Patients with Follow-up: {followupCount}</h5>
 				<button onClick={downloadExcel} className="download-btn">
 					Download Excel
+				</button>
+				<button onClick={handleNavigation} className="download-btn">
+					See All Patients
 				</button>
 			</div>
 			<table className="table fadeInUp" style={{ animationDelay: '1s' }}>
