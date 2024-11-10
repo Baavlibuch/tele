@@ -69,7 +69,7 @@ function Navbar(props) {
 						</span>
 					</Link> */}
 
-					<Link
+					{/* <Link
 						to="/acknowledgement"
 						onClick={() => {
 							setView('Acknowledgement');
@@ -81,7 +81,7 @@ function Navbar(props) {
 						>
 							Acknowledgement
 						</span>
-					</Link>
+					</Link> */}
 
 					<Link
 						to="/doctor"
