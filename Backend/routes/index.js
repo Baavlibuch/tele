@@ -5,15 +5,18 @@ const multer = require('multer');
 const crypto = require('crypto');
 const storage = multer.diskStorage({
 	destination: function (req, file, cb) {
-		cb(null, 'public/images/');
+	  cb(null, 'public/images/');
 	},
 	filename: function (req, file, cb) {
-		const name = file.originalname.split('.');
-		const customFileName = crypto.randomBytes(18).toString('hex');
-		const extension = name[name.length - 1];
-		cb(null, customFileName + '.' + extension);
+	  const nameParts = file.originalname.split('.');
+	  const originalNameWithoutExt = nameParts.slice(0, -1).join('.'); 
+	  const extension = nameParts[nameParts.length - 1];
+	  const randomString = crypto.randomBytes(1).toString('hex'); 
+	  const customFileName = `${originalNameWithoutExt}-${randomString}.${extension}`;
+	  
+	  cb(null, customFileName);
 	}
-});
+  });
 const upload = multer({
 	storage: storage,
 	limits: { fileSize: 1024 * 1024 * 50 },
@@ -512,11 +515,9 @@ router.get('/patient-list', authenticate, (req, res) => {
 	
 	Patient.find(
 		{ doctor },
-		{ chat: 0, last_notified_at: 0, __v: 0, chat_id: 0 },
+		null, 
 		{
-			sort: {
-				last_messaged_at: -1
-			}
+			sort: { last_messaged_at: -1 }
 		},
 		(err, patients) => {
 			if (err) return res.json({ error: true });
@@ -539,9 +540,14 @@ router.get('/patient-list', authenticate, (req, res) => {
 					created_at,
 					last_messaged_at,
 					latitude,
-					longitude
+					longitude,
+					chat
 				} = patient;
-
+				const formattedChat = chat.map(({ statement, type, timestamp }) => ({
+					statement,
+					type,
+					timestamp: new Date(timestamp).toLocaleString()
+				}));
 				return {
 					_id,
 					name,
@@ -558,7 +564,8 @@ router.get('/patient-list', authenticate, (req, res) => {
 					'Last Visited': new Date(last_messaged_at).toLocaleString(),
 					'Registered': new Date(created_at).toLocaleString(),
 					latitude,
-					longitude
+					longitude,
+					chat: formattedChat,
 				};
 			});
 			

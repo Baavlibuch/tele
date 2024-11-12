@@ -12,6 +12,7 @@ function Table({ username, changePatient, callStarted }) {
 	const [searchQuery, setSearchQuery] = useState('');
 	const rowsPerPage = 10;
 	const history = useHistory();
+
 	useEffect(() => {
 		const timer = setInterval(() => {
 			getPatients();
@@ -46,11 +47,26 @@ function Table({ username, changePatient, callStarted }) {
 
 	const followupCount = patients.filter(patient => patient.followup > 1).length;
 
-	// Excel download function
 	const downloadExcel = () => {
-		const worksheet = XLSX.utils.json_to_sheet(patients);
+		const currentUrl = window.location.origin;
+
+		const modifiedPatients = patients.map((patient) => {
+			const imagesAndDocs = patient.chat
+				.filter(convo => convo.statement && convo.statement.startsWith('chat-img-') && 
+					(convo.statement.endsWith('.jpg') || convo.statement.endsWith('.pdf')))
+					.map(convo => `${currentUrl}/aa/images/${convo.statement.replace("chat-img-", "")}`)
+				.join(', ');
+
+			return {
+				...patient,
+				"Images and Documents": imagesAndDocs || 'N/A'
+			};
+		});
+
+		const worksheet = XLSX.utils.json_to_sheet(modifiedPatients);
 		const workbook = XLSX.utils.book_new();
 		XLSX.utils.book_append_sheet(workbook, worksheet, 'Patients');
+
 		XLSX.writeFile(workbook, 'patients.xlsx');
 	};
 
@@ -60,14 +76,6 @@ function Table({ username, changePatient, callStarted }) {
 
 	return (
 		<div>
-			{/* <input
-				type="text"
-				placeholder="Search patients..."
-				value={searchQuery}
-				onChange={(e) => setSearchQuery(e.target.value)}
-				className="search-input"
-				style={{ height: '20px', width: '300px' }}
-			/> */}
 			<div>
 				<h5>Total Patients with Follow-up: {followupCount}</h5>
 				<button onClick={downloadExcel} className="download-btn">
