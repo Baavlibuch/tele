@@ -54,7 +54,7 @@ function Row(props) {
 	// 	console.log(key + ' | ' + JSON.stringify(getObjByID(patient.timestamps, key)));
 	// }
 
-	const filteredKeys = ['symptoms', 'symptoms_Duration', 'village', 'latitude', 'longitude', 'doctor', 'Last Visited', 'Registered', 'followup'];
+	const filteredKeys = ['symptoms', 'symptoms_Duration', 'village', 'latitude', 'longitude', 'doctor', 'Last Visited', 'Registered', 'followup', 'BP_systolic', 'BP_diastolic', 'SPO2_value', 'heart_rate'];
 
 	return (
 		<React.Fragment>

@@ -43,7 +43,6 @@ function PatientList() {
 
     return (
         <div>
-
             <div style={{ marginBottom: '20px' }}>
                 <TextField
                     label="Search Patients"
@@ -84,13 +83,17 @@ function PatientList() {
                             <TableCell>Registered</TableCell>
                             <TableCell>Latitude</TableCell>
                             <TableCell>Longitude</TableCell>
+                            <TableCell>BP Systolic</TableCell>
+                            <TableCell>BP Diastolic</TableCell>
+                            <TableCell>SPO2</TableCell>
+                            <TableCell>Heart Rate</TableCell>
                             <TableCell>Chat History</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {filteredPatients.map(patient => (
-                            <>
-                                <TableRow key={patient._id}>
+                            <React.Fragment key={patient._id}>
+                                <TableRow>
                                     <TableCell>{patient._id}</TableCell>
                                     <TableCell>{patient.name}</TableCell>
                                     <TableCell>{patient.age}</TableCell>
@@ -99,13 +102,17 @@ function PatientList() {
                                     <TableCell>{patient.hospital}</TableCell>
                                     <TableCell>{patient.doctor}</TableCell>
                                     <TableCell>{patient.village}</TableCell>
-                                    <TableCell>{patient.symptoms.join(', ')}</TableCell> {/* Join symptoms if it's an array */}
+                                    <TableCell>{patient.symptoms}</TableCell>
                                     <TableCell>{patient.symptoms_Duration}</TableCell>
                                     <TableCell>{patient.followup}</TableCell>
                                     <TableCell>{patient['Last Visited']}</TableCell>
                                     <TableCell>{patient.Registered}</TableCell>
                                     <TableCell>{patient.latitude}</TableCell>
                                     <TableCell>{patient.longitude}</TableCell>
+                                    <TableCell>{patient.BP_systolic}</TableCell>
+                                    <TableCell>{patient.BP_diastolic}</TableCell>
+                                    <TableCell>{patient.SPO2_value}</TableCell>
+                                    <TableCell>{patient.heart_rate}</TableCell>
                                     <TableCell>
                                         <IconButton onClick={() => toggleRow(patient._id)}>
                                             {expandedRows[patient._id] ? <ExpandLess /> : <ExpandMore />}
@@ -113,11 +120,12 @@ function PatientList() {
                                     </TableCell>
                                 </TableRow>
                                 <TableRow>
-                                    <TableCell colSpan={15}>
+                                    <TableCell colSpan={20}>
                                         <Collapse in={expandedRows[patient._id]} timeout="auto" unmountOnExit>
                                             <Typography variant="subtitle1">Chat History</Typography>
                                             {patient.chat.map((msg, index) => (
-                                                <Typography key={index}>
+                                                <Typography key={index} style={{ marginBottom: '8px' }}>
+                                                    {/* {msg.timestamp && <span>[{msg.timestamp}] </span>} */}
                                                     {(typeof msg.statement === 'string') && (msg.statement.endsWith('.jpg') || msg.statement.endsWith('.jpeg') || msg.statement.endsWith('.png')) ? (
                                                         <a href={`/aa/images/` + msg.statement.split('-')[2]} download>
                                                             <img
@@ -144,7 +152,7 @@ function PatientList() {
                                         </Collapse>
                                     </TableCell>
                                 </TableRow>
-                            </>
+                            </React.Fragment>
                         ))}
                     </TableBody>
                 </Table>

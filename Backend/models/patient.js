@@ -40,6 +40,9 @@ const PatientSchema = new Schema(
 		monte_carlo_tree: [],
 
 		SPO2_value: String,
+		BP_systolic: String,
+		BP_diastolic: String,
+		heart_rate: String,
 		Pulserate: String,
 		BP_value: String,
 		Temperature_value: String,
@@ -112,7 +115,7 @@ const PatientSchema = new Schema(
 			required: false,
 			default: 'NA'
 		},
-		symptoms: { type: [String], default: [] },
+		symptoms: String,
 		symptoms_Duration : String,
 		vaccination_status: String,
 		symptomatic_forcovid: Boolean,

@@ -294,7 +294,7 @@ module.exports = {
         },
         {
             "id": 25.0,
-            "nextQuestion": 26,
+            "nextQuestion": 25.9,
             "pattern": "[0-9]{10}",
             "statement": {
                 "hi": "आपका संपर्क नंबर? जिसे आपने पहले पंजीकृत किया था",
@@ -401,9 +401,72 @@ module.exports = {
                 "en": "Choose your village"
             },
             "type": "select"
-        },        
+        },
         {
-            "id": 26.0,
+            "id": 26,
+            "nextQuestion": 25.3,
+            "statement": {
+                "hi": "आपका सिस्टोलिक bp कितना है?",
+                "en": "What is your systolic BP?"
+            },
+            [TYPE]: TYPE_TEXT
+        },
+        {
+            "id": 25.3,
+            "nextQuestion": 25.5,
+            "statement": {
+                "hi": "आपका डायास्टोलिक bp कितना है?",
+                "en": "What is your diastolic BP?"
+            },
+            [TYPE]: TYPE_TEXT
+        },
+        // {
+        //     "id": 25.4,
+        //     "nextQuestion": 25.5,
+        //     "statement": {
+        //         "hi": "अपने bp का फोटो डाले?",
+        //         "en": "Upload a photo of your BP reading."
+        //     },
+        //     "type": "upload"
+        // },
+        {
+            "id": 25.5,
+            "nextQuestion": 25.6,
+            "statement": {
+                "hi": "आपका spo2 कितना है?",
+                "en": "What is your SpO2?"
+            },
+            [TYPE]: TYPE_TEXT
+        },
+        {
+            "id": 25.6,
+            "nextQuestion": 25.9,
+            "statement": {
+                "hi": "आपका heart रेट कितना है?",
+                "en": "What is your heart rate?"
+            },
+            [TYPE]: TYPE_TEXT
+        },
+        // {
+        //     "id": 25.7,
+        //     "nextQuestion": 25.8,
+        //     "statement": {
+        //         "hi": "अपने spo2 / हार्ट रेट का फोटो डाले।",
+        //         "en": "Upload a photo of your SpO2/heart rate."
+        //     },
+        //     "type": "upload"
+        // },
+        // {
+        //     "id": 25.8,
+        //     "nextQuestion": 25.9,
+        //     "statement": {
+        //         "hi": "अपने ecg का pdf डाले।",
+        //         "en": "Upload a PDF of your ECG."
+        //     },
+        //     "type": "upload"
+        // },        
+        {
+            "id": 25.9,
             "options": [
                 // {
                 //     "dbValue": "NIIRNCD",

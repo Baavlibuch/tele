@@ -5,18 +5,18 @@ const multer = require('multer');
 const crypto = require('crypto');
 const storage = multer.diskStorage({
 	destination: function (req, file, cb) {
-	  cb(null, 'public/images/');
+		cb(null, 'public/images/');
 	},
 	filename: function (req, file, cb) {
-	  const nameParts = file.originalname.split('.');
-	  const originalNameWithoutExt = nameParts.slice(0, -1).join('.'); 
-	  const extension = nameParts[nameParts.length - 1];
-	  const randomString = crypto.randomBytes(1).toString('hex'); 
-	  const customFileName = `${originalNameWithoutExt}-${randomString}.${extension}`;
-	  
-	  cb(null, customFileName);
+		const nameParts = file.originalname.split('.');
+		const originalNameWithoutExt = nameParts.slice(0, -1).join('.');
+		const extension = nameParts[nameParts.length - 1];
+		const randomString = crypto.randomBytes(1).toString('hex');
+		const customFileName = `${originalNameWithoutExt}-${randomString}.${extension}`;
+
+		cb(null, customFileName);
 	}
-  });
+});
 const upload = multer({
 	storage: storage,
 	limits: { fileSize: 1024 * 1024 * 50 },
@@ -246,8 +246,12 @@ router.post('/assessment', (req, res) => {
 						chat: chat.slice(4),
 						conversation_sessions: [conversation_session_id],
 						village: villages[answers['25.1']],
-						symptoms: [answers['2.4']],
+						symptoms: answers['2.4'],
 						symptoms_Duration: answers['2.41'],
+						BP_systolic: answers['26'],
+						BP_diastolic: answers['25.3'],
+						SPO2_value: answers['25.5'],
+						heart_rate: answers['25.6'],
 						followup: 1,
 					},
 					(err, patient) => {
@@ -512,10 +516,10 @@ router.get('/questions', (req, res) => {
  */
 router.get('/patient-list', authenticate, (req, res) => {
 	const { username: doctor } = req.user;
-	
+
 	Patient.find(
 		{ doctor },
-		null, 
+		null,
 		{
 			sort: { last_messaged_at: -1 }
 		},
@@ -535,7 +539,12 @@ router.get('/patient-list', authenticate, (req, res) => {
 					ip,
 					doctor,
 					village,
+					symptoms,
 					symptoms_Duration,
+					BP_systolic,
+					BP_diastolic,
+					SPO2_value,
+					heart_rate,
 					followup,
 					created_at,
 					last_messaged_at,
@@ -559,7 +568,12 @@ router.get('/patient-list', authenticate, (req, res) => {
 					ip,
 					doctor,
 					village,
+					symptoms,
 					symptoms_Duration,
+					BP_systolic,
+					BP_diastolic,
+					SPO2_value,
+					heart_rate,
 					followup,
 					'Last Visited': new Date(last_messaged_at).toLocaleString(),
 					'Registered': new Date(created_at).toLocaleString(),
@@ -568,7 +582,7 @@ router.get('/patient-list', authenticate, (req, res) => {
 					chat: formattedChat,
 				};
 			});
-			
+
 			res.json({ patients: filteredPatients });
 		}
 	);
@@ -579,7 +593,7 @@ router.get('/all-patients', authenticate, (req, res) => {
 
 	Patient.find(
 		{ doctor },
-		null, 
+		null,
 		{
 			sort: { last_messaged_at: -1 }
 		},
@@ -599,7 +613,7 @@ router.get('/all-patients', authenticate, (req, res) => {
 				}));
 
 				return {
-					...patient, 
+					...patient,
 					chat: formattedChat,
 					'Last Visited': new Date(last_messaged_at).toLocaleString(),
 					Registered: new Date(created_at).toLocaleString()
