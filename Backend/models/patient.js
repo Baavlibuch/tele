@@ -48,6 +48,9 @@ const PatientSchema = new Schema(
 		Temperature_value: String,
 		Bloodglucose_taken_at: String,
 		Bloodglucose_value: String,
+
+		prescription: String,
+		diagnosis: String,
 		/**
 		Vital parameters reading
 		*/
@@ -119,6 +122,9 @@ const PatientSchema = new Schema(
 		symptoms_Duration : String,
 		vaccination_status: String,
 		symptomatic_forcovid: Boolean,
+		BP_Image: String,
+		Spo2_Image: String,
+		ECG_Image: String,
 
 		/*
 		 * Cardiac screening

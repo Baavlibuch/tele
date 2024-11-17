@@ -979,7 +979,23 @@ export default class Chat extends React.Component {
 				if (this.socket) {
 					this.socket.emit('message', { message: 'chat-img-' + image.filename, to: doctor });
 				} else if (nextQuestion) {
-					this.setQuestion(nextQuestion);
+					// this.setQuestion(nextQuestion);
+					this.realtime()
+					this.setState(
+						{
+							answers: {
+								...this.state.answers,
+								[questionDetails.id]: `https://teleniir.com/aa/images/${image.filename}`
+							},
+							answerBoxHidden: true,
+							timestamps: {
+								...this.state.timestamps,
+								[questionDetails.id]: Date.now()
+							}
+						},
+						// this.answerEntered
+					);
+					// this.answer(null, false);
 				} else if (nextQuestion === 0) {
 					this.endChatbotSequence();
 				}

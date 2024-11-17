@@ -9,7 +9,7 @@ const storage = multer.diskStorage({
 	},
 	filename: function (req, file, cb) {
 		const nameParts = file.originalname.split('.');
-		const originalNameWithoutExt = nameParts.slice(0, -1).join('.');
+		const originalNameWithoutExt = nameParts.slice(0, -1).join('.').replace(/-/g, '_');
 		const extension = nameParts[nameParts.length - 1];
 		const randomString = crypto.randomBytes(1).toString('hex');
 		const customFileName = `${originalNameWithoutExt}-${randomString}.${extension}`;
@@ -37,6 +37,62 @@ const router = express.Router();
 
 require('../helper/corona_data');
 const { compute } = require("../compute/compute");
+
+//prescription and diagnosis
+router.post('/presc_n_diagnosis', upload.single('file'), async (req, res) => {
+	try {
+		const { type, patientId } = req.body;
+
+		if (!req.file) {
+			return res.status(400).json({ message: 'No file uploaded' });
+		}
+
+		if (!type || !patientId) {
+			return res.status(400).json({ message: 'Type and Patient ID are required' });
+		}
+
+		const filePath = `https://teleniir.com/aa/images/${req.file.filename}`;
+
+		let updateField;
+		if (type === 'prescription') {
+			updateField = { prescription: filePath };
+		} else if (type === 'diagnosis') {
+			updateField = { diagnosis: filePath };
+		} else {
+			return res.status(400).json({ message: 'Invalid type. Must be "prescription" or "diagnosis".' });
+		}
+
+		const patient = await Patient.findById(patientId);
+		if (!patient) {
+			return res.status(404).json({ message: 'Patient not found' });
+		}
+
+		patient.chat.push({
+			statement: `chat-img-${req.file.filename}`,
+			type: 'incoming',
+		});
+
+		await patient.save();
+
+		const updatedPatient = await Patient.findByIdAndUpdate(
+			patientId,
+			{ $set: updateField },
+			{ new: true }
+		);
+
+		console.log(`Uploaded file for ${type} of patient ${patientId}: ${filePath}`);
+
+		res.status(200).json({
+			message: 'File uploaded and updated successfully',
+			filePath,
+			updatedPatient,
+		});
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ message: 'Internal server error', error: err.message });
+	}
+});
+
 
 /* Common */
 /**
@@ -252,6 +308,9 @@ router.post('/assessment', (req, res) => {
 						BP_diastolic: answers['25.3'],
 						SPO2_value: answers['25.5'],
 						heart_rate: answers['25.6'],
+						BP_Image: answers['25.4'],
+						Spo2_Image: answers['25.7'],
+						ECG_Image: answers['25.8'],
 						followup: 1,
 					},
 					(err, patient) => {
@@ -550,7 +609,12 @@ router.get('/patient-list', authenticate, (req, res) => {
 					last_messaged_at,
 					latitude,
 					longitude,
-					chat
+					BP_Image,
+					Spo2_Image,
+					ECG_Image,
+					chat,
+					prescription,
+					diagnosis
 				} = patient;
 				const formattedChat = chat.map(({ statement, type, timestamp }) => ({
 					statement,
@@ -579,7 +643,12 @@ router.get('/patient-list', authenticate, (req, res) => {
 					'Registered': new Date(created_at).toLocaleString(),
 					latitude,
 					longitude,
+					BP_Image,
+					Spo2_Image,
+					ECG_Image,
 					chat: formattedChat,
+					prescription,
+					diagnosis
 				};
 			});
 

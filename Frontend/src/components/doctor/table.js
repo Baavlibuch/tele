@@ -48,30 +48,33 @@ function Table({ username, changePatient, callStarted }) {
 	const followupCount = patients.filter(patient => patient.followup > 1).length;
 
 	const downloadExcel = () => {
-		const currentUrl = window.location.origin;
-
-		const modifiedPatients = patients.map((patient) => {
-			const imagesAndDocs = patient.chat
-				.filter(convo => convo.statement && convo.statement.startsWith('chat-img-') && 
-					(convo.statement.endsWith('.jpg') || convo.statement.endsWith('.pdf')))
-					.map(convo => `${currentUrl}/aa/images/${convo.statement.replace("chat-img-", "")}`)
-				.join(', ');
-
-			return {
-				...patient,
-				"Images and Documents": imagesAndDocs || 'N/A'
-			};
-		});
-
-		const worksheet = XLSX.utils.json_to_sheet(modifiedPatients);
+		const worksheet = XLSX.utils.json_to_sheet(patients);
 		const workbook = XLSX.utils.book_new();
 		XLSX.utils.book_append_sheet(workbook, worksheet, 'Patients');
-
 		XLSX.writeFile(workbook, 'patients.xlsx');
 	};
 
 	const handleNavigation = () => {
 		history.push('/patients');
+	};
+
+	const handleFileUpload = (event, patientId, type) => {
+		const file = event.target.files[0];
+		if (!file) return;
+
+		const formData = new FormData();
+		formData.append('file', file);
+		formData.append('type', type);
+		formData.append('patientId', patientId);
+
+		axios.post(`${ENDPOINT}/api/presc_n_diagnosis`, formData)
+			.then((response) => {
+				alert('File uploaded successfully');
+				getPatients();
+			})
+			.catch((error) => {
+				console.error('Error uploading file:', error);
+			});
 	};
 
 	return (
@@ -101,42 +104,78 @@ function Table({ username, changePatient, callStarted }) {
 						</th>
 						<th>
 							<div className="heading-content">
-								<abbr className={`${window.innerWidth <= 769 ? 'is-cherry' : ''}`} title="Telephone">
-									{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'T' : 'Tel') : 'Telephone'}
-								</abbr>
+								<abbr title="Telephone">Telephone</abbr>
 							</div>
 						</th>
 						<th>
 							<div className="heading-content">
-								<abbr className={`${window.innerWidth <= 769 ? 'is-blue' : ''}`} title="Age">
-									{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'A' : 'Age') : 'Age'}
-								</abbr>
+								<abbr title="Age">Age</abbr>
 							</div>
 						</th>
 						<th>
 							<div className="heading-content">
-								<abbr className={`${window.innerWidth <= 769 ? 'is-green' : ''}`} title="Gender">
-									{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'G' : 'Gen') : 'Sex'}
-								</abbr>
+								<abbr title="Gender">Sex</abbr>
 							</div>
 						</th>
+						<th>Prescription</th>
+						<th>Diagnosis</th>
 					</tr>
 				</thead>
 				{displayedPatients.map((patient, index) => (
 					<tbody key={index}>
 						<Row key={index} patient={patient} />
-						{patient.doctor === username ? (
-							<button
-								className="send"
-								style={{ margin: 0 }}
-								onClick={(e) => {
-									e.preventDefault();
-									changePatient(patient._id);
-								}}
-							>
-								<Icon.MessageCircle />
-							</button>
-						) : null}
+						<tr>
+							<td colSpan="4">
+								{patient.doctor === username ? (
+									<button
+										className="send"
+										style={{ margin: 0 }}
+										onClick={(e) => {
+											e.preventDefault();
+											changePatient(patient._id);
+										}}
+									>
+										<Icon.MessageCircle />
+									</button>
+								) : null}
+							</td>
+							<td>
+								{/* Display existing prescription if available */}
+								{patient.prescription ? (
+									<a href={patient.prescription} target="_blank" rel="noopener noreferrer" className="view-link">
+										View Prescription
+									</a>
+								) : (
+									<label className="upload-btn">
+										<Icon.Upload size={14} /> Upload
+										<input
+											type="file"
+											accept=".pdf,.doc,.docx,.txt"
+											onChange={(event) => handleFileUpload(event, patient._id, 'prescription')}
+											style={{ display: 'none' }}
+										/>
+									</label>
+								)}
+							</td>
+							<td>
+								{/* Display existing diagnosis if available */}
+								{patient.diagnosis ? (
+									<a href={patient.diagnosis} target="_blank" rel="noopener noreferrer" className="view-link">
+										View Diagnosis
+									</a>
+								) : (
+									<label className="upload-btn">
+										<Icon.Upload size={14} /> Upload
+										<input
+											type="file"
+											accept=".pdf,.doc,.docx,.txt"
+											onChange={(event) => handleFileUpload(event, patient._id, 'diagnosis')}
+											style={{ display: 'none' }}
+										/>
+									</label>
+								)}
+							</td>
+						</tr>
 					</tbody>
 				))}
 				<div style={{ fontSize: '12px' }}>Count: {filteredPatients.length}</div>
