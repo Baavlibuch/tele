@@ -3400,6 +3400,34 @@ footer {
   // display: flex;
 }
 
+.diagnosis-container {
+  width: 180px;
+  margin: 4px 0;
+  padding: 5px 10px;
+  border: 1px solid #e0e0e0;
+  background-color: #f9f9f9;
+  color: #333;
+  font-size: 14px;
+  word-wrap: break-word; 
+  text-transform: none;
+}
+
+.behavior-dropdown {
+  padding: 2px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  color: #333;
+  width: 100px;
+}
+.behavior-dropdown:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+
+
 .container-chat-callWindow {
   width: 90vw;
 

@@ -449,12 +449,40 @@ module.exports = {
         },
         {
             "id": 25.7,
-            "nextQuestion": 25.8,
+            "nextQuestion": 25.79,
             "statement": {
                 "hi": "अपने spo2 / हार्ट रेट का फोटो डाले।",
                 "en": "Upload a photo of your SpO2/heart rate."
             },
             "type": "upload"
+        },
+        {
+            "id": 25.79,
+            [OPTIONS]: [
+                {
+                    [DB_VALUE]: "ECG",
+                    [NEXT_QUESTION]: 25.8,
+                    [STATEMENT]: {
+                        [LANG_HINDI]: "हां",
+                        [LANG_ENGLISH]: "Yes"
+                    },
+                    [VALUE]: 0
+                },
+                {
+                    [DB_VALUE]: "NOECG",
+                    [NEXT_QUESTION]: 25.9,
+                    [STATEMENT]: {
+                        [LANG_HINDI]: "नहीं",
+                        [LANG_ENGLISH]: "No"
+                    },
+                    [VALUE]: 1
+                }
+            ],
+            [STATEMENT]: {
+                [LANG_HINDI]: "क्या आपके पास आपका ईसीजी पीडीएफ है?",
+                [LANG_ENGLISH]: "Do you have your ECG PDF?"
+            },
+            [TYPE]: TYPE_BUTTON
         },
         {
             "id": 25.8,

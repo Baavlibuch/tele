@@ -59,23 +59,60 @@ function Table({ username, changePatient, callStarted }) {
 	};
 
 	const handleFileUpload = (event, patientId, type) => {
-		const file = event.target.files[0];
-		if (!file) return;
+		if (type === "prescription") {
+			const file = event.target.files[0];
+			if (!file) return;
 
-		const formData = new FormData();
-		formData.append('file', file);
-		formData.append('type', type);
-		formData.append('patientId', patientId);
+			const formData = new FormData();
+			formData.append('file', file);
+			formData.append('type', type);
+			formData.append('patientId', patientId);
 
-		axios.post(`${ENDPOINT}/api/presc_n_diagnosis`, formData)
+			axios
+				.post(`${ENDPOINT}/api/presc_n_diagnosis`, formData)
+				.then((response) => {
+					alert('File uploaded successfully');
+					getPatients();
+				})
+				.catch((error) => {
+					console.error('Error uploading file:', error);
+				});
+		} else if (type === "diagnosis") {
+			const inputValue = event.target.value;
+			if (!inputValue) return;
+
+			axios
+				.post(`${ENDPOINT}/api/onlydiagnosis`, {
+					patientId,
+					diagnosis: inputValue,
+				})
+				.then((response) => {
+					// alert('Diagnosis details saved successfully');
+					getPatients();
+				})
+				.catch((error) => {
+					console.error('Error saving diagnosis:', error);
+				});
+		}
+	};
+
+	const handleBehaviorChange = (event, patientId) => {
+		const selectedBehavior = event.target.value;
+
+		axios
+			.post(`${ENDPOINT}/api/save-behavior`, {
+				patientId,
+				behavior: selectedBehavior,
+			})
 			.then((response) => {
-				alert('File uploaded successfully');
+				alert('Behavior saved successfully');
 				getPatients();
 			})
 			.catch((error) => {
-				console.error('Error uploading file:', error);
+				console.error('Error saving behavior:', error);
 			});
 	};
+
 
 	return (
 		<div>
@@ -119,6 +156,7 @@ function Table({ username, changePatient, callStarted }) {
 						</th>
 						<th>Prescription</th>
 						<th>Diagnosis</th>
+						<th>Behavior</th>
 					</tr>
 				</thead>
 				{displayedPatients.map((patient, index) => (
@@ -160,20 +198,42 @@ function Table({ username, changePatient, callStarted }) {
 							<td>
 								{/* Display existing diagnosis if available */}
 								{patient.diagnosis ? (
-									<a href={patient.diagnosis} target="_blank" rel="noopener noreferrer" className="view-link">
-										View Diagnosis
-									</a>
+									<div className="diagnosis-container">
+										{patient.diagnosis}
+									</div>
 								) : (
-									<label className="upload-btn">
-										<Icon.Upload size={14} /> Upload
-										<input
-											type="file"
-											accept=".pdf,.doc,.docx,.txt"
-											onChange={(event) => handleFileUpload(event, patient._id, 'diagnosis')}
-											style={{ display: 'none' }}
-										/>
-									</label>
+									<input
+										type="text"
+										placeholder="Enter diagnosis"
+										className="diagnosis-input"
+										// onBlur={(event) => handleFileUpload(event, patient._id, 'diagnosis')}
+										onKeyDown={(event) => {
+											if (event.key === "Enter") {
+												handleFileUpload(event, patient._id, 'diagnosis');
+											}
+										}}
+									/>
 								)}
+							</td>
+							<td>
+								{
+									patient.behavior ? (
+										<div className="">
+											{patient.behavior}
+										</div>
+									) :
+										<select
+											className="behavior-dropdown"
+											defaultValue=""
+											onChange={(event) => handleBehaviorChange(event, patient._id)}
+										>
+											<option value="" disabled>
+												Behavior
+											</option>
+											<option value="Treated">Treated</option>
+											<option value="Referred">Referred</option>
+										</select>
+								}
 							</td>
 						</tr>
 					</tbody>

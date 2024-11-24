@@ -258,6 +258,7 @@ const PatientSchema = new Schema(
 		village: String,
 		hospital: String,
 		aiims_id: String,
+		behavior: String,
 		/**
 		 * value is either "OPD" or "COVID-19"
 		 */

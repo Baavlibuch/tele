@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
 		const originalNameWithoutExt = nameParts.slice(0, -1).join('.').replace(/-/g, '_');
 		const extension = nameParts[nameParts.length - 1];
 		const randomString = crypto.randomBytes(1).toString('hex');
-		const customFileName = `${originalNameWithoutExt}-${randomString}.${extension}`;
+		const customFileName = `${originalNameWithoutExt}${randomString}.${extension}`;
 
 		cb(null, customFileName);
 	}
@@ -92,6 +92,38 @@ router.post('/presc_n_diagnosis', upload.single('file'), async (req, res) => {
 		res.status(500).json({ message: 'Internal server error', error: err.message });
 	}
 });
+
+router.post("/onlydiagnosis", async (req, res) => {
+	try {
+
+		const { patientId, diagnosis } = req.body;
+		console.log(diagnosis)
+		const updatedPatient = await Patient.findByIdAndUpdate(
+			patientId,
+			{ $set: { diagnosis: diagnosis } },
+			{ new: true }
+		);
+		res.status(200).json({
+			message: 'File uploaded and updated successfully',
+		});
+	}
+	catch (err) {
+		console.log(err);
+	}
+})
+
+router.post('/save-behavior', async (req, res) => {
+	const { patientId, behavior } = req.body;
+  
+	try {
+	  await Patient.findByIdAndUpdate(patientId, { behavior });
+  
+	  res.status(200).json({ message: 'Behavior updated successfully' });
+	} catch (error) {
+	  console.error('Error updating behavior:', error);
+	  res.status(500).json({ message: 'Error updating behavior' });
+	}
+  });
 
 
 /* Common */
@@ -614,7 +646,8 @@ router.get('/patient-list', authenticate, (req, res) => {
 					ECG_Image,
 					chat,
 					prescription,
-					diagnosis
+					diagnosis,
+					behavior
 				} = patient;
 				const formattedChat = chat.map(({ statement, type, timestamp }) => ({
 					statement,
@@ -648,7 +681,8 @@ router.get('/patient-list', authenticate, (req, res) => {
 					ECG_Image,
 					chat: formattedChat,
 					prescription,
-					diagnosis
+					diagnosis,
+					behavior
 				};
 			});
 

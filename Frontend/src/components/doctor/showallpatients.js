@@ -31,15 +31,18 @@ function PatientList() {
     const handleSearchChange = (event) => {
         const query = event.target.value.toLowerCase();
         setSearchQuery(query);
-
+    
         setFilteredPatients(
-            patients.filter(patient =>
-                patient.name.toLowerCase().includes(query) ||
-                patient._id.toLowerCase().includes(query) ||
-                patient.symptoms.some(symptom => symptom.toLowerCase().includes(query))
+            patients.filter((patient) =>
+                Object.values(patient).some((value) =>
+                    typeof value === 'string'
+                        ? value.toLowerCase().includes(query)
+                        : value && value.toString().toLowerCase().includes(query)
+                )
             )
         );
     };
+    
 
     return (
         <div>
