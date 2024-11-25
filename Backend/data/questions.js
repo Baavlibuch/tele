@@ -129,9 +129,9 @@ module.exports = {
                     [CONTENT_VARIANT_NAME]: "Consent message short emojis",
                     [STATEMENT]: {
                         [LANG_ENGLISH]: "By continuing, you agree to take part in the testing of this chat-bot 🤖 and your data being collected and used for research purposes. 📝\n" +
-                        "It will be kept securely 🛡️ and will not be shared with any third parties.",
+                            "It will be kept securely 🛡️ and will not be shared with any third parties.",
                         [LANG_HINDI]: "बातें जारी रखकर, आप इस चैट-बॉट 🤖 के परीक्षण में भाग लेने के लिए सहमत हैं। आपका डेटा एकत्रित किया जाएगा और शोध उद्देश्यों के लिए उपयोग किया जाएगा। 📝\n" +
-                        "इसे सुरक्षित रखा जाएगा 🛡️ और किसी तीसरे पक्ष के साथ साझा नहीं किया जाएगा।"
+                            "इसे सुरक्षित रखा जाएगा 🛡️ और किसी तीसरे पक्ष के साथ साझा नहीं किया जाएगा।"
                     },
                     [VARIANT_PROBABILITY]: 0.1
                 },
@@ -139,9 +139,9 @@ module.exports = {
                     [CONTENT_VARIANT_NAME]: "Consent message short no emojis",
                     [STATEMENT]: {
                         [LANG_ENGLISH]: "By continuing, you agree to take part in the testing of this chat-bot and your data being collected and used for research purposes. \n" +
-                        "It will be kept securely and will not be shared with any third parties.",
+                            "It will be kept securely and will not be shared with any third parties.",
                         [LANG_HINDI]: "बातें जारी रखकर, आप इस चैट-बॉट के परीक्षण में भाग लेने के लिए सहमत हैं। आपका डेटा एकत्रित किया जाएगा और शोध उद्देश्यों के लिए उपयोग किया जाएगा।\n" +
-                        "इसे सुरक्षित रखा जाएगा और किसी तीसरे पक्ष के साथ साझा नहीं किया जाएगा।"
+                            "इसे सुरक्षित रखा जाएगा और किसी तीसरे पक्ष के साथ साझा नहीं किया जाएगा।"
                     },
                     [VARIANT_PROBABILITY]: 0.2
                 },
@@ -218,7 +218,7 @@ module.exports = {
             },
             [TYPE]: TYPE_NONE
         },
-/////////////////////////////////////////////////
+        /////////////////////////////////////////////////
         {
             "id": 22.0,
             "options": [
@@ -247,7 +247,7 @@ module.exports = {
             },
             "type": "button"
         },
-      // covid consultation
+        // covid consultation
         {
             [ID]: 23.0,
             [OPTIONS]: [
@@ -333,40 +333,31 @@ module.exports = {
                     "value": 2
                 },
                 {
-                    "dbValue": "Ramniya-Bhagva",
+                    "dbValue": "Ramniya-Maylawas",
                     "nextQuestion": 26,
                     "statement": {
-                        "hi": "रामनिया-भगवा",
-                        "en": "Ramniya-Bhagva"
+                        "hi": "रामनिया-मायलावास",
+                        "en": "Ramniya-Maylawas"
                     },
                     "value": 3
                 },
                 {
-                    "dbValue": "Ramniya-Telvada",
+                    "dbValue": "Ramniya-Balwara",
                     "nextQuestion": 26,
                     "statement": {
-                        "hi": "रामनिया-तेलवाड़ा",
-                        "en": "Ramniya-Telvada"
+                        "hi": "रामनिया-बलवाड़ा",
+                        "en": "Ramniya-Balwara"
                     },
                     "value": 4
                 },
                 {
-                    "dbValue": "Ramniya-Raghunath Gad",
+                    "dbValue": "Siner",
                     "nextQuestion": 26,
                     "statement": {
-                        "hi": "रामनिया-रघुनाथ गढ़",
-                        "en": "Ramniya-Raghunath Gad"
+                        "hi": "सिनेर",
+                        "en": "Siner"
                     },
                     "value": 5
-                },
-                {
-                    "dbValue": "Ramniya-Dharbahlo Ki Dhani",
-                    "nextQuestion": 26,
-                    "statement": {
-                        "hi": "रामनिया-धरबाहलो की ढाणी",
-                        "en": "Ramniya-Dharbahlo Ki Dhani"
-                    },
-                    "value": 6
                 },
                 {
                     "dbValue": "Siner-Dharna",
@@ -375,23 +366,32 @@ module.exports = {
                         "hi": "सिनेर-धारना",
                         "en": "Siner-Dharna"
                     },
+                    "value": 6
+                },
+                {
+                    "dbValue": "Siner-Baliyana",
+                    "nextQuestion": 26,
+                    "statement": {
+                        "hi": "सिनेर- बलियाना",
+                        "en": "Siner-Baliyana"
+                    },
                     "value": 7
                 },
                 {
-                    "dbValue": "Siner-Anpurna Nagar",
+                    "dbValue": "Siner-Gura",
                     "nextQuestion": 26,
                     "statement": {
-                        "hi": "सिनेर-आनंदपुर नगर",
-                        "en": "Siner-Anpurna Nagar"
+                        "hi": "सिनेर-गुड़ा",
+                        "en": "Siner-Gura"
                     },
                     "value": 8
                 },
                 {
-                    "dbValue": "Siner-Guda",
+                    "dbValue": "Siner-thanmata Hinglaj",
                     "nextQuestion": 26,
                     "statement": {
-                        "hi": "सिनेर-गुड़ा",
-                        "en": "Siner-Guda"
+                        "hi": "सिनेर-थानमाता हिंगलाज ",
+                        "en": "Siner-Thanmata Hinglaj"
                     },
                     "value": 9
                 }
@@ -492,7 +492,7 @@ module.exports = {
                 "en": "Upload a PDF of your ECG."
             },
             "type": "upload"
-        },        
+        },
         {
             "id": 25.9,
             "options": [
@@ -523,7 +523,7 @@ module.exports = {
                 //     },
                 //     "value": 0
                 // }
-                
+
             ],
             "statement": {
                 "hi": "डॉक्टर या अस्पताल चुनकर जांच शुरू करें",
@@ -595,7 +595,7 @@ module.exports = {
             },
             [TYPE]: TYPE_BUTTON
         },
-      // Covid/Mucormycosis consultation
+        // Covid/Mucormycosis consultation
         {
             "id": 29.0,
             "nextQuestion": 30.0,
@@ -663,7 +663,7 @@ module.exports = {
             "type": "button"
         },
 
-      // OPD questionnaire
+        // OPD questionnaire
         {
             "id": 2.5,
             "nextQuestion": 2.6,
@@ -757,59 +757,59 @@ module.exports = {
             [TYPE]: TYPE_NONE
         },
         {
-    			  [ID]: "9998 dead end",
+            [ID]: "9998 dead end",
             [STATEMENT]: {
                 en: 'You have asked something I am yet to learn. We will figure it out shortly. Did you enjoy the experience?',
                 hi: 'आपने कुछ पूछा है जो मुझे अभी सीखना बाकी है। हम जल्द ही इसका पता लगा लेंगे। क्या आपने अनुभव का आनंद लिया?',
             },
             [NEXT_QUESTION]: 0,
-    			  [TYPE]: TYPE_BUTTON,
-    			  [OPTIONS]: [
-    				{
-    				    [NEXT_QUESTION]: 1,
-    					  [VALUE]: 0,
-                [STATEMENT]: STATEMENT_YES,
-    					  [DB_VALUE]: DB_VALUE_YES
-    				},
-    				{
-    					  [NEXT_QUESTION]: 1,
-    					  [VALUE]: 1,
-                [STATEMENT]: STATEMENT_NO,
-                [DB_VALUE]: DB_VALUE_NO
-    				}
-    			]
-    		},
+            [TYPE]: TYPE_BUTTON,
+            [OPTIONS]: [
+                {
+                    [NEXT_QUESTION]: 1,
+                    [VALUE]: 0,
+                    [STATEMENT]: STATEMENT_YES,
+                    [DB_VALUE]: DB_VALUE_YES
+                },
+                {
+                    [NEXT_QUESTION]: 1,
+                    [VALUE]: 1,
+                    [STATEMENT]: STATEMENT_NO,
+                    [DB_VALUE]: DB_VALUE_NO
+                }
+            ]
+        },
         {
-    			  [ID]: 9999,
+            [ID]: 9999,
             [STATEMENT]: {
                 [LANG_ENGLISH]: 'Begin online consultation?',
                 [LANG_HINDI]: 'ऑनलाइन डॉक्टर से बात शुरू करें?',
             },
-    			  [TYPE]: TYPE_BUTTON,
-    			  [OPTIONS]: [
-    				{
-    					[NEXT_QUESTION]: 0,
-    					[VALUE]: 0,
-              [STATEMENT]: {
-                [LANG_ENGLISH]: 'Yes',
-                [LANG_HINDI]: 'हाँ',
-                [LANG_BANGLA]: 'হ্যাঁ',
-              },
-    					[DB_VALUE]: DB_VALUE_YES
-    				},
-    				{
-    					[NEXT_QUESTION]: 1.0,
-    					[VALUE]: 1,
-              [STATEMENT]: {
-                [LANG_ENGLISH]: 'No',
-                [LANG_HINDI]: 'नहीं',
-                [LANG_BANGLA]: 'না',
-              },
-    				}
-    			]
-    		},
+            [TYPE]: TYPE_BUTTON,
+            [OPTIONS]: [
+                {
+                    [NEXT_QUESTION]: 0,
+                    [VALUE]: 0,
+                    [STATEMENT]: {
+                        [LANG_ENGLISH]: 'Yes',
+                        [LANG_HINDI]: 'हाँ',
+                        [LANG_BANGLA]: 'হ্যাঁ',
+                    },
+                    [DB_VALUE]: DB_VALUE_YES
+                },
+                {
+                    [NEXT_QUESTION]: 1.0,
+                    [VALUE]: 1,
+                    [STATEMENT]: {
+                        [LANG_ENGLISH]: 'No',
+                        [LANG_HINDI]: 'नहीं',
+                        [LANG_BANGLA]: 'না',
+                    },
+                }
+            ]
+        },
 
-      // Rapport building
+        // Rapport building
         // {
         //     [ID]: "300.0 Opener",
         //     [STATEMENT]:"Hi",

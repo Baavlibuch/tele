@@ -58,8 +58,8 @@ export default class Chat extends React.Component {
 
 	// }
 	componentDidUpdate(prevProps) {
-		const { callStarted, patient } = this.props;
-		const { callStarted: prevCallStarted } = prevProps;
+		const { callStarted, patient, presUpload, _event} = this.props;
+		const { callStarted: prevCallStarted, presUpload: prevPresUpload} = prevProps;
 
 		if (prevProps.patient !== patient && this.socket) {
 			this.socket.emit('changePatient', patient);
@@ -71,6 +71,11 @@ export default class Chat extends React.Component {
 				console.log(patient)
 				// this.beginCheckupsBtn();
 			}
+		}
+
+		if (presUpload !== prevPresUpload) {
+			console.log("event--",_event)
+			this.pimageUpload(_event)
 		}
 	}
 
@@ -276,6 +281,36 @@ export default class Chat extends React.Component {
 		this.setState({
 			[id]: value
 		});
+	};
+
+	pimageUpload = (file) => {
+		// const file = event.target.files[0];
+		if (!file || !this.socket) return;
+		this.setState({ uploadingImage: 0.01 });
+		const { patientId } = this.state;
+
+		const formData = new FormData();
+		formData.append('image', file);
+
+		axios
+			.post('/api/image', formData, {
+				onUploadProgress: (progressEvent) => {
+					this.setState({
+						uploadingImage: progressEvent.loaded / progressEvent.total
+					});
+				}
+			})
+			.then((response) => {
+				const { image } = response.data;
+				if (this.socket) {
+					this.enterMessageIntoChat('chat-img-' + image.filename, 'outgoing');
+					this.socket.emit('message', { message: 'chat-img-' + image.filename, to: patientId });
+				}
+				this.setState({ uploadingImage: 0, ...(image ? { image } : {}) });
+			})
+			.catch((err) => {
+				this.setState({ uploadingImage: 0 });
+			});
 	};
 
 	imageUpload = (event) => {

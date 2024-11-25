@@ -35,7 +35,9 @@ class Doctor extends React.Component {
             answerBoxHidden: true,
             patientId: null,
             oncall: false,
-            callStarted: false
+            callStarted: false,
+            presUpload: false,
+            _event:null
         };
 
         this.configRef = null;
@@ -270,8 +272,21 @@ class Doctor extends React.Component {
         });
     };
 
+    setpresUploaded = (value) => {
+        if(this.state.presUpload){
+            this.setState({ presUpload: false, _event:value }, () => {
+                console.log("afterclick", this.state.presUpload);
+            });
+        }
+        else{
+            this.setState({ presUpload: true, _event:value }, () => {
+                console.log("afterclick", this.state.presUpload);
+            });
+        }
+    };
+
     render() {
-        const { loggedin, username, password, error, loading, patient, callWindow, localSrc, peerSrc, incomingTyping, requesting, callModal, callStarted } = this.state;
+        const { loggedin, username, password, error, loading, patient, callWindow, localSrc, peerSrc, incomingTyping, requesting, callModal, callStarted, presUpload, _event} = this.state;
 
         if (!loggedin) {
             return (
@@ -321,7 +336,7 @@ class Doctor extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <Chat callStarted={callStarted} setchatStarted={this.setchatStarted} username={username} changePatient={this.changePatient} patient={patient} socket={this.socketRef} />
+                    <Chat callStarted={callStarted} setchatStarted={this.setchatStarted} username={username} changePatient={this.changePatient} patient={patient} socket={this.socketRef} presUpload={presUpload} _event={_event}/>
                 </div>
                 <div className="home-right" style={{ alignItems: 'center' }}>
                     {incomingTyping || requesting ? (
@@ -346,7 +361,7 @@ class Doctor extends React.Component {
                             />
                         </div>} */}
                     {/* {!callStarted&&<Table username={username} changePatient={this.changePatient} />} */}
-                    <Table username={username} changePatient={this.changePatient} callStarted={callStarted} />
+                    <Table username={username} changePatient={this.changePatient} callStarted={callStarted} setpresUploaded={this.setpresUploaded}/>
                     <form onSubmit={this.logout} className="login-form fadeInUp">
                         <p>{error}</p>
                         <button

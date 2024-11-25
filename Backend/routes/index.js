@@ -67,12 +67,12 @@ router.post('/presc_n_diagnosis', upload.single('file'), async (req, res) => {
 			return res.status(404).json({ message: 'Patient not found' });
 		}
 
-		patient.chat.push({
-			statement: `chat-img-${req.file.filename}`,
-			type: 'incoming',
-		});
+		// patient.chat.push({
+		// 	statement: `chat-img-${req.file.filename}`,
+		// 	type: 'incoming',
+		// });
 
-		await patient.save();
+		// await patient.save();
 
 		const updatedPatient = await Patient.findByIdAndUpdate(
 			patientId,

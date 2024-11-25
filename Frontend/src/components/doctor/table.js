@@ -6,7 +6,7 @@ import Row from './row';
 import * as XLSX from 'xlsx'; // For Excel
 import { useHistory } from 'react-router-dom';
 
-function Table({ username, changePatient, callStarted }) {
+function Table({ username, changePatient, callStarted, setpresUploaded}) {
 	const [patients, setPatients] = useState([]);
 	const [page, setPage] = useState(1);
 	const [searchQuery, setSearchQuery] = useState('');
@@ -60,6 +60,8 @@ function Table({ username, changePatient, callStarted }) {
 
 	const handleFileUpload = (event, patientId, type) => {
 		if (type === "prescription") {
+			console.log("event-", event.target.files[0]);
+			setpresUploaded(event.target.files[0]);
 			const file = event.target.files[0];
 			if (!file) return;
 
