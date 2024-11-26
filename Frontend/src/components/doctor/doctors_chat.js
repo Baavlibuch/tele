@@ -134,6 +134,7 @@ export default class Chat extends React.Component {
 					},
 					this.scrollDown
 				);
+				this.props.setCurrPatient(patientId);
 			this.socket.emit('changeStatus', { username: this.props.username, status: "buzy" });
 			this.props.setchatStarted(true);
 		});

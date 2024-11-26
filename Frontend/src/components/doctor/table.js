@@ -6,12 +6,13 @@ import Row from './row';
 import * as XLSX from 'xlsx'; // For Excel
 import { useHistory } from 'react-router-dom';
 
-function Table({ username, changePatient, callStarted, setpresUploaded}) {
+function Table({ username, changePatient, callStarted, setpresUploaded, currPatient}) {
 	const [patients, setPatients] = useState([]);
 	const [page, setPage] = useState(1);
 	const [searchQuery, setSearchQuery] = useState('');
 	const rowsPerPage = 10;
 	const history = useHistory();
+	const [prevCurrPatient, setPrevCurrPatient] = useState("tt-3333333333"); 
 
 	useEffect(() => {
 		const timer = setInterval(() => {
@@ -24,11 +25,33 @@ function Table({ username, changePatient, callStarted, setpresUploaded}) {
 		getPatients();
 	}, [callStarted]);
 
+	useEffect(() => {
+		console.log("currpatient",currPatient)
+		console.log("prevpatient",prevCurrPatient)
+		console.log("reorder")
+		reorderPatients();
+	}, [currPatient]);
+
+	const reorderPatients = () => {
+		const currPatientIndex = patients.findIndex(patient => patient._id ===currPatient);
+		if (currPatientIndex !== -1) {
+			const reorderedPatients = [
+				patients[currPatientIndex],
+				...patients.slice(0, currPatientIndex),
+				...patients.slice(currPatientIndex + 1),
+			];
+			console.log("setPatient")
+			setPatients(reorderedPatients);
+		}
+	};
+
+
 	const getPatients = () => {
 		axios
 			.get(ENDPOINT + '/api/patient-list')
 			.then((response) => {
 				setPatients(response.data.patients);
+				reorderPatients();
 			})
 			.catch((err) => {
 				console.log(err);

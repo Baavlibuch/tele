@@ -37,7 +37,8 @@ class Doctor extends React.Component {
             oncall: false,
             callStarted: false,
             presUpload: false,
-            _event:null
+            _event:null,
+            currPatient: null
         };
 
         this.configRef = null;
@@ -285,8 +286,12 @@ class Doctor extends React.Component {
         }
     };
 
+    setCurrPatient = (patientId) =>{
+        this.setState({currPatient: patientId})
+    }
+
     render() {
-        const { loggedin, username, password, error, loading, patient, callWindow, localSrc, peerSrc, incomingTyping, requesting, callModal, callStarted, presUpload, _event} = this.state;
+        const { loggedin, username, password, error, loading, patient, callWindow, localSrc, peerSrc, incomingTyping, requesting, callModal, callStarted, presUpload, _event, currPatient} = this.state;
 
         if (!loggedin) {
             return (
@@ -336,7 +341,7 @@ class Doctor extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <Chat callStarted={callStarted} setchatStarted={this.setchatStarted} username={username} changePatient={this.changePatient} patient={patient} socket={this.socketRef} presUpload={presUpload} _event={_event}/>
+                    <Chat callStarted={callStarted} setchatStarted={this.setchatStarted} username={username} changePatient={this.changePatient} patient={patient} socket={this.socketRef} presUpload={presUpload} _event={_event} setCurrPatient={this.setCurrPatient}/>
                 </div>
                 <div className="home-right" style={{ alignItems: 'center' }}>
                     {incomingTyping || requesting ? (
@@ -361,7 +366,7 @@ class Doctor extends React.Component {
                             />
                         </div>} */}
                     {/* {!callStarted&&<Table username={username} changePatient={this.changePatient} />} */}
-                    <Table username={username} changePatient={this.changePatient} callStarted={callStarted} setpresUploaded={this.setpresUploaded}/>
+                    <Table username={username} changePatient={this.changePatient} callStarted={callStarted} setpresUploaded={this.setpresUploaded} currPatient={currPatient}/>
                     <form onSubmit={this.logout} className="login-form fadeInUp">
                         <p>{error}</p>
                         <button

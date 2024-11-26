@@ -343,6 +343,20 @@ router.post('/assessment', (req, res) => {
 						BP_Image: answers['25.4'],
 						Spo2_Image: answers['25.7'],
 						ECG_Image: answers['25.8'],
+						chat:[
+							{
+								"statement": answers['25.4'],
+								"type": "outgoing",
+							},
+							{
+								"statement": answers['25.7'],
+								"type": "outgoing",
+							},
+							{
+								"statement": answers['25.8']||"",
+								"type": "outgoing",
+							},
+						],
 						followup: 1,
 					},
 					(err, patient) => {
