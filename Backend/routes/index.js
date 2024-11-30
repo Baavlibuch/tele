@@ -114,16 +114,16 @@ router.post("/onlydiagnosis", async (req, res) => {
 
 router.post('/save-behavior', async (req, res) => {
 	const { patientId, behavior } = req.body;
-  
+
 	try {
-	  await Patient.findByIdAndUpdate(patientId, { behavior });
-  
-	  res.status(200).json({ message: 'Behavior updated successfully' });
+		await Patient.findByIdAndUpdate(patientId, { behavior });
+
+		res.status(200).json({ message: 'Behavior updated successfully' });
 	} catch (error) {
-	  console.error('Error updating behavior:', error);
-	  res.status(500).json({ message: 'Error updating behavior' });
+		console.error('Error updating behavior:', error);
+		res.status(500).json({ message: 'Error updating behavior' });
 	}
-  });
+});
 
 
 /* Common */
@@ -318,6 +318,12 @@ router.post('/assessment', (req, res) => {
 					"Siner-Guda"
 				];
 
+				const changeAnswer = (answer) => {
+					let extractedPart = answer.split('/images/')[1];
+					console.log(extractedPart);
+					extractedPart=`chat-img-${extractedPart}`
+					return extractedPart
+				}
 				// Actual push into DB
 				Patient.create(
 					{
@@ -343,17 +349,17 @@ router.post('/assessment', (req, res) => {
 						BP_Image: answers['25.4'],
 						Spo2_Image: answers['25.7'],
 						ECG_Image: answers['25.8'],
-						chat:[
+						chat: [
 							{
-								"statement": answers['25.4'],
+								"statement": changeAnswer(answers['25.4']),
 								"type": "outgoing",
 							},
 							{
-								"statement": answers['25.7'],
+								"statement": changeAnswer(answers['25.7']),
 								"type": "outgoing",
 							},
 							{
-								"statement": answers['25.8']||"",
+								"statement": answers['25.8']? changeAnswer(answers['25.8']) : "",
 								"type": "outgoing",
 							},
 						],
