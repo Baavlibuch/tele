@@ -71,6 +71,7 @@ function Table({ username, changePatient, callStarted, setpresUploaded, currPati
 	const followupCount = patients.filter(patient => patient.followup > 1).length;
 
 	const downloadExcel = () => {
+		// window.location.reload();
 		const worksheet = XLSX.utils.json_to_sheet(patients);
 		const workbook = XLSX.utils.book_new();
 		XLSX.utils.book_append_sheet(workbook, worksheet, 'Patients');

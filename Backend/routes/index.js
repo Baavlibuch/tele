@@ -306,16 +306,18 @@ router.post('/assessment', (req, res) => {
 					});
 				}
 				let villages = [
-					"Ramniya-Kathadi",
-					"Ramniya-Mangi",
-					"Ramniya-Dhira",
-					"Ramniya-Bhagva",
-					"Ramniya-Telvada",
-					"Ramniya-Raghunath Gad",
-					"Ramniya-Dharbahlo Ki Dhani",
+					// "Ramniya-Kathadi",
+					// "Ramniya-Mangi",
+					// "Ramniya-Dhira",
+					// "Ramniya-Bhagva",
+					// "Ramniya-Telvada",
+					// "Ramniya-Raghunath Gad",
+					// "Ramniya-Dharbahlo Ki Dhani",
+					"Siner",
 					"Siner-Dharna",
-					"Siner-Anpurna Nagar",
-					"Siner-Guda"
+					"Siner-Baliyana",
+					"Siner-Gura",
+					"Siner-thanmata Hinglaj"
 				];
 
 				const changeAnswer = (answer) => {
@@ -351,11 +353,11 @@ router.post('/assessment', (req, res) => {
 						ECG_Image: answers['25.8'],
 						chat: [
 							{
-								"statement": changeAnswer(answers['25.4']),
+								"statement": answers['25.4']? changeAnswer(answers['25.4']) : "",
 								"type": "outgoing",
 							},
 							{
-								"statement": changeAnswer(answers['25.7']),
+								"statement": answers['25.7']? changeAnswer(answers['25.7']) : "",
 								"type": "outgoing",
 							},
 							{

@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Collapse, Typography, TextField, Button } from '@mui/material';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
+import * as Icon from 'react-feather';
+import { ENDPOINT } from '../../config';
+import toast from 'react-hot-toast';
 
 function PatientList() {
     const [patients, setPatients] = useState([]);
@@ -31,7 +34,7 @@ function PatientList() {
     const handleSearchChange = (event) => {
         const query = event.target.value.toLowerCase();
         setSearchQuery(query);
-    
+
         setFilteredPatients(
             patients.filter((patient) =>
                 Object.values(patient).some((value) =>
@@ -42,7 +45,74 @@ function PatientList() {
             )
         );
     };
-    
+
+    const getPatients = () => {
+		axios
+			.get(ENDPOINT + '/api/patient-list')
+			.then((response) => {
+				setPatients(response.data.patients);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+	};
+
+    const handleFileUpload = (event, patientId, type) => {
+        if (type === "prescription") {
+            console.log("event-", event.target.files[0]);
+            setpresUploaded(event.target.files[0]);
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('type', type);
+            formData.append('patientId', patientId);
+
+            axios
+                .post(`${ENDPOINT}/api/presc_n_diagnosis`, formData)
+                .then((response) => {
+                    alert('File uploaded successfully');
+                    getPatients();
+                })
+                .catch((error) => {
+                    console.error('Error uploading file:', error);
+                });
+        } else if (type === "diagnosis") {
+            const inputValue = event.target.value;
+            if (!inputValue) return;
+
+            axios
+                .post(`${ENDPOINT}/api/onlydiagnosis`, {
+                    patientId,
+                    diagnosis: inputValue,
+                })
+                .then((response) => {
+                    // alert('Diagnosis details saved successfully');
+                    toast.success("Diagnosis details saved successfully");
+                    getPatients();
+                })
+                .catch((error) => {
+                    console.error('Error saving diagnosis:', error);
+                });
+        }
+    };
+    const handleBehaviorChange = (event, patientId) => {
+		const selectedBehavior = event.target.value;
+
+		axios
+			.post(`${ENDPOINT}/api/save-behavior`, {
+				patientId,
+				behavior: selectedBehavior,
+			})
+			.then((response) => {
+				alert('Behavior saved successfully');
+				getPatients();
+			})
+			.catch((error) => {
+				console.error('Error saving behavior:', error);
+			});
+	};
 
     return (
         <div>
@@ -90,6 +160,9 @@ function PatientList() {
                             <TableCell>BP Diastolic</TableCell>
                             <TableCell>SPO2</TableCell>
                             <TableCell>Heart Rate</TableCell>
+                            <TableCell>Prescription</TableCell>
+                            <TableCell>Diagnosis</TableCell>
+                            <TableCell>Behavior</TableCell>
                             <TableCell>Chat History</TableCell>
                         </TableRow>
                     </TableHead>
@@ -116,6 +189,57 @@ function PatientList() {
                                     <TableCell>{patient.BP_diastolic}</TableCell>
                                     <TableCell>{patient.SPO2_value}</TableCell>
                                     <TableCell>{patient.heart_rate}</TableCell>
+                                    <TableCell>{patient.prescription ? (
+                                        <a href={patient.prescription} target="_blank" rel="noopener noreferrer" className="view-link">
+                                            View Prescription
+                                        </a>
+                                    ) : (
+                                        <label className="upload-btn">
+                                            <Icon.Upload size={14} /> Upload
+                                            <input
+                                                type="file"
+                                                accept=".pdf,.doc,.docx,.txt"
+                                                onChange={(event) => handleFileUpload(event, patient._id, 'prescription')}
+                                                style={{ display: 'none' }}
+                                            />
+                                        </label>
+                                    )}</TableCell>
+                                    <TableCell>{patient.diagnosis ? (
+                                        <div className="diagnosis-container">
+                                            {patient.diagnosis}
+                                        </div>
+                                    ) : (
+                                        <input
+                                            type="text"
+                                            placeholder="Enter diagnosis"
+                                            className="diagnosis-input"
+                                            // onBlur={(event) => handleFileUpload(event, patient._id, 'diagnosis')}
+                                            onKeyDown={(event) => {
+                                                if (event.key === "Enter") {
+                                                    handleFileUpload(event, patient._id, 'diagnosis');
+                                                }
+                                            }}
+                                        />
+                                    )}</TableCell>
+                                    {/* <TableCell>{patient.behavior}</TableCell> */}
+                                    <TableCell>{
+                                        patient.behavior ? (
+                                            <div className="">
+                                                {patient.behavior}
+                                            </div>
+                                        ) :
+                                            <select
+                                                className="behavior-dropdown"
+                                                defaultValue=""
+                                                onChange={(event) => handleBehaviorChange(event, patient._id)}
+                                            >
+                                                <option value="" disabled>
+                                                    Behavior
+                                                </option>
+                                                <option value="Treated">Treated</option>
+                                                <option value="Referred">Referred</option>
+                                            </select>
+                                    }</TableCell>
                                     <TableCell>
                                         <IconButton onClick={() => toggleRow(patient._id)}>
                                             {expandedRows[patient._id] ? <ExpandLess /> : <ExpandMore />}

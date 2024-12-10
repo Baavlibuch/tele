@@ -305,51 +305,51 @@ module.exports = {
         {
             "id": 25.1,
             "options": [
-                {
-                    "dbValue": "Ramniya-Kathadi",
-                    "nextQuestion": 26,
-                    "statement": {
-                        "hi": "रामनिया-कठाडी",
-                        "en": "Ramniya-Kathadi"
-                    },
-                    "value": 0
-                },
-                {
-                    "dbValue": "Ramniya-Mangi",
-                    "nextQuestion": 26,
-                    "statement": {
-                        "hi": "रामनिया-मेंगी",
-                        "en": "Ramniya-Mangi"
-                    },
-                    "value": 1
-                },
-                {
-                    "dbValue": "Ramniya-Dhira",
-                    "nextQuestion": 26,
-                    "statement": {
-                        "hi": "रामनिया-धीर",
-                        "en": "Ramniya-Dhira"
-                    },
-                    "value": 2
-                },
-                {
-                    "dbValue": "Ramniya-Maylawas",
-                    "nextQuestion": 26,
-                    "statement": {
-                        "hi": "रामनिया-मायलावास",
-                        "en": "Ramniya-Maylawas"
-                    },
-                    "value": 3
-                },
-                {
-                    "dbValue": "Ramniya-Balwara",
-                    "nextQuestion": 26,
-                    "statement": {
-                        "hi": "रामनिया-बलवाड़ा",
-                        "en": "Ramniya-Balwara"
-                    },
-                    "value": 4
-                },
+                // {
+                //     "dbValue": "Ramniya-Kathadi",
+                //     "nextQuestion": 26,
+                //     "statement": {
+                //         "hi": "रामनिया-कठाडी",
+                //         "en": "Ramniya-Kathadi"
+                //     },
+                //     "value": 0
+                // },
+                // {
+                //     "dbValue": "Ramniya-Mangi",
+                //     "nextQuestion": 26,
+                //     "statement": {
+                //         "hi": "रामनिया-मेंगी",
+                //         "en": "Ramniya-Mangi"
+                //     },
+                //     "value": 1
+                // },
+                // {
+                //     "dbValue": "Ramniya-Dhira",
+                //     "nextQuestion": 26,
+                //     "statement": {
+                //         "hi": "रामनिया-धीर",
+                //         "en": "Ramniya-Dhira"
+                //     },
+                //     "value": 2
+                // },
+                // {
+                //     "dbValue": "Ramniya-Maylawas",
+                //     "nextQuestion": 26,
+                //     "statement": {
+                //         "hi": "रामनिया-मायलावास",
+                //         "en": "Ramniya-Maylawas"
+                //     },
+                //     "value": 3
+                // },
+                // {
+                //     "dbValue": "Ramniya-Balwara",
+                //     "nextQuestion": 26,
+                //     "statement": {
+                //         "hi": "रामनिया-बलवाड़ा",
+                //         "en": "Ramniya-Balwara"
+                //     },
+                //     "value": 4
+                // },
                 {
                     "dbValue": "Siner",
                     "nextQuestion": 26,
@@ -357,7 +357,7 @@ module.exports = {
                         "hi": "सिनेर",
                         "en": "Siner"
                     },
-                    "value": 5
+                    "value": 0
                 },
                 {
                     "dbValue": "Siner-Dharna",
@@ -366,7 +366,7 @@ module.exports = {
                         "hi": "सिनेर-धारना",
                         "en": "Siner-Dharna"
                     },
-                    "value": 6
+                    "value": 1
                 },
                 {
                     "dbValue": "Siner-Baliyana",
@@ -375,7 +375,7 @@ module.exports = {
                         "hi": "सिनेर- बलियाना",
                         "en": "Siner-Baliyana"
                     },
-                    "value": 7
+                    "value": 2
                 },
                 {
                     "dbValue": "Siner-Gura",
@@ -384,7 +384,7 @@ module.exports = {
                         "hi": "सिनेर-गुड़ा",
                         "en": "Siner-Gura"
                     },
-                    "value": 8
+                    "value": 3
                 },
                 {
                     "dbValue": "Siner-thanmata Hinglaj",
@@ -393,7 +393,7 @@ module.exports = {
                         "hi": "सिनेर-थानमाता हिंगलाज ",
                         "en": "Siner-Thanmata Hinglaj"
                     },
-                    "value": 9
+                    "value": 4
                 }
             ],
             "statement": {
@@ -413,12 +413,40 @@ module.exports = {
         },
         {
             "id": 25.3,
-            "nextQuestion": 25.4,
+            "nextQuestion": 25.39,
             "statement": {
                 "hi": "आपका डायास्टोलिक bp कितना है?",
                 "en": "What is your diastolic BP?"
             },
             [TYPE]: TYPE_TEXT
+        },
+        {
+            "id": 25.39,
+            [OPTIONS]: [
+                {
+                    [DB_VALUE]: "BP",
+                    [NEXT_QUESTION]: 25.4,
+                    [STATEMENT]: {
+                        [LANG_HINDI]: "हां",
+                        [LANG_ENGLISH]: "Yes"
+                    },
+                    [VALUE]: 0
+                },
+                {
+                    [DB_VALUE]: "NOBP",
+                    [NEXT_QUESTION]: 25.5,
+                    [STATEMENT]: {
+                        [LANG_HINDI]: "नहीं",
+                        [LANG_ENGLISH]: "No"
+                    },
+                    [VALUE]: 1
+                }
+            ],
+            [STATEMENT]: {
+                [LANG_HINDI]: "क्या आपके पास आपका bp का फोटो है?",
+                [LANG_ENGLISH]: "Do you have your BP reading photo?"
+            },
+            [TYPE]: TYPE_BUTTON
         },
         {
             "id": 25.4,
@@ -440,12 +468,40 @@ module.exports = {
         },
         {
             "id": 25.6,
-            "nextQuestion": 25.7,
+            "nextQuestion": 25.69,
             "statement": {
                 "hi": "आपका heart रेट कितना है?",
                 "en": "What is your heart rate?"
             },
             [TYPE]: TYPE_TEXT
+        },
+        {
+            "id": 25.69,
+            [OPTIONS]: [
+                {
+                    [DB_VALUE]: "SpO2",
+                    [NEXT_QUESTION]: 25.7,
+                    [STATEMENT]: {
+                        [LANG_HINDI]: "हां",
+                        [LANG_ENGLISH]: "Yes"
+                    },
+                    [VALUE]: 0
+                },
+                {
+                    [DB_VALUE]: "NOSpO2",
+                    [NEXT_QUESTION]: 25.79,
+                    [STATEMENT]: {
+                        [LANG_HINDI]: "नहीं",
+                        [LANG_ENGLISH]: "No"
+                    },
+                    [VALUE]: 1
+                }
+            ],
+            [STATEMENT]: {
+                [LANG_HINDI]: "क्या आपके पास आपका spo2 / हार्ट रेट का फोटो है?",
+                [LANG_ENGLISH]: "Do you have your SpO2/heart rate photo?"
+            },
+            [TYPE]: TYPE_BUTTON
         },
         {
             "id": 25.7,

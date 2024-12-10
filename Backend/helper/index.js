@@ -14,12 +14,14 @@ function getQuestionById(id) {
 }
 
 function getId(name, number) {
-  const cleansedName = name.trim();
+  const cleansedName = name.trim().toLowerCase();
   if (cleansedName) {
-    return `${cleansedName.split(" ")[0]}-${number}`.toLowerCase();
+    const firstWord = cleansedName.split(" ")[0];
+    return `${firstWord}-${number}`;
   }
   return null;
 }
+
 
 function getSelectedOption(id, answers){
   return getQuestionById(id).options[answers[id]].dbValue;
