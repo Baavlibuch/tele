@@ -54,7 +54,7 @@ function Row(props) {
 	// 	console.log(key + ' | ' + JSON.stringify(getObjByID(patient.timestamps, key)));
 	// }
 
-	const filteredKeys = ['symptoms', 'symptoms_Duration', 'village', 'latitude', 'longitude', 'doctor', 'Last Visited', 'Registered', 'followup', 'BP_systolic', 'BP_diastolic', 'SPO2_value', 'heart_rate'];
+	const filteredKeys = ['telephone','age','gender','symptoms', 'symptoms_Duration', 'village', 'latitude', 'longitude', 'doctor', 'Last Visited', 'Registered', 'followup', 'BP_systolic', 'BP_diastolic', 'SPO2_value', 'heart_rate'];
 
 	return (
 		<React.Fragment>
@@ -73,14 +73,14 @@ function Row(props) {
 					handleReveal();
 				}}
 			>
-				<td style={{ fontWeight: 600 }}>{patient.name}</td>
-				<td>
+				{/* <td style={{ fontWeight: 600 }}>{patient.name}</td> */}
+				{/* <td>
 					<a href={`tel:${patient.telephone}`} className="link" target="_noblank">
 						{patient.telephone}
 					</a>
 				</td>
 				<td style={{ color: '#B5B5B5' }}>{patient.age}</td>
-				<td style={{ color: '#B5B5B5' }}>{patient.gender}</td>
+				<td style={{ color: '#B5B5B5' }}>{patient.gender}</td> */}
 				{/* <td style={{ color: '#B5B5B5' }}>{patient.type}</td> */}
 			</tr>
 
@@ -100,7 +100,11 @@ function Row(props) {
 					>
 						<td style={{ fontWeight: 600 }} colspan='3'>{dataKey}</td>
 						<td style={{ paddingRight: '20px' }} colspan='2'>
-							{patientCopy[dataKey] ? (patientCopy[dataKey] === true ? 'Yes' : patientCopy[dataKey]) : '-'}
+							{patientCopy[dataKey] ? (patientCopy[dataKey] === true ? 'Yes' : patientCopy[dataKey]) : 'NIL'}
+						</td>
+						<td style={{ fontWeight: 600 }} colspan='3'>ECG</td>
+						<td style={{ paddingRight: '20px' }} colspan='2'>
+							{patient.ECG_Image? "Yes":"No"}
 						</td>
 					</tr>
 				);

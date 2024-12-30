@@ -5,14 +5,17 @@ import { ENDPOINT } from '../../config';
 import Row from './row';
 import * as XLSX from 'xlsx'; // For Excel
 import { useHistory } from 'react-router-dom';
+import Intable from './Intable';
+import DoctorCred from './doctorCred';
 
-function Table({ username, changePatient, callStarted, setpresUploaded, currPatient}) {
+function Table({ username, changePatient, callStarted, setpresUploaded, currPatient, doctorId }) {
 	const [patients, setPatients] = useState([]);
 	const [page, setPage] = useState(1);
 	const [searchQuery, setSearchQuery] = useState('');
 	const rowsPerPage = 10;
 	const history = useHistory();
-	const [prevCurrPatient, setPrevCurrPatient] = useState("tt-3333333333"); 
+	const [prevCurrPatient, setPrevCurrPatient] = useState("tt-3333333333");
+	const [doctor, setDoctor] = useState();
 
 	useEffect(() => {
 		const timer = setInterval(() => {
@@ -26,14 +29,14 @@ function Table({ username, changePatient, callStarted, setpresUploaded, currPati
 	}, [callStarted]);
 
 	useEffect(() => {
-		console.log("currpatient",currPatient)
-		console.log("prevpatient",prevCurrPatient)
+		console.log("currpatient", currPatient)
+		console.log("prevpatient", prevCurrPatient)
 		console.log("reorder")
 		reorderPatients();
 	}, [currPatient]);
 
 	const reorderPatients = () => {
-		const currPatientIndex = patients.findIndex(patient => patient._id ===currPatient);
+		const currPatientIndex = patients.findIndex(patient => patient._id === currPatient);
 		if (currPatientIndex !== -1) {
 			const reorderedPatients = [
 				patients[currPatientIndex],
@@ -82,62 +85,45 @@ function Table({ username, changePatient, callStarted, setpresUploaded, currPati
 		history.push('/patients');
 	};
 
-	const handleFileUpload = (event, patientId, type) => {
-		if (type === "prescription") {
-			console.log("event-", event.target.files[0]);
-			setpresUploaded(event.target.files[0]);
-			const file = event.target.files[0];
-			if (!file) return;
+	// const handleFileUpload = (event, patientId, type) => {
+	// 	if (type === "prescription") {
+	// 		console.log("event-", event.target.files[0]);
+	// 		setpresUploaded(event.target.files[0]);
+	// 		const file = event.target.files[0];
+	// 		if (!file) return;
 
-			const formData = new FormData();
-			formData.append('file', file);
-			formData.append('type', type);
-			formData.append('patientId', patientId);
+	// 		const formData = new FormData();
+	// 		formData.append('file', file);
+	// 		formData.append('type', type);
+	// 		formData.append('patientId', patientId);
 
-			axios
-				.post(`${ENDPOINT}/api/presc_n_diagnosis`, formData)
-				.then((response) => {
-					alert('File uploaded successfully');
-					getPatients();
-				})
-				.catch((error) => {
-					console.error('Error uploading file:', error);
-				});
-		} else if (type === "diagnosis") {
-			const inputValue = event.target.value;
-			if (!inputValue) return;
+	// 		axios
+	// 			.post(`${ENDPOINT}/api/presc_n_diagnosis`, formData)
+	// 			.then((response) => {
+	// 				alert('File uploaded successfully');
+	// 				getPatients();
+	// 			})
+	// 			.catch((error) => {
+	// 				console.error('Error uploading file:', error);
+	// 			});
+	// 	} else if (type === "diagnosis") {
+	// 		const inputValue = event.target.value;
+	// 		if (!inputValue) return;
 
-			axios
-				.post(`${ENDPOINT}/api/onlydiagnosis`, {
-					patientId,
-					diagnosis: inputValue,
-				})
-				.then((response) => {
-					// alert('Diagnosis details saved successfully');
-					getPatients();
-				})
-				.catch((error) => {
-					console.error('Error saving diagnosis:', error);
-				});
-		}
-	};
-
-	const handleBehaviorChange = (event, patientId) => {
-		const selectedBehavior = event.target.value;
-
-		axios
-			.post(`${ENDPOINT}/api/save-behavior`, {
-				patientId,
-				behavior: selectedBehavior,
-			})
-			.then((response) => {
-				alert('Behavior saved successfully');
-				getPatients();
-			})
-			.catch((error) => {
-				console.error('Error saving behavior:', error);
-			});
-	};
+	// 		axios
+	// 			.post(`${ENDPOINT}/api/onlydiagnosis`, {
+	// 				patientId,
+	// 				diagnosis: inputValue,
+	// 			})
+	// 			.then((response) => {
+	// 				// alert('Diagnosis details saved successfully');
+	// 				getPatients();
+	// 			})
+	// 			.catch((error) => {
+	// 				console.error('Error saving diagnosis:', error);
+	// 			});
+	// 	}
+	// };
 
 
 	return (
@@ -158,34 +144,7 @@ function Table({ username, changePatient, callStarted, setpresUploaded, currPati
 					</button>
 					Patients
 				</h5>
-				<thead>
-					<tr>
-						<th className="state-heading">
-							<div className="heading-content">
-								<abbr title="Name">Name</abbr>
-							</div>
-						</th>
-						<th>
-							<div className="heading-content">
-								<abbr title="Telephone">Telephone</abbr>
-							</div>
-						</th>
-						<th>
-							<div className="heading-content">
-								<abbr title="Age">Age</abbr>
-							</div>
-						</th>
-						<th>
-							<div className="heading-content">
-								<abbr title="Gender">Sex</abbr>
-							</div>
-						</th>
-						<th>Prescription</th>
-						<th>Diagnosis</th>
-						<th>Behavior</th>
-					</tr>
-				</thead>
-				{displayedPatients.map((patient, index) => (
+				{/* {displayedPatients.map((patient, index) => (
 					<tbody key={index}>
 						<Row key={index} patient={patient} />
 						<tr>
@@ -204,7 +163,6 @@ function Table({ username, changePatient, callStarted, setpresUploaded, currPati
 								) : null}
 							</td>
 							<td>
-								{/* Display existing prescription if available */}
 								{patient.prescription ? (
 									<a href={patient.prescription} target="_blank" rel="noopener noreferrer" className="view-link">
 										View Prescription
@@ -222,7 +180,6 @@ function Table({ username, changePatient, callStarted, setpresUploaded, currPati
 								)}
 							</td>
 							<td>
-								{/* Display existing diagnosis if available */}
 								{patient.diagnosis ? (
 									<div className="diagnosis-container">
 										{patient.diagnosis}
@@ -263,7 +220,23 @@ function Table({ username, changePatient, callStarted, setpresUploaded, currPati
 							</td>
 						</tr>
 					</tbody>
-				))}
+				))} */}
+				<div style={{ width: '100%', borderCollapse: 'collapse' }}>
+					<div style={{border:'2px solid rgb(230, 230, 230)', fontWeight:'bold'}}>
+						<div style={{ display: 'flex', backgroundColor: 'rgba(137, 137, 137, 0.18)' }}>
+							<div style={{ textAlign: 'left', padding: '10px', width: '10%', fontSize: '14px' }}>Sno.</div>
+							<div style={{ textAlign: 'left', padding: '10px', width: '80%', fontSize: '14px' }}>Patients</div>
+							<div style={{ textAlign: 'left', padding: '10px', width: '10%',fontSize: '14px' }}>Chat</div>
+						</div>
+					</div>
+					{displayedPatients.map((patient, index) => (
+						<div key={index}>
+							<div>
+								<Intable patient={patient} index={index} changePatient={changePatient} getPatient={getPatients} doctorCred={doctor}/>
+							</div>
+						</div>
+					))}
+				</div>
 				<div style={{ fontSize: '12px' }}>Count: {filteredPatients.length}</div>
 				<div className="pagination">
 					<button
@@ -285,6 +258,7 @@ function Table({ username, changePatient, callStarted, setpresUploaded, currPati
 					</button>
 				</div>
 			</table>
+			<DoctorCred doctorId={doctorId} setDoctor={setDoctor}/>
 		</div>
 	);
 }

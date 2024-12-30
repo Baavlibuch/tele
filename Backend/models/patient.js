@@ -24,6 +24,31 @@ const ConversationState = new Schema({
 			intention: {}
 })
 
+const prescriptionSchema = new Schema({
+    id: {
+        type: Number,
+        required: true,
+        unique: true,
+        default: Date.now,
+    },
+    notation: {
+        type: String,
+        default: "",
+    },
+    saltName: {
+        type: String,
+        default: "",
+    },
+    dosage: {
+        type: String,
+        default: "",
+    },
+    remarks: {
+        type: String,
+        default: "",
+    },
+});
+
 // create a schema
 const PatientSchema = new Schema(
 	{
@@ -48,9 +73,12 @@ const PatientSchema = new Schema(
 		Temperature_value: String,
 		Bloodglucose_taken_at: String,
 		Bloodglucose_value: String,
-
-		prescription: String,
+		
+		prescriptions: [prescriptionSchema],
+		pastHistory: String,
 		diagnosis: String,
+		advice: String,
+		specialRemark: String,
 		/**
 		Vital parameters reading
 		*/
@@ -125,6 +153,7 @@ const PatientSchema = new Schema(
 		BP_Image: String,
 		Spo2_Image: String,
 		ECG_Image: String,
+		Signature: String,
 
 		/*
 		 * Cardiac screening

@@ -38,7 +38,8 @@ class Doctor extends React.Component {
             callStarted: false,
             presUpload: false,
             _event:null,
-            currPatient: null
+            currPatient: null,
+            doctorId: null,
         };
 
         this.configRef = null;
@@ -225,6 +226,7 @@ class Doctor extends React.Component {
             .then((response) => {
                 const { login, username, hospital, doctorId } = response.data;
                 if (login) {
+                    this.setState({doctorId: doctorId})
                     this.setState({ loggedin: true, username, hospital });
                     this.props.loginSuccess({ username, hospital, doctorId });
                     this.setupSocket();
@@ -366,7 +368,7 @@ class Doctor extends React.Component {
                             />
                         </div>} */}
                     {/* {!callStarted&&<Table username={username} changePatient={this.changePatient} />} */}
-                    <Table username={username} changePatient={this.changePatient} callStarted={callStarted} setpresUploaded={this.setpresUploaded} currPatient={currPatient}/>
+                    <Table username={username} changePatient={this.changePatient} callStarted={callStarted} setpresUploaded={this.setpresUploaded} currPatient={currPatient} doctorId={this.state.doctorId}/>
                     <form onSubmit={this.logout} className="login-form fadeInUp">
                         <p>{error}</p>
                         <button

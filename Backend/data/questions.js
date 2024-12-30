@@ -260,7 +260,7 @@ module.exports = {
                     [VALUE]: 0
                 },
                 {
-                    [NEXT_QUESTION]: 24.0,
+                    [NEXT_QUESTION]: 2.5,
                     [STATEMENT]: {
                         [LANG_HINDI]: "पिछला परामर्श",
                         [LANG_ENGLISH]: "Previous consultation"
@@ -679,7 +679,7 @@ module.exports = {
                 "hi": "आपकी उम्र क्या हैं?",
                 "en": "What is your age?"
             },
-            "type": "tel"
+            "type": "text"
         },
         {
             "id": 32.0,
@@ -732,12 +732,11 @@ module.exports = {
         {
             "id": 2.6,
             "nextQuestion": 2.7,
-            "pattern": "[0-9]{1,3}",
             "statement": {
                 "hi": "आपकी उम्र क्या हैं?",
                 "en": "What is your age?"
             },
-            "type": "tel"
+            "type": "text"
         },
         {
             "id": 2.7,

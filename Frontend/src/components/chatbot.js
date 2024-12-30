@@ -1138,7 +1138,7 @@ export default class Chat extends React.Component {
 		console.log('renderTextOverride : rendering customeTextField')
 		return (
 			<div className="answer-box text-row fadeInUp" style={{ animationDelay: '1s' }}>
-				<form onSubmit={this.textAnswerOverrides} className="message-form">
+				{/* <form onSubmit={this.textAnswerOverrides} className="message-form">
 					<input
 						id="textOverrideField"
 						value={textOverrideAnswered}
@@ -1153,7 +1153,7 @@ export default class Chat extends React.Component {
 					<button type="submit" className="send">
 						<Icon.Send />
 					</button>
-				</form>
+				</form> */}
 			</div>
 		)
 	}

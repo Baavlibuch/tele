@@ -208,7 +208,7 @@ function fetchState(){
 
 async function analyzeStatement(customText, currentQuestion){
   // TODO
-  if (customText) return await nlu(customText, currentQuestion, questions)
+  // if (customText) return await nlu(customText, currentQuestion, questions)
 }
 
 function runCommand(question, currentQuestion, nextQuestion, command, answers, patient_id, session){

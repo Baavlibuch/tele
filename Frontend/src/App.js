@@ -21,6 +21,8 @@ import { Toaster } from 'react-hot-toast';
 import { useSelector, useDispatch } from 'react-redux';
 import Verification from './components/doctor/verification';
 import PatientList from './components/doctor/showallpatients';
+import PrescriptionTemplate from './components/doctor/prescriptionTemplate';
+import PdfEditor from './components/doctor/pdfEditor';
 
 const history = require('history').createBrowserHistory;
 
@@ -86,7 +88,32 @@ function App() {
 	// }, []);
 
 	// const { doctor } = useContext(DoctorAuthContext)
-
+	const datapres = {
+		patient_Id: "bhataram_8442054354",
+		date: "12/9/2024",
+		time: "3:28 PM",
+		Visit: "First",
+		Address: "Siner-Dharna",
+		Gender: "Male",
+		Consulted_via: "Telemedicine Portal",
+		name: "bhataram",
+		age: 28,
+		phone: "8442054354",
+		Bp: "126/82",
+		pulseRate: 103,
+		Spo2: 98,
+		ECG: "NIL",
+		pastHistory: "no past history",
+		diagnosis: "headache, common cold, wound on leg",
+		advice: "Gargle with warm salt water, clean and dress the wound, take rest",
+		prescriptions: [
+			{ saltName: "Azithromycin 500mg", dosage: "OD", remarks: "" },
+			{ saltName: "Paracetamol + ibuprofen", dosage: "SOS", remarks: "" },
+			{ saltName: "Levocetirizine 5mg", dosage: "BD", remarks: "" },
+			{ saltName: "Iodine povidine", dosage: "BD", remarks: "x5 days" },
+		],
+		Signature: "Dr. Dileep Seervi",
+	};
 	return (
 		<div className="App">
 			<Toaster />
@@ -125,6 +152,8 @@ function App() {
 									render={(props) => <Acknowledgement {...props} />}
 								/>
 								<Route exact path="/patients" render={(props) => <PatientList {...props} />}/>
+								<Route exact path="/presTemplate" render={(props) => <PrescriptionTemplate  data={datapres }{...props} />}/>
+								<Route exact path="/pdfEditor" render={(props) => <PdfEditor {...props} />}/>
 							</Switch>
 						</div>
 					)}

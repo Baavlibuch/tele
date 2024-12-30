@@ -1,0 +1,96 @@
+.col-1{
+    padding: 2px;
+    text-align: left;
+    border: 1px solid rgb(230, 230, 230);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    font-family: sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+    user-select: none;
+    color: rgb(97, 97, 97);
+}
+.outer-col{
+    display: flex;
+    cursor: pointer;
+}
+.outer-col-select{
+    display: flex;
+    background-color: rgba(0, 123, 255, 0.062745098);
+    cursor: pointer;
+}
+.outer-col:hover{
+    background-color:rgba(150, 197, 247, 0.18);
+}
+.colDetails{
+    display: grid;
+    grid-template-columns: 50% 50%;
+    font-family: sans-serif;
+    font-size: 13px;
+}
+.colDetails-1{
+    display: grid;
+}
+.colDetails-sub{
+    display: flex;
+    justify-content: space-between;
+    background-color: rgb(247, 247, 247);
+    border: 1px solid white;
+}
+.colDetails-sub-sub{
+    padding: 2px;
+}
+.colDetails-2-sub{
+    display: grid;
+    grid-template-columns: 50% 50%;
+}
+.colDetails-2-sub-c{
+    display: grid;
+    grid-template-columns: 100%;
+}
+.colDetails-2{
+    padding: 2px;
+}
+.colDetails-2Head{
+    display: grid;
+    grid-template-columns: 50% 50%;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: bold;
+    background-color:rgb(230, 230, 230);
+
+}
+.colDetails-2Head4{
+    display: grid;
+    grid-template-columns: 100%;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: bold;
+    background-color:rgb(230, 230, 230);
+}
+.diagnosis-input{
+    font-family: 'Times New Roman', Times, serif;
+}
+.behaviorbox{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+.key-value-out{
+    margin: 1px;
+    padding: 2px;
+    display: flex;
+    justify-content: space-between;
+    background-color: rgb(248, 248, 248);
+    font-size: 12px;
+}
+.input-rx{
+    padding: 1px!important;
+    width: 95%!important;
+    height: 20px!important;
+    /* margin: 2px!important; */
+    border-radius: 0px!important;
+    font-size: 12px !important;
+    border: 1px solid rgb(166, 166, 166)!important;
+    border-radius: 2px !important;
+}
