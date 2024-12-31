@@ -10,6 +10,7 @@ import DoctorCred from './doctorCred';
 
 function Table({ username, changePatient, callStarted, setpresUploaded, currPatient, doctorId }) {
 	const [patients, setPatients] = useState([]);
+	const [patientsexcel, setPatientsexcel] = useState([]);
 	const [page, setPage] = useState(1);
 	const [searchQuery, setSearchQuery] = useState('');
 	const rowsPerPage = 10;
@@ -59,14 +60,22 @@ function Table({ username, changePatient, callStarted, setpresUploaded, currPati
 			.catch((err) => {
 				console.log(err);
 			});
+		axios
+			.get(ENDPOINT + '/api/patient-listexcel')
+			.then((response) => {
+				console.log(response.data.patients)
+				setPatientsexcel(response.data.patients);
+				reorderPatients();
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	};
 
-	const filteredKeys = ['symptoms', 'symptoms_Duration', 'village', 'latitude', 'longitude', 'doctor', 'Last Visited', 'Registered', 'followup'];
-	const filteredPatients = patients.filter((patient) => {
-		return filteredKeys.some((key) => {
-			return patient[key] && patient[key].toString().toLowerCase().includes(searchQuery.toLowerCase());
-		});
-	});
+	// const filteredKeys = ['symptoms', 'symptoms_Duration', 'village', 'latitude', 'longitude', 'doctor', 'Last Visited', 'Registered', 'followup'];
+	const filteredPatients = patients.filter(patient =>
+		(patient._id || '').toLowerCase().includes(searchQuery.toLowerCase())
+	);
 
 	const displayedPatients = filteredPatients.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 	const totalPages = Math.ceil(filteredPatients.length / rowsPerPage);
@@ -74,57 +83,65 @@ function Table({ username, changePatient, callStarted, setpresUploaded, currPati
 	const followupCount = patients.filter(patient => patient.followup > 1).length;
 
 	const downloadExcel = () => {
-		// window.location.reload();
-		const worksheet = XLSX.utils.json_to_sheet(patients);
+		// Clone and filter the data to include only the specified attributes
+		const processedData = patientsexcel.map(patient => {
+			// Format the prescriptions array
+			if (Array.isArray(patient.prescriptions)) {
+				patient.prescriptions = patient.prescriptions
+					.map(prescription =>
+						`Notation: ${prescription.notation || ''}, SaltName: ${prescription.saltName || ''}, Dosage: ${prescription.dosage || ''}, Remarks: ${prescription.remarks || ''}, ID: ${prescription.id || ''}`
+					)
+					.join('\n'); // Separate multiple prescriptions with a newline
+			}
+
+			// Return only the required attributes
+			return {
+				Id: patient.id ? patient.id : patient._id || "Nil",
+				Name: patient.name || "Nil",
+				Age: patient.age || "Nil",
+				Gender: patient.gender || "Nil",
+				Telephone: patient.telephone || "Nil",
+				Hospital: patient.hospital || "Nil",
+				Timestamp: patient.timestamps || "Nil",
+				Ip: patient.ip || "Nil",
+				Doctor: patient.doctor || "Nil",
+				Village: patient.village || "Nil",
+				Symptoms: patient.symptoms || "Nil",
+				"Symptoms duration": patient.symptoms_Duration || "Nil",
+				"BP systolic": patient.BP_systolic || "Nil",
+				"BP diastolic": patient.BP_diastolic || "Nil",
+				"BP image": patient.BP_Image || "Nil",
+				Spo2: patient.SPO2_value || "Nil",
+				"Heart rate": patient.heart_rate || "Nil",
+				"Spo2 / heart rate image": patient.Spo2_Image || "Nil",
+				"ECG (yes no)": patient.ECG_Image ? "Yes" : "No" || "Nil",
+				"ECG pdf": patient.ECG_Image || "Nil",
+				Followup: patient.Visit ? patient.Visit : patient.followup || "Nil",
+				"Last visit": patient['Last Visited'] || "Nil",
+				"Register visit": patient['Registered'] || "Nil",
+				Longitude: patient.longitude || "Nil",
+				Latitude: patient.latitude || "Nil",
+				"Prescriptions": patient.prescriptions || "Nil",
+				"Prescription pdf": patient.prescription || "Nil",
+				"Diagnosis / chief complaint": patient.diagnosis || "Nil",
+				Behaviour: patient.behavior || "Nil",
+				Advice: patient.advice || "Nil",
+				"Special Remark": patient.specialRemark || "Nil",
+			};
+		});
+
+		// Generate the Excel file
+		const worksheet = XLSX.utils.json_to_sheet(processedData);
 		const workbook = XLSX.utils.book_new();
 		XLSX.utils.book_append_sheet(workbook, worksheet, 'Patients');
 		XLSX.writeFile(workbook, 'patients.xlsx');
 	};
 
+
 	const handleNavigation = () => {
-		history.push('/patients');
+		window.open('/patients', '_blank');
 	};
-
-	// const handleFileUpload = (event, patientId, type) => {
-	// 	if (type === "prescription") {
-	// 		console.log("event-", event.target.files[0]);
-	// 		setpresUploaded(event.target.files[0]);
-	// 		const file = event.target.files[0];
-	// 		if (!file) return;
-
-	// 		const formData = new FormData();
-	// 		formData.append('file', file);
-	// 		formData.append('type', type);
-	// 		formData.append('patientId', patientId);
-
-	// 		axios
-	// 			.post(`${ENDPOINT}/api/presc_n_diagnosis`, formData)
-	// 			.then((response) => {
-	// 				alert('File uploaded successfully');
-	// 				getPatients();
-	// 			})
-	// 			.catch((error) => {
-	// 				console.error('Error uploading file:', error);
-	// 			});
-	// 	} else if (type === "diagnosis") {
-	// 		const inputValue = event.target.value;
-	// 		if (!inputValue) return;
-
-	// 		axios
-	// 			.post(`${ENDPOINT}/api/onlydiagnosis`, {
-	// 				patientId,
-	// 				diagnosis: inputValue,
-	// 			})
-	// 			.then((response) => {
-	// 				// alert('Diagnosis details saved successfully');
-	// 				getPatients();
-	// 			})
-	// 			.catch((error) => {
-	// 				console.error('Error saving diagnosis:', error);
-	// 			});
-	// 	}
-	// };
-
+	
 
 	return (
 		<div>
@@ -137,6 +154,20 @@ function Table({ username, changePatient, callStarted, setpresUploaded, currPati
 					See All Patients
 				</button>
 			</div>
+			<div style={{ marginBottom: '10px' }}>
+				<input
+					type="text"
+					placeholder="Search Patients"
+					value={searchQuery}
+					onChange={(e) => setSearchQuery(e.target.value)}
+					style={{
+						width: '40%',
+						padding: '2px',
+						border: '1px solid #ddd',
+						borderRadius: '4px',
+					}}
+				/>
+			</div>
 			<table className="table fadeInUp" style={{ animationDelay: '1s' }}>
 				<h5 className="affected-count">
 					<button onClick={getPatients} className="refresh">
@@ -144,95 +175,18 @@ function Table({ username, changePatient, callStarted, setpresUploaded, currPati
 					</button>
 					Patients
 				</h5>
-				{/* {displayedPatients.map((patient, index) => (
-					<tbody key={index}>
-						<Row key={index} patient={patient} />
-						<tr>
-							<td colSpan="4">
-								{patient.doctor === username ? (
-									<button
-										className="send"
-										style={{ margin: 0 }}
-										onClick={(e) => {
-											e.preventDefault();
-											changePatient(patient._id);
-										}}
-									>
-										<Icon.MessageCircle />
-									</button>
-								) : null}
-							</td>
-							<td>
-								{patient.prescription ? (
-									<a href={patient.prescription} target="_blank" rel="noopener noreferrer" className="view-link">
-										View Prescription
-									</a>
-								) : (
-									<label className="upload-btn">
-										<Icon.Upload size={14} /> Upload
-										<input
-											type="file"
-											accept=".pdf,.doc,.docx,.txt"
-											onChange={(event) => handleFileUpload(event, patient._id, 'prescription')}
-											style={{ display: 'none' }}
-										/>
-									</label>
-								)}
-							</td>
-							<td>
-								{patient.diagnosis ? (
-									<div className="diagnosis-container">
-										{patient.diagnosis}
-									</div>
-								) : (
-									<input
-										type="text"
-										placeholder="Enter diagnosis"
-										className="diagnosis-input"
-										// onBlur={(event) => handleFileUpload(event, patient._id, 'diagnosis')}
-										onKeyDown={(event) => {
-											if (event.key === "Enter") {
-												handleFileUpload(event, patient._id, 'diagnosis');
-											}
-										}}
-									/>
-								)}
-							</td>
-							<td>
-								{
-									patient.behavior ? (
-										<div className="">
-											{patient.behavior}
-										</div>
-									) :
-										<select
-											className="behavior-dropdown"
-											defaultValue=""
-											onChange={(event) => handleBehaviorChange(event, patient._id)}
-										>
-											<option value="" disabled>
-												Behavior
-											</option>
-											<option value="Treated">Treated</option>
-											<option value="Referred">Referred</option>
-										</select>
-								}
-							</td>
-						</tr>
-					</tbody>
-				))} */}
 				<div style={{ width: '100%', borderCollapse: 'collapse' }}>
-					<div style={{border:'2px solid rgb(230, 230, 230)', fontWeight:'bold'}}>
+					<div style={{ border: '2px solid rgb(230, 230, 230)', fontWeight: 'bold' }}>
 						<div style={{ display: 'flex', backgroundColor: 'rgba(137, 137, 137, 0.18)' }}>
 							<div style={{ textAlign: 'left', padding: '10px', width: '10%', fontSize: '14px' }}>Sno.</div>
 							<div style={{ textAlign: 'left', padding: '10px', width: '80%', fontSize: '14px' }}>Patients</div>
-							<div style={{ textAlign: 'left', padding: '10px', width: '10%',fontSize: '14px' }}>Chat</div>
+							<div style={{ textAlign: 'left', padding: '10px', width: '10%', fontSize: '14px' }}>Chat</div>
 						</div>
 					</div>
 					{displayedPatients.map((patient, index) => (
 						<div key={index}>
 							<div>
-								<Intable patient={patient} index={index} changePatient={changePatient} getPatient={getPatients} doctorCred={doctor}/>
+								<Intable patient={patient} index={index} changePatient={changePatient} getPatient={getPatients} doctorCred={doctor} setpresUploaded={setpresUploaded} />
 							</div>
 						</div>
 					))}
@@ -258,7 +212,7 @@ function Table({ username, changePatient, callStarted, setpresUploaded, currPati
 					</button>
 				</div>
 			</table>
-			<DoctorCred doctorId={doctorId} setDoctor={setDoctor}/>
+			<DoctorCred doctorId={doctorId} setDoctor={setDoctor} />
 		</div>
 	);
 }

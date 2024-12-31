@@ -42,8 +42,9 @@ const FollowUpPatient = require('../models/followup');
 //prescription and diagnosis
 router.post('/presc_n_diagnosis', upload.single('file'), async (req, res) => {
 	try {
-		const { type, patientId } = req.body;
+		const { type, patientId, index } = req.body;
 
+		// Validate required fields
 		if (!req.file) {
 			return res.status(400).json({ message: 'No file uploaded' });
 		}
@@ -52,47 +53,69 @@ router.post('/presc_n_diagnosis', upload.single('file'), async (req, res) => {
 			return res.status(400).json({ message: 'Type and Patient ID are required' });
 		}
 
+		// Construct file path
 		const filePath = `https://teleniir.com/aa/images/${req.file.filename}`;
 
-		// let updateField;
-		// if (type === 'prescription') {
-		// 	updateField = { prescription: filePath };
-		// } else if (type === 'diagnosis') {
-		// 	updateField = { diagnosis: filePath };
-		// } else {
-		// 	return res.status(400).json({ message: 'Invalid type. Must be "prescription" or "diagnosis".' });
-		// }
+		// Determine update field based on type
+		let updateField;
+		if (type === 'prescription') {
+			updateField = { prescription: filePath };
+		} else if (type === 'diagnosis') {
+			updateField = { diagnosis: filePath };
+		} else {
+			return res.status(400).json({ message: 'Invalid type. Must be "prescription" or "diagnosis".' });
+		}
 
+		// Fetch the main patient record
 		const patient = await Patient.findById(patientId);
 		if (!patient) {
 			return res.status(404).json({ message: 'Patient not found' });
 		}
 
+		// Push the chat update
 		patient.chat.push({
 			statement: `chat-img-${req.file.filename}`,
 			type: 'incoming',
 		});
-
 		await patient.save();
 
-		// const updatedPatient = await Patient.findByIdAndUpdate(
-		// 	patientId,
-		// 	{ $set: updateField },
-		// 	{ new: true }
-		// );
+		let updatedPatient;
+		if (index > 1) {
+			// Handle FollowUpPatient updates
+			const followUpPatient = await FollowUpPatient.findOneAndUpdate(
+				{ id: patientId, Visit: index }, // Match the patient and visit index
+				{ $set: updateField },
+				{ new: true }
+			);
 
-		// console.log(`Uploaded file for ${type} of patient ${patientId}: ${filePath}`);
+			if (!followUpPatient) {
+				return res.status(404).json({ message: 'Follow-up patient not found for the given index.' });
+			}
+			updatedPatient = followUpPatient;
+		} else {
+			// Handle regular patient updates
+			updatedPatient = await Patient.findByIdAndUpdate(
+				patientId,
+				{ $set: updateField },
+				{ new: true }
+			);
+
+			if (!updatedPatient) {
+				return res.status(404).json({ message: 'Patient update failed.' });
+			}
+		}
 
 		res.status(200).json({
 			message: 'File uploaded and updated successfully',
-			// filePath,
-			// updatedPatient,
+			filePath,
+			updatedPatient,
 		});
 	} catch (err) {
 		console.error(err);
 		res.status(500).json({ message: 'Internal server error', error: err.message });
 	}
 });
+
 
 router.post("/onlydiagnosis", async (req, res) => {
 	try {
@@ -319,7 +342,7 @@ router.post('/assessment', (req, res) => {
 						]
 					});
 				}
-				// patient.followup = (patient.followup || 0) + 1;
+				patient.followup = (patient.followup || 0) + 1;
 				patient.chat.push(
 					{
 						statement: "session-closed",
@@ -406,7 +429,8 @@ router.post('/assessment', (req, res) => {
 								"type": "outgoing",
 							},
 						],
-						followup: patient.followup+1,
+						followup: patient.followup,
+						Visit: patient.followup,
 					},
 					(err, patient) => {
 						console.log("this is the err", err)
@@ -558,6 +582,7 @@ router.post('/assessment', (req, res) => {
 							},
 						],
 						followup: 1,
+						Visit: 1,
 					},
 					(err, patient) => {
 						if (err) {
@@ -865,6 +890,7 @@ router.get('/patient-list', authenticate, (req, res) => {
 					pastHistory,
 					advice,
 					specialRemark,
+					Visit
 				} = patient;
 				const formattedChat = chat.map(({ statement, type, timestamp }) => ({
 					statement,
@@ -903,6 +929,7 @@ router.get('/patient-list', authenticate, (req, res) => {
 					pastHistory,
 					advice,
 					specialRemark,
+					Visit
 				};
 			});
 
@@ -910,6 +937,99 @@ router.get('/patient-list', authenticate, (req, res) => {
 		}
 	);
 });
+router.get('/patient-listexcel', authenticate, async (req, res) => {
+	const { username: doctor } = req.user;
+  
+	try {
+	  // Fetch patients from the `Patient` collection
+	  const patients = await Patient.find({ doctor }).sort({ last_messaged_at: -1 }).exec();
+  
+	  // Fetch all follow-up records from `FollowUpPatient`
+	  const followUpPatients = await FollowUpPatient.find({
+		id: { $in: patients.map(p => p._id.toString()) },
+	  }).exec();
+  
+	  // Create a map to group follow-up data by patient ID
+	  const followUpMap = followUpPatients.reduce((acc, followUp) => {
+		const key = followUp.id;
+		if (!acc[key]) acc[key] = [];
+		acc[key].push({
+		  ...followUp._doc,
+		  chat: followUp.chat.map(({ statement, type, timestamp }) => ({
+			statement,
+			type,
+			timestamp: new Date(timestamp).toLocaleString(),
+		  })),
+		  'Last Visited': new Date(followUp.last_messaged_at).toLocaleString(),
+		  'Registered': new Date(followUp.created_at).toLocaleString(),
+		});
+		return acc;
+	  }, {});
+  
+	  // Combine patient data with their follow-ups
+	  const groupedPatients = patients.flatMap(patient => {
+		const {
+		  _id,
+		  name,
+		  age,
+		  gender,
+		  telephone,
+		  hospital,
+		  timestamps,
+		  ip,
+		  doctor,
+		  village,
+		  symptoms,
+		  symptoms_Duration,
+		  BP_systolic,
+		  BP_diastolic,
+		  SPO2_value,
+		  heart_rate,
+		  followup,
+		  created_at,
+		  last_messaged_at,
+		  latitude,
+		  longitude,
+		  BP_Image,
+		  Spo2_Image,
+		  ECG_Image,
+		  chat,
+		  prescriptions,
+		  diagnosis,
+		  behavior,
+		  pastHistory,
+		  advice,
+		  specialRemark,
+		  Visit,
+		} = patient._doc;
+  
+		const formattedChat = chat.map(({ statement, type, timestamp }) => ({
+		  statement,
+		  type,
+		  timestamp: new Date(timestamp).toLocaleString(),
+		}));
+  
+		const followUps = followUpMap[_id.toString()] || [];
+  
+		return [
+		  {
+			...patient._doc,
+			chat: formattedChat,
+			'Last Visited': new Date(last_messaged_at).toLocaleString(),
+			'Registered': new Date(created_at).toLocaleString(),
+		  },
+		  ...followUps,
+		];
+	  });
+  
+	  res.json({ patients: groupedPatients });
+	} catch (err) {
+	  console.error(err);
+	  res.status(500).json({ error: true, message: 'Internal server error' });
+	}
+  });
+  
+
 
 router.get('/followuppatient-list', authenticate, (req, res) => {
 	const { patient_Id } = req.query;

@@ -74,10 +74,12 @@ const PatientSchema = new Schema(
         Bloodglucose_value: String,
         
         prescriptions: [prescriptionSchema],
+        prescription: String,
         pastHistory: String,
         diagnosis: String,
         advice: String,
         specialRemark: String,
+        Visit: Number,
         /**
         Vital parameters reading
         */
@@ -88,7 +90,7 @@ const PatientSchema = new Schema(
         IL6_report: String,
         D_dimer_report: String,
         Ferritinin_report: String,
-      Procalcitonin_report: String,
+        Procalcitonin_report: String,
         KFT_report: String,
         /**
         Pathological reports

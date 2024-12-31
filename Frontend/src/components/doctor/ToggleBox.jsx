@@ -6,7 +6,7 @@ import { ENDPOINT } from '../../config';
 import toast from 'react-hot-toast';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
-const ToggleBox = ({ patient, doctorCred, index }) => {
+const ToggleBox = ({ patient, doctorCred, index, setpresUploaded}) => {
     const filteredKeys = ['name', 'telephone', 'age', 'gender', 'symptoms', 'symptoms_Duration', 'village', 'latitude', 'longitude', 'doctor', 'Last Visited', 'Registered', 'followup', 'BP_systolic', 'BP_diastolic', 'SPO2_value', 'heart_rate'];
 
     const [prescriptions, setPrescriptions] = useState(patient.prescriptions ? patient.prescriptions : [
@@ -173,7 +173,12 @@ const ToggleBox = ({ patient, doctorCred, index }) => {
 
         // Download the modified PDF
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-        handleFileUpload(blob, patient._id, "prescription")
+        if(index>1){
+            handleFileUpload(blob, patient.id, "prescription")
+        }
+        else{
+            handleFileUpload(blob, patient._id, "prescription")
+        }
         setPdfFile(blob);
         const link = document.createElement('a');
         link.href = window.URL.createObjectURL(blob);
@@ -187,7 +192,7 @@ const ToggleBox = ({ patient, doctorCred, index }) => {
                     patient_Id: patient.id,
                     date: patient['Last Visited']?.split(',')[0] ? patient['Registered']?.split(',')[0] : "Nil",
                     time: patient['Last Visited']?.split(',')[1]?.trim() ? patient['Registered']?.split(',')[1]?.trim() : "Nil",
-                    Visit: patient['followup'] > 1 ? `Follow-up(${patient['followup']})` : 'First',
+                    Visit: patient['Visit']? patient['Visit'] > 1 ? `Follow-up(${patient['Visit']})` : 'First': patient['followup'],
                     Address: patient.village,
                     Gender: patient.gender,
                     Consulted_via: "Telemedicine Portal",
@@ -225,7 +230,7 @@ const ToggleBox = ({ patient, doctorCred, index }) => {
                     patient_Id: patient._id,
                     date: patient['Registered']?.split(',')[0],
                     time: patient['Registered']?.split(',')[1]?.trim(),
-                    Visit: patient['followup'] > 1 ? `Follow-up(${patient['followup']})` : 'First',
+                    Visit: patient['Visit']? patient['Visit'] > 1 ? `Follow-up(${patient['Visit']})` : 'First': patient['followup'],
                     Address: patient.village,
                     Gender: patient.gender,
                     Consulted_via: "Telemedicine Portal",
@@ -269,12 +274,14 @@ const ToggleBox = ({ patient, doctorCred, index }) => {
         if (type === "prescription") {
             const file = new File([fileBlob], `${patientId}.pdf`, { type: 'application/pdf' });
             console.log("event-", file);
+            setpresUploaded(file)
             if (!file) return;
 
             const formData = new FormData();
             formData.append('file', file);
             formData.append('type', type);
             formData.append('patientId', patientId);
+            formData.append('index', index);
 
             axios
                 .post(`${ENDPOINT}/api/presc_n_diagnosis`, formData)
@@ -347,7 +354,7 @@ const ToggleBox = ({ patient, doctorCred, index }) => {
                         </div>
                         <div className='key-value-out'>
                             <div>⁠Visit :</div>
-                            <div>{(patient['followup'] > 1) ? `Follow-up(${patient['followup']})` : 'First Consultation'
+                            <div>{patient['Visit']? patient['Visit'] > 1 ? `Follow-up(${patient['Visit']})` : 'First': patient['followup']
                             }</div>
                         </div>
                         <div className='key-value-out'>

@@ -36,7 +36,7 @@ class Doctor extends React.Component {
 						password: ''
 					});
 				} else {
-					this.setState({ error: 'Error Occured!' });
+					// this.setState({ error: 'Error Occured!' });
 				}
 				this.setState({ loading: false });
 			})
@@ -116,7 +116,8 @@ class Doctor extends React.Component {
 								spellCheck="false"
 							/>
 							<button type="submit" className="send">
-								<Icon.Send />
+								Login
+								{/* <Icon.Send /> */}
 							</button>
 						</form>
 					)}

@@ -14,7 +14,7 @@ function PatientList() {
 
     useEffect(() => {
         axios
-            .get('/api/all-patients')
+            .get('/api/patient-listexcel')
             .then((response) => {
                 setPatients(response.data.patients);
                 setFilteredPatients(response.data.patients);
@@ -137,7 +137,7 @@ function PatientList() {
                 Total Findings: {filteredPatients.length}
             </Typography>
 
-            <TableContainer component={Paper}>
+            <TableContainer component={Paper} style={{height:"75vh", width: "100%", overflowX: "auto", overflowY: "auto"}}>
                 <Table>
                     <TableHead>
                         <TableRow>
@@ -161,6 +161,8 @@ function PatientList() {
                             <TableCell>SPO2</TableCell>
                             <TableCell>Heart Rate</TableCell>
                             <TableCell>Prescription</TableCell>
+                            <TableCell>Past History</TableCell>
+                            <TableCell>Advice</TableCell>
                             <TableCell>Diagnosis</TableCell>
                             <TableCell>Behavior</TableCell>
                             <TableCell>Chat History</TableCell>
@@ -170,75 +172,83 @@ function PatientList() {
                         {filteredPatients.map(patient => (
                             <React.Fragment key={patient._id}>
                                 <TableRow>
-                                    <TableCell>{patient._id}</TableCell>
-                                    <TableCell>{patient.name}</TableCell>
-                                    <TableCell>{patient.age}</TableCell>
-                                    <TableCell>{patient.gender}</TableCell>
-                                    <TableCell>{patient.telephone}</TableCell>
-                                    <TableCell>{patient.hospital}</TableCell>
-                                    <TableCell>{patient.doctor}</TableCell>
-                                    <TableCell>{patient.village}</TableCell>
-                                    <TableCell>{patient.symptoms}</TableCell>
-                                    <TableCell>{patient.symptoms_Duration}</TableCell>
-                                    <TableCell>{patient.followup}</TableCell>
-                                    <TableCell>{patient['Last Visited']}</TableCell>
-                                    <TableCell>{patient.Registered}</TableCell>
-                                    <TableCell>{patient.latitude}</TableCell>
-                                    <TableCell>{patient.longitude}</TableCell>
-                                    <TableCell>{patient.BP_systolic}</TableCell>
-                                    <TableCell>{patient.BP_diastolic}</TableCell>
-                                    <TableCell>{patient.SPO2_value}</TableCell>
-                                    <TableCell>{patient.heart_rate}</TableCell>
+                                    <TableCell>{patient.id ? patient.id : patient._id || "Nil"}</TableCell>
+                                    <TableCell>{patient.name|| "Nil"}</TableCell>
+                                    <TableCell>{patient.age|| "Nil"}</TableCell>
+                                    <TableCell>{patient.gender|| "Nil"}</TableCell>
+                                    <TableCell>{patient.telephone|| "Nil"}</TableCell>
+                                    <TableCell>{patient.hospital|| "Nil"}</TableCell>
+                                    <TableCell>{patient.doctor|| "Nil"}</TableCell>
+                                    <TableCell>{patient.village|| "Nil"}</TableCell>
+                                    <TableCell>{patient.symptoms|| "Nil"}</TableCell>
+                                    <TableCell>{patient.symptoms_Duration|| "Nil"}</TableCell>
+                                    <TableCell>{patient.Visit|| "Nil"}</TableCell>
+                                    <TableCell>{patient['Last Visited']|| "Nil"}</TableCell>
+                                    <TableCell>{patient.Registered|| "Nil"}</TableCell>
+                                    <TableCell>{patient.latitude|| "Nil"}</TableCell>
+                                    <TableCell>{patient.longitude|| "Nil"}</TableCell>
+                                    <TableCell>{patient.BP_systolic|| "Nil"}</TableCell>
+                                    <TableCell>{patient.BP_diastolic|| "Nil"}</TableCell>
+                                    <TableCell>{patient.SPO2_value|| "Nil"}</TableCell>
+                                    <TableCell>{patient.heart_rate|| "Nil"}</TableCell>
                                     <TableCell>{patient.prescription ? (
                                         <a href={patient.prescription} target="_blank" rel="noopener noreferrer" className="view-link">
                                             View Prescription
                                         </a>
-                                    ) : (
-                                        <label className="upload-btn">
-                                            <Icon.Upload size={14} /> Upload
-                                            <input
-                                                type="file"
-                                                accept=".pdf,.doc,.docx,.txt"
-                                                onChange={(event) => handleFileUpload(event, patient._id, 'prescription')}
-                                                style={{ display: 'none' }}
-                                            />
-                                        </label>
-                                    )}</TableCell>
+                                    ) : 
+                                    // (
+                                        // <label className="upload-btn">
+                                        //     <Icon.Upload size={14} /> Upload
+                                        //     <input
+                                        //         type="file"
+                                        //         accept=".pdf,.doc,.docx,.txt"
+                                        //         onChange={(event) => handleFileUpload(event, patient._id, 'prescription')}
+                                        //         style={{ display: 'none' }}
+                                        //     />
+                                        // </label>
+                                    // )
+                                    "Nil"
+                                    }</TableCell>
+                                    <TableCell>{patient.pastHistory|| "Nil"}</TableCell>
+                                    <TableCell>{patient.advice|| "Nil"}</TableCell>
                                     <TableCell>{patient.diagnosis ? (
                                         <div className="diagnosis-container">
                                             {patient.diagnosis}
                                         </div>
-                                    ) : (
-                                        <input
-                                            type="text"
-                                            placeholder="Enter diagnosis"
-                                            className="diagnosis-input"
-                                            // onBlur={(event) => handleFileUpload(event, patient._id, 'diagnosis')}
-                                            onKeyDown={(event) => {
-                                                if (event.key === "Enter") {
-                                                    handleFileUpload(event, patient._id, 'diagnosis');
-                                                }
-                                            }}
-                                        />
-                                    )}</TableCell>
+                                    ) : 
+                                    "Nil"
+                                    // (
+                                        // <input
+                                        //     type="text"
+                                        //     placeholder="Enter diagnosis"
+                                        //     className="diagnosis-input"
+                                        //     // onBlur={(event) => handleFileUpload(event, patient._id, 'diagnosis')}
+                                        //     onKeyDown={(event) => {
+                                        //         if (event.key === "Enter") {
+                                        //             handleFileUpload(event, patient._id, 'diagnosis');
+                                        //         }
+                                        //     }}
+                                        // />
+                                    // )
+                                    }</TableCell>
                                     {/* <TableCell>{patient.behavior}</TableCell> */}
                                     <TableCell>{
                                         patient.behavior ? (
                                             <div className="">
                                                 {patient.behavior}
                                             </div>
-                                        ) :
-                                            <select
-                                                className="behavior-dropdown"
-                                                defaultValue=""
-                                                onChange={(event) => handleBehaviorChange(event, patient._id)}
-                                            >
-                                                <option value="" disabled>
-                                                    Behavior
-                                                </option>
-                                                <option value="Treated">Treated</option>
-                                                <option value="Referred">Referred</option>
-                                            </select>
+                                        ) : "Nil"
+                                            // <select
+                                            //     className="behavior-dropdown"
+                                            //     defaultValue=""
+                                            //     onChange={(event) => handleBehaviorChange(event, patient._id)}
+                                            // >
+                                            //     <option value="" disabled>
+                                            //         Behavior
+                                            //     </option>
+                                            //     <option value="Treated">Treated</option>
+                                            //     <option value="Referred">Referred</option>
+                                            // </select>
                                     }</TableCell>
                                     <TableCell>
                                         <IconButton onClick={() => toggleRow(patient._id)}>

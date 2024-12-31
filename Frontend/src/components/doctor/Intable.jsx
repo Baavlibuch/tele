@@ -7,7 +7,7 @@ import { ENDPOINT } from '../../config';
 import toast from 'react-hot-toast';
 import ToggleBox from './ToggleBox';
 
-const Intable = ({ index, patient, changePatient, doctorCred }) => {
+const Intable = ({ index, patient, changePatient, doctorCred, setpresUploaded}) => {
     const [togglebox, setToggleBox] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(1);
     const [followuppatients, setfollowupPatients] = useState([]);
@@ -88,11 +88,11 @@ const Intable = ({ index, patient, changePatient, doctorCred }) => {
                     </div>
                     <div>
                         {selectedIndex === 1 && (
-                            <ToggleBox patient={patient} index={1} doctorCred={doctorCred} />
+                            <ToggleBox patient={patient} index={1} doctorCred={doctorCred} setpresUploaded={setpresUploaded}/>
                         )}
                         {followuppatients.map((followup, idx) => (
                             selectedIndex === idx + 2 ? (
-                                <ToggleBox key={followup._id} patient={followup} index={idx + 2} doctorCred={doctorCred} />
+                                <ToggleBox key={followup._id} patient={followup} index={idx + 2} doctorCred={doctorCred} setpresUploaded={setpresUploaded}/>
                             ) : null
                         ))}
                     </div>
