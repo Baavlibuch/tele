@@ -318,8 +318,8 @@ h6 {
 .call-window {
   position: fixed;
   top: 0;
-  right: 0;
-  width: 52vw;
+  left: 0;
+  width: 100vw;
   height: 100vh;
   opacity: 1;
   z-index: 1;
@@ -389,6 +389,11 @@ h6 {
   background-color: #dc3545;
 }
 
+@media screen and (min-width: 1170px) {
+  .Chati {
+    width: 40vw !important;
+  }
+}
 .Chat {
   font-size: 1.2rem;
   font-weight: 600;
@@ -470,15 +475,14 @@ h6 {
 }
 .Chat p {
   margin: 0.5rem;
-  max-width: 72%;
+  max-width: -moz-fit-content;
+  max-width: fit-content;
   border-radius: 20px;
-  padding-left: 15px;
-  padding-right: 15px;
-  padding-top: 15px;
-  padding-bottom: 15px;
+  padding: 15px;
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
   box-shadow: -1px 3px 30px rgba(17, 54, 84, 0.03);
+  display: inline-block;
 }
 .Chat p img {
   width: 100%;
@@ -495,6 +499,7 @@ h6 {
   background-color: rgba(0, 123, 255, 0.062745098);
   font-size: larger;
   border: 1px rgba(108, 117, 125, 0.062745098) solid;
+  margin-right: auto;
 }
 .Chat p.outgoing-message {
   color: #6c757d;
@@ -502,6 +507,7 @@ h6 {
   align-self: flex-end;
   border-bottom-right-radius: 0px;
   border: 0.5px rgba(108, 117, 125, 0.062745098) solid;
+  margin-left: auto;
 }
 .Chat div.button-row {
   display: flex;
@@ -726,12 +732,12 @@ h6 {
   justify-content: space-around;
   text-transform: uppercase;
   font-weight: 900;
-  animation-name: u1aa3y1;
+  animation-name: uphqbih;
   animation-duration: 0.75s;
   animation-timing-function: ease-in-out;
   animation-fill-mode: both;
 }
-@keyframes u1aa3y1 {
+@keyframes uphqbih {
   0% {
     background: transparent;
   }
@@ -964,7 +970,7 @@ abbr.is-gray {
 
 table {
   position: relative;
-  width: 65rem;
+  width: 45rem;
   align-self: center;
   text-transform: uppercase;
   margin-bottom: 1rem;
@@ -1185,12 +1191,12 @@ footer {
   padding-bottom: 5rem;
   justify-content: center;
   margin-top: 5rem;
-  animation-name: u1aa3yu;
+  animation-name: uphqbjg;
   animation-duration: 0.75s;
   animation-timing-function: ease-in-out;
   animation-fill-mode: both;
 }
-@keyframes u1aa3yu {
+@keyframes uphqbjg {
   0% {
     background: transparent;
   }
@@ -1778,12 +1784,14 @@ footer .profile .link :hover {
   margin-top: 5px;
 }
 .f4 .item {
-  background-color: #f2f2f2; /* Adjust the color as needed */
+  background-color: #f2f2f2;
+  /* Adjust the color as needed */
   padding: 5px 20px;
   margin-bottom: 5px;
 }
 .f4 .button {
-  margin-top: 20px; /* Adjust the margin as needed */
+  margin-top: 20px;
+  /* Adjust the margin as needed */
   padding: 3px;
   color: gray;
   border: none;
@@ -1838,17 +1846,22 @@ footer .profile .link :hover {
   padding: 0;
   gap: 2px;
   overflow: scroll;
-  scrollbar-width: thin; /* Use "thin" to make it as thin as possible */
-  scrollbar-color: #888 #f0f0f0; /* Adjust colors as needed */
+  scrollbar-width: thin;
+  /* Use "thin" to make it as thin as possible */
+  scrollbar-color: #888 #f0f0f0;
+  /* Adjust colors as needed */
 }
 .f6 .topic-horizantal::-webkit-scrollbar {
-  width: 15px; /* Adjust this value for width */
-  height: 3px; /*this si for the height of the scroll bar*/
+  width: 15px;
+  /* Adjust this value for width */
+  height: 3px;
+  /*this si for the height of the scroll bar*/
 }
 .f6 .topic-horizantal::-webkit-scrollbar-thumb {
   background-color: #888;
   border-radius: 5px;
-  height: 3px; /* Adjust this value for height */
+  height: 3px;
+  /* Adjust this value for height */
 }
 .f6 .topic-horizantal::-webkit-scrollbar-thumb:hover {
   background-color: #555;
@@ -2021,6 +2034,12 @@ footer .profile .link :hover {
   color: #999;
 }
 
+@media (max-width: 1140px) {
+  .gridoutcontainer {
+    display: grid !important;
+    justify-self: center;
+  }
+}
 @media (max-width: 769px) {
   table,
   .header,
@@ -2599,6 +2618,20 @@ footer .profile .link :hover {
   border-radius: 100%;
 }
 
+.ydot {
+  background-color: #ffd375;
+  height: 10px;
+  width: 10px;
+  border-radius: 100%;
+}
+
+.bdot {
+  background-color: #75b3ff;
+  height: 10px;
+  width: 10px;
+  border-radius: 100%;
+}
+
 .rdot {
   background-color: #ff7575;
   height: 10px;
@@ -2620,10 +2653,62 @@ footer .profile .link :hover {
 }
 
 .callwindowcontainer .call-window {
+  position: relative !important;
+  width: 92vw;
+  min-width: 500px;
+  height: 90vh;
+}
+.callwindowcontainer .call-window .video-control {
+  position: absolute;
+  bottom: 0;
+}
+
+.diagnosis-container {
+  width: 180px;
+  margin: 4px 0;
+  padding: 5px 10px;
+  border: 1px solid #e0e0e0;
+  background-color: #f9f9f9;
+  color: #333;
+  font-size: 14px;
+  word-wrap: break-word;
+  text-transform: none;
+}
+
+.behavior-dropdown {
+  padding: 2px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  color: #333;
+  width: 100px;
+}
+
+.behavior-dropdown:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.container-chat-callWindow {
+  width: 90vw;
+}
+.container-chat-callWindow .callwindowcontainer2 .call-window {
+  position: relative;
+  width: 93vw;
+  height: 90vh;
+}
+.container-chat-callWindow .callwindowcontainer2 .call-window .video-control {
+  position: absolute;
+  bottom: 0;
+}
+
+.callwindowcontainer3 .call-window {
+  position: relative;
   width: 500px;
   height: 700px;
 }
-.callwindowcontainer .call-window .video-control {
+.callwindowcontainer3 .call-window .video-control {
   position: absolute;
   bottom: 0;
 }

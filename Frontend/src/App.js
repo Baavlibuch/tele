@@ -23,6 +23,8 @@ import Verification from './components/doctor/verification';
 import PatientList from './components/doctor/showallpatients';
 import PrescriptionTemplate from './components/doctor/prescriptionTemplate';
 import PdfEditor from './components/doctor/pdfEditor';
+import ManagePatients from './components/doctor/editableshowallpatient';
+import NurseLoginRegister from './components/doctor/nurseloginReg';
 
 const history = require('history').createBrowserHistory;
 
@@ -154,6 +156,8 @@ function App() {
 								<Route exact path="/patients" render={(props) => <PatientList {...props} />}/>
 								<Route exact path="/presTemplate" render={(props) => <PrescriptionTemplate  data={datapres }{...props} />}/>
 								<Route exact path="/pdfEditor" render={(props) => <PdfEditor {...props} />}/>
+								<Route exact path="/managePatients" render={(props) => <ManagePatients {...props} />}/>
+								<Route exact path="/nurseLogin" render={(props) => <NurseLoginRegister {...props} />}/>
 							</Switch>
 						</div>
 					)}

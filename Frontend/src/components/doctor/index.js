@@ -37,7 +37,7 @@ class Doctor extends React.Component {
             oncall: false,
             callStarted: false,
             presUpload: false,
-            _event:null,
+            _event: null,
             currPatient: null,
             doctorId: null,
         };
@@ -226,7 +226,7 @@ class Doctor extends React.Component {
             .then((response) => {
                 const { login, username, hospital, doctorId } = response.data;
                 if (login) {
-                    this.setState({doctorId: doctorId})
+                    this.setState({ doctorId: doctorId })
                     this.setState({ loggedin: true, username, hospital });
                     this.props.loginSuccess({ username, hospital, doctorId });
                     this.setupSocket();
@@ -276,24 +276,28 @@ class Doctor extends React.Component {
     };
 
     setpresUploaded = (value) => {
-        if(this.state.presUpload){
-            this.setState({ presUpload: false, _event:value }, () => {
+        if (this.state.presUpload) {
+            this.setState({ presUpload: false, _event: value }, () => {
                 console.log("afterclick", this.state.presUpload);
             });
         }
-        else{
-            this.setState({ presUpload: true, _event:value }, () => {
+        else {
+            this.setState({ presUpload: true, _event: value }, () => {
                 console.log("afterclick", this.state.presUpload);
             });
         }
     };
 
-    setCurrPatient = (patientId) =>{
-        this.setState({currPatient: patientId})
+    setCurrPatient = (patientId) => {
+        this.setState({ currPatient: patientId })
     }
 
+    // handleLoginClick = () => {
+    //     window.open('/nurseLogin', '_blank');
+    // };
+
     render() {
-        const { loggedin, username, password, error, loading, patient, callWindow, localSrc, peerSrc, incomingTyping, requesting, callModal, callStarted, presUpload, _event, currPatient} = this.state;
+        const { loggedin, username, password, error, loading, patient, callWindow, localSrc, peerSrc, incomingTyping, requesting, callModal, callStarted, presUpload, _event, currPatient } = this.state;
 
         if (!loggedin) {
             return (
@@ -301,33 +305,38 @@ class Doctor extends React.Component {
                     {loading ? (
                         <div className="lds-dual-ring"></div>
                     ) : (
-                        <form onSubmit={this.login} className="login-form fadeInUp">
-                            <p>{error}</p>
-                            <h3>Username: </h3>
-                            <input
-                                id="username"
-                                value={username}
-                                onChange={this.handleChange}
-                                type="text"
-                                autoComplete="off"
-                                autoCorrect="off"
-                                spellCheck="false"
-                            />
-                            <h3>Password: </h3>
-                            <input
-                                id="password"
-                                value={password}
-                                onChange={this.handleChange}
-                                type="password"
-                                autoComplete="off"
-                                autoCorrect="off"
-                                spellCheck="false"
-                            />
-                            <button type="submit" className="send">
-                                Login
-                                {/* <Icon.Send /> */}
-                            </button>
-                        </form>
+                        <div style={{ display: 'grid' }}>
+                            <form onSubmit={this.login} className="login-form fadeInUp">
+                                <p>{error}</p>
+                                <h3>Username: </h3>
+                                <input
+                                    id="username"
+                                    value={username}
+                                    onChange={this.handleChange}
+                                    type="text"
+                                    autoComplete="off"
+                                    autoCorrect="off"
+                                    spellCheck="false"
+                                />
+                                <h3>Password: </h3>
+                                <input
+                                    id="password"
+                                    value={password}
+                                    onChange={this.handleChange}
+                                    type="password"
+                                    autoComplete="off"
+                                    autoCorrect="off"
+                                    spellCheck="false"
+                                />
+                                <button type="submit" className="send">
+                                    Login
+                                    {/* <Icon.Send /> */}
+                                </button>
+                            </form>
+                            {/* <button className="send" onClick={this.handleLoginClick}>
+                                Login for nurse
+                            </button> */}
+                        </div>
                     )}
                 </div>
             );
@@ -344,7 +353,7 @@ class Doctor extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <Chat callStarted={callStarted} setchatStarted={this.setchatStarted} username={username} changePatient={this.changePatient} patient={patient} socket={this.socketRef} presUpload={presUpload} _event={_event} setCurrPatient={this.setCurrPatient}/>
+                    <Chat callStarted={callStarted} setchatStarted={this.setchatStarted} username={username} changePatient={this.changePatient} patient={patient} socket={this.socketRef} presUpload={presUpload} _event={_event} setCurrPatient={this.setCurrPatient} />
                 </div>
                 <div className="home-right" style={{ alignItems: 'center' }}>
                     {incomingTyping || requesting ? (
@@ -369,12 +378,14 @@ class Doctor extends React.Component {
                             />
                         </div>} */}
                     {/* {!callStarted&&<Table username={username} changePatient={this.changePatient} />} */}
-                    <Table username={username} changePatient={this.changePatient} callStarted={callStarted} setpresUploaded={this.setpresUploaded} currPatient={currPatient} doctorId={this.state.doctorId}/>
+                    <Table username={username} changePatient={this.changePatient} callStarted={callStarted} setpresUploaded={this.setpresUploaded} currPatient={currPatient} doctorId={this.state.doctorId} />
                     <form onSubmit={this.logout} className="login-form fadeInUp">
                         <p>{error}</p>
                         <button
-                            onClick={()=>{this.socketRef.emit('changeStatus', { username: username, status: "offline" });
-                            ;this.logout();}}
+                            onClick={() => {
+                                this.socketRef.emit('changeStatus', { username: username, status: "offline" });
+                                ; this.logout();
+                            }}
                             className="logout fadeInUp"
                             style={{ animationDelay: '0.8s' }}
                         >

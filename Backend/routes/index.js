@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 const crypto = require('crypto');
+const Nurse = require('../models/nurse');
 const storage = multer.diskStorage({
 	destination: function (req, file, cb) {
 		cb(null, 'public/images/');
@@ -939,96 +940,388 @@ router.get('/patient-list', authenticate, (req, res) => {
 });
 router.get('/patient-listexcel', authenticate, async (req, res) => {
 	const { username: doctor } = req.user;
-  
+
 	try {
-	  // Fetch patients from the `Patient` collection
-	  const patients = await Patient.find({ doctor }).sort({ last_messaged_at: -1 }).exec();
-  
-	  // Fetch all follow-up records from `FollowUpPatient`
-	  const followUpPatients = await FollowUpPatient.find({
-		id: { $in: patients.map(p => p._id.toString()) },
-	  }).exec();
-  
-	  // Create a map to group follow-up data by patient ID
-	  const followUpMap = followUpPatients.reduce((acc, followUp) => {
-		const key = followUp.id;
-		if (!acc[key]) acc[key] = [];
-		acc[key].push({
-		  ...followUp._doc,
-		  chat: followUp.chat.map(({ statement, type, timestamp }) => ({
-			statement,
-			type,
-			timestamp: new Date(timestamp).toLocaleString(),
-		  })),
-		  'Last Visited': new Date(followUp.last_messaged_at).toLocaleString(),
-		  'Registered': new Date(followUp.created_at).toLocaleString(),
+		// Fetch patients from the `Patient` collection
+		const patients = await Patient.find({ doctor }).sort({ last_messaged_at: -1 }).exec();
+
+		// Fetch all follow-up records from `FollowUpPatient`
+		const followUpPatients = await FollowUpPatient.find({
+			id: { $in: patients.map(p => p._id.toString()) },
+		}).exec();
+
+		// Create a map to group follow-up data by patient ID
+		const followUpMap = followUpPatients.reduce((acc, followUp) => {
+			const key = followUp.id;
+			if (!acc[key]) acc[key] = [];
+			acc[key].push({
+				...followUp._doc,
+				chat: followUp.chat.map(({ statement, type, timestamp }) => ({
+					statement,
+					type,
+					timestamp: new Date(timestamp).toLocaleString(),
+				})),
+				'Last Visited': new Date(followUp.last_messaged_at).toLocaleString(),
+				'Registered': new Date(followUp.created_at).toLocaleString(),
+			});
+			return acc;
+		}, {});
+
+		// Combine patient data with their follow-ups
+		const groupedPatients = patients.flatMap(patient => {
+			const {
+				_id,
+				name,
+				age,
+				gender,
+				telephone,
+				hospital,
+				timestamps,
+				ip,
+				doctor,
+				village,
+				symptoms,
+				symptoms_Duration,
+				BP_systolic,
+				BP_diastolic,
+				SPO2_value,
+				heart_rate,
+				followup,
+				created_at,
+				last_messaged_at,
+				latitude,
+				longitude,
+				BP_Image,
+				Spo2_Image,
+				ECG_Image,
+				chat,
+				prescriptions,
+				diagnosis,
+				behavior,
+				pastHistory,
+				advice,
+				specialRemark,
+				Visit,
+			} = patient._doc;
+
+			const formattedChat = chat.map(({ statement, type, timestamp }) => ({
+				statement,
+				type,
+				timestamp: new Date(timestamp).toLocaleString(),
+			}));
+
+			const followUps = followUpMap[_id.toString()] || [];
+
+			return [
+				{
+					...patient._doc,
+					chat: formattedChat,
+					'Last Visited': new Date(last_messaged_at).toLocaleString(),
+					'Registered': new Date(created_at).toLocaleString(),
+				},
+				...followUps,
+			];
 		});
-		return acc;
-	  }, {});
-  
-	  // Combine patient data with their follow-ups
-	  const groupedPatients = patients.flatMap(patient => {
-		const {
-		  _id,
-		  name,
-		  age,
-		  gender,
-		  telephone,
-		  hospital,
-		  timestamps,
-		  ip,
-		  doctor,
-		  village,
-		  symptoms,
-		  symptoms_Duration,
-		  BP_systolic,
-		  BP_diastolic,
-		  SPO2_value,
-		  heart_rate,
-		  followup,
-		  created_at,
-		  last_messaged_at,
-		  latitude,
-		  longitude,
-		  BP_Image,
-		  Spo2_Image,
-		  ECG_Image,
-		  chat,
-		  prescriptions,
-		  diagnosis,
-		  behavior,
-		  pastHistory,
-		  advice,
-		  specialRemark,
-		  Visit,
-		} = patient._doc;
-  
-		const formattedChat = chat.map(({ statement, type, timestamp }) => ({
-		  statement,
-		  type,
-		  timestamp: new Date(timestamp).toLocaleString(),
-		}));
-  
-		const followUps = followUpMap[_id.toString()] || [];
-  
-		return [
-		  {
-			...patient._doc,
-			chat: formattedChat,
-			'Last Visited': new Date(last_messaged_at).toLocaleString(),
-			'Registered': new Date(created_at).toLocaleString(),
-		  },
-		  ...followUps,
-		];
-	  });
-  
-	  res.json({ patients: groupedPatients });
+
+		res.json({ patients: groupedPatients });
 	} catch (err) {
-	  console.error(err);
-	  res.status(500).json({ error: true, message: 'Internal server error' });
+		console.error(err);
+		res.status(500).json({ error: true, message: 'Internal server error' });
 	}
-  });
-  
+});
+router.get('/allpatient-listexcel', async (req, res) => {
+
+	try {
+		// Fetch patients from the `Patient` collection
+		const patients = await Patient.find().sort({ last_messaged_at: -1 }).exec();
+
+		// Fetch all follow-up records from `FollowUpPatient`
+		const followUpPatients = await FollowUpPatient.find({
+			id: { $in: patients.map(p => p._id.toString()) },
+		}).exec();
+
+		// Create a map to group follow-up data by patient ID
+		const followUpMap = followUpPatients.reduce((acc, followUp) => {
+			const key = followUp.id;
+			if (!acc[key]) acc[key] = [];
+			acc[key].push({
+				...followUp._doc,
+				chat: followUp.chat.map(({ statement, type, timestamp }) => ({
+					statement,
+					type,
+					timestamp: new Date(timestamp).toLocaleString(),
+				})),
+				'Last Visited': new Date(followUp.last_messaged_at).toLocaleString(),
+				'Registered': new Date(followUp.created_at).toLocaleString(),
+			});
+			return acc;
+		}, {});
+
+		// Combine patient data with their follow-ups
+		const groupedPatients = patients.flatMap(patient => {
+			const {
+				_id,
+				name,
+				age,
+				gender,
+				telephone,
+				hospital,
+				timestamps,
+				ip,
+				doctor,
+				village,
+				symptoms,
+				symptoms_Duration,
+				BP_systolic,
+				BP_diastolic,
+				SPO2_value,
+				heart_rate,
+				followup,
+				created_at,
+				last_messaged_at,
+				latitude,
+				longitude,
+				BP_Image,
+				Spo2_Image,
+				ECG_Image,
+				chat,
+				prescriptions,
+				diagnosis,
+				behavior,
+				pastHistory,
+				advice,
+				specialRemark,
+				Visit,
+			} = patient._doc;
+
+			const formattedChat = chat.map(({ statement, type, timestamp }) => ({
+				statement,
+				type,
+				timestamp: new Date(timestamp).toLocaleString(),
+			}));
+
+			const followUps = followUpMap[_id.toString()] || [];
+
+			return [
+				{
+					...patient._doc,
+					chat: formattedChat,
+					'Last Visited': new Date(last_messaged_at).toLocaleString(),
+					'Registered': new Date(created_at).toLocaleString(),
+				},
+				...followUps,
+			];
+		});
+		console.log(patients)
+		res.json({ patients: groupedPatients });
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({ error: true, message: 'Internal server error' });
+	}
+});
+router.get('/allpatient-listexcel/:village', async (req, res) => {
+	const{village}=req.params;
+	try {
+		// Fetch patients from the `Patient` collection
+		const patients = await Patient.find({village:village}).sort({ last_messaged_at: -1 }).exec();
+
+		// Fetch all follow-up records from `FollowUpPatient`
+		const followUpPatients = await FollowUpPatient.find({
+			id: { $in: patients.map(p => p._id.toString()) },
+		}).exec();
+
+		// Create a map to group follow-up data by patient ID
+		const followUpMap = followUpPatients.reduce((acc, followUp) => {
+			const key = followUp.id;
+			if (!acc[key]) acc[key] = [];
+			acc[key].push({
+				...followUp._doc,
+				chat: followUp.chat.map(({ statement, type, timestamp }) => ({
+					statement,
+					type,
+					timestamp: new Date(timestamp).toLocaleString(),
+				})),
+				'Last Visited': new Date(followUp.last_messaged_at).toLocaleString(),
+				'Registered': new Date(followUp.created_at).toLocaleString(),
+			});
+			return acc;
+		}, {});
+
+		// Combine patient data with their follow-ups
+		const groupedPatients = patients.flatMap(patient => {
+			const {
+				_id,
+				name,
+				age,
+				gender,
+				telephone,
+				hospital,
+				timestamps,
+				ip,
+				doctor,
+				village,
+				symptoms,
+				symptoms_Duration,
+				BP_systolic,
+				BP_diastolic,
+				SPO2_value,
+				heart_rate,
+				followup,
+				created_at,
+				last_messaged_at,
+				latitude,
+				longitude,
+				BP_Image,
+				Spo2_Image,
+				ECG_Image,
+				chat,
+				prescriptions,
+				diagnosis,
+				behavior,
+				pastHistory,
+				advice,
+				specialRemark,
+				Visit,
+			} = patient._doc;
+
+			const formattedChat = chat.map(({ statement, type, timestamp }) => ({
+				statement,
+				type,
+				timestamp: new Date(timestamp).toLocaleString(),
+			}));
+
+			const followUps = followUpMap[_id.toString()] || [];
+
+			return [
+				{
+					...patient._doc,
+					chat: formattedChat,
+					'Last Visited': new Date(last_messaged_at).toLocaleString(),
+					'Registered': new Date(created_at).toLocaleString(),
+				},
+				...followUps,
+			];
+		});
+		console.log(patients)
+		res.json({ patients: groupedPatients });
+	} catch (err) {
+		console.log(err);
+		res.status(500).json({ error: true, message: 'Internal server error' });
+	}
+});
+router.post("/add-patient", async (req, res) => {
+	try {
+		const { name, age, gender, telephone } = req.body;
+		const _id = getId(name, telephone)
+		const newPatient = await Patient.create({
+			_id,
+			name,
+			age,
+			gender,
+			telephone,
+			Visit:1,
+			followup:1,
+		})
+		res.status(201).json({
+			success: true,
+			message: "Patient added successfully",
+			patient: newPatient,
+		});
+	}
+	catch (err) {
+		console.log(err);
+	}
+})
+
+router.put('/update-patient/:patientId/:visit', async (req, res) => {
+	const { patientId, visit } = req.params;
+	const updatedPatientData = req.body;  // Get updated patient data from the request body
+	console.log
+	try {
+		if (visit > 1) {
+			const patient = await FollowUpPatient.findOne({ id: patientId, Visit: visit });
+
+			if (!patient) {
+				return res.status(404).json({ message: 'Patient not found' });
+			}
+
+			// Update patient fields with the new data (set defaults if not provided)
+			patient.name = updatedPatientData.name || patient.name;
+			patient.age = updatedPatientData.age || patient.age;
+			patient.gender = updatedPatientData.gender || patient.gender;
+			patient.telephone = updatedPatientData.telephone || patient.telephone;
+			patient.hospital = updatedPatientData.hospital || patient.hospital;
+			patient.doctor = updatedPatientData.doctor || patient.doctor;
+			patient.village = updatedPatientData.village || patient.village;
+			patient.symptoms = updatedPatientData.symptoms || patient.symptoms;
+			patient.symptomsDuration = updatedPatientData.symptomsDuration || patient.symptomsDuration;
+			patient.followUp = updatedPatientData.followUp || patient.followUp;
+			patient.lastVisited = updatedPatientData.lastVisited || patient.lastVisited;
+			patient.registered = updatedPatientData.registered || patient.registered;
+			patient.latitude = updatedPatientData.latitude || patient.latitude;
+			patient.longitude = updatedPatientData.longitude || patient.longitude;
+			patient.bpSystolic = updatedPatientData.bpSystolic || patient.bpSystolic;
+			patient.bpDiastolic = updatedPatientData.bpDiastolic || patient.bpDiastolic;
+			patient.spo2 = updatedPatientData.spo2 || patient.spo2;
+			patient.heartRate = updatedPatientData.heartRate || patient.heartRate;
+			patient.prescription = updatedPatientData.prescription || patient.prescription;
+			patient.pastHistory = updatedPatientData.pastHistory || patient.pastHistory;
+			patient.advice = updatedPatientData.advice || patient.advice;
+			patient.diagnosis = updatedPatientData.diagnosis || patient.diagnosis;
+			patient.behavior = updatedPatientData.behavior || patient.behavior;
+
+			// Handle the visit parameter, assuming it needs to be saved for the visit record
+			patient.visit = visit || patient.visit;
+
+			// Save the updated patient data
+			await patient.save();
+
+			return res.status(200).json({ message: 'Patient updated successfully', patient });
+		}
+		const patient = await Patient.findById(patientId);
+
+		if (!patient) {
+			return res.status(404).json({ message: 'Patient not found' });
+		}
+
+		// Update patient fields with the new data (set defaults if not provided)
+		patient.name = updatedPatientData.name || patient.name;
+		patient.age = updatedPatientData.age || patient.age;
+		patient.gender = updatedPatientData.gender || patient.gender;
+		patient.telephone = updatedPatientData.telephone || patient.telephone;
+		patient.hospital = updatedPatientData.hospital || patient.hospital;
+		patient.doctor = updatedPatientData.doctor || patient.doctor;
+		patient.village = updatedPatientData.village || patient.village;
+		patient.symptoms = updatedPatientData.symptoms || patient.symptoms;
+		patient.symptomsDuration = updatedPatientData.symptomsDuration || patient.symptomsDuration;
+		patient.followUp = updatedPatientData.followUp || patient.followUp;
+		patient.lastVisited = updatedPatientData.lastVisited || patient.lastVisited;
+		patient.registered = updatedPatientData.registered || patient.registered;
+		patient.latitude = updatedPatientData.latitude || patient.latitude;
+		patient.longitude = updatedPatientData.longitude || patient.longitude;
+		patient.bpSystolic = updatedPatientData.bpSystolic || patient.bpSystolic;
+		patient.bpDiastolic = updatedPatientData.bpDiastolic || patient.bpDiastolic;
+		patient.spo2 = updatedPatientData.spo2 || patient.spo2;
+		patient.heartRate = updatedPatientData.heartRate || patient.heartRate;
+		patient.prescription = updatedPatientData.prescription || patient.prescription;
+		patient.pastHistory = updatedPatientData.pastHistory || patient.pastHistory;
+		patient.advice = updatedPatientData.advice || patient.advice;
+		patient.diagnosis = updatedPatientData.diagnosis || patient.diagnosis;
+		patient.behavior = updatedPatientData.behavior || patient.behavior;
+
+		// Handle the visit parameter, assuming it needs to be saved for the visit record
+		patient.visit = visit || patient.visit;
+
+		// Save the updated patient data
+		await patient.save();
+
+		return res.status(200).json({ message: 'Patient updated successfully', patient });
+
+	} catch (error) {
+		console.error('Error updating patient:', error);
+		return res.status(500).json({ message: 'Error updating patient' });
+	}
+});
 
 
 router.get('/followuppatient-list', authenticate, (req, res) => {
@@ -1171,7 +1464,9 @@ router.post('/addpatient', async (req, res) => {
 		const newPatient = new Patient({
 			_id: id,
 			name: name,
-			telephone: number
+			telephone: number,
+			Visit: 1,
+			followup: 1,
 		});
 		await newPatient.save();
 		res.status(200).json({ success: true, message: 'Patient added successfully' });
@@ -1180,6 +1475,38 @@ router.post('/addpatient', async (req, res) => {
 		res.status(500).json({ error: true, message: 'Failed' });
 	}
 });
+router.delete('/delete-patient/:id/:visit', async (req, res) => {
+	const { id, visit } = req.params;
+
+	try {
+		if (visit > 1) {
+			const deletedPatient = await FollowUpPatient.findOneAndDelete({ id: id, Visit: visit });
+			const updatedPatient = await Patient.findByIdAndUpdate(
+				id,
+				{ $inc: { followup: -1 } }, // Decrement followUp by 1
+				{ new: true } // Return the updated document
+			);
+
+			if (!deletedPatient) {
+				return res.status(404).json({ message: 'Patient not found' });
+			}
+
+			return res.status(200).json({ message: 'Patient deleted successfully' });
+		}
+		const deletedPatient = await Patient.findByIdAndDelete(id);
+
+		if (!deletedPatient) {
+			return res.status(404).json({ message: 'Patient not found' });
+		}
+
+		res.status(200).json({ message: 'Patient deleted successfully' });
+	} catch (error) {
+		console.error('Error deleting patient:', error);
+		res.status(500).json({ message: 'Error deleting patient', error });
+	}
+});
+
+module.exports = router;
 router.post('/seepatientchat', async (req, res) => {
 	try {
 		const { id, name, number, selectedDoctor } = req.body;
@@ -1330,5 +1657,35 @@ router.put('/doctor/:id', upload2.single('signature'), async (req, res) => {
 	}
 });
 
+router.post('/nurseregister', async (req, res) => {
+	const { username, password, village} = req.body;
+	try {
+		const existingNurse = await Nurse.findOne({ username });
+		if (existingNurse) {
+			return res.status(400).json({ message: 'Username already exists' });
+		}
+		const nurse = new Nurse({ username, password, village});
+		await nurse.save();
+		res.status(201).json({ message: 'Registration successful' });
+	} catch (error) {
+		res.status(500).json({ error: 'An error occurred during registration' });
+	}
+});
+
+// Nurse login
+router.post('/nurselogin', async (req, res) => {
+	const { username, password } = req.body;
+	try {
+		const nurse = await Nurse.findOne({ username });
+		if (password !== nurse.password) {
+			return res.status(401).json({ message: 'Invalid credentials' });
+		}
+		console.log(nurse.village)
+		res.status(200).json({ message: 'Login successful', village: nurse.village });
+	} catch (error) {
+		console.log(error)
+		res.status(500).json({ error: 'An error occurred during login' });
+	}
+});
 
 module.exports = router;

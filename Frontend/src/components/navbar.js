@@ -96,6 +96,32 @@ function Navbar(props) {
 							Doctor
 						</span>
 					</Link>
+					<Link
+						to="/nurseLogin"
+						onClick={() => {
+							setView("Nurse");
+						}}
+					>
+						<span
+							className={`fadeInUp ${view === "Nurse" ? "focused" : ""}`}
+							style={{ animationDelay: "0.6s" }}
+						>
+							Nurse
+						</span>
+					</Link>
+					<Link
+						to="/admin_dashboard"
+						onClick={() => {
+							setView("Admin");
+						}}
+					>
+						<span
+							className={`fadeInUp ${view === "Admin" ? "focused" : ""}`}
+							style={{ animationDelay: "0.6s" }}
+						>
+							Admin
+						</span>
+					</Link>
 				</div>
 
 				{/*<div className="navbar-right"/>*/}
