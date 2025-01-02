@@ -4,188 +4,102 @@ import axios from 'axios';
 import { ENDPOINT } from '../../config';
 
 import Row from './row';
+import NurseRow from './nurseRow';
 
-function Table2(props) {
-	const [doctors, setDoctors] = useState([]);
+function TableNurses(props) {
+	const [nurses, setNurses] = useState([]);
 	const [page, setPage] = useState(1);
 
-	// useEffect(() => {
-	// 	const timer = setTimeout(() => {
-	// 		console.log("refresh")
-	// 		getDoctors();
-	// 	}, 3000);
-
-	// 	return () => clearTimeout(timer);
-	// }, []);
-
-
 	useEffect(() => {
-		getDoctors();
+		getNurses();
 	}, [page]);
-	/* add renew button */
 
-	const getDoctors = () => {
+	const getNurses = () => {
 		axios
-			.get(ENDPOINT + '/admin/doctor-list?page=' + page)
+			.get(`${ENDPOINT}/admin/nurse-list?page=${page}`)
 			.then((response) => {
-				const { doctors } = response.data;
-				console.log(doctors);
-				if (doctors) setDoctors(doctors);
+				const { nurses } = response.data;
+				if (nurses) setNurses(nurses);
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 			});
 	};
 
-	const deleteDoctor = (id) => {
+	const deleteNurse = (id) => {
 		axios
-			.delete(ENDPOINT + '/admin/doctor/' + id)
-			.then((response) => {
-				getDoctors();
+			.delete(`${ENDPOINT}/admin/nurse/${id}`)
+			.then(() => {
+				getNurses();
 			})
 			.catch((err) => {
-				console.log(err);
+				console.error(err);
 			});
 	};
 
 	const edit = ({ _id, ...rest }) => {
 		if (_id)
 			axios
-				.post(ENDPOINT + '/admin/doctor/' + _id, rest)
-				.then((response) => {
-					getDoctors();
+				.post(`${ENDPOINT}/admin/nurse/${_id}`, rest)
+				.then(() => {
+					getNurses();
 				})
 				.catch((err) => {
-					console.log(err);
+					console.error(err);
 				});
 		else
 			axios
-				.put(ENDPOINT + '/admin/doctor', rest)
-				.then((response) => {
-					getDoctors();
+				.put(`${ENDPOINT}/admin/nurse`, rest)
+				.then(() => {
+					getNurses();
 				})
 				.catch((err) => {
-					console.log(err);
+					console.error(err);
 				});
 	};
-
-	// make a axios call every 1min
-	// setInterval(getDoctors, 60 * 1000);
 
 	return (
 		<table className="table fadeInUp" style={{ animationDelay: '1s' }}>
 			<h5 className="affected-count">
-				<button onClick={getDoctors} class="refresh">
+				<button onClick={getNurses} className="refresh">
 					<Icon.RefreshCw size={10} />
 				</button>
-				Doctors
+				Nurses
 			</h5>
 			<thead>
 				<tr>
-					<th className="state-heading">
-						<div className="heading-content">
-							<abbr title="Name">Username</abbr>
-						</div>
-					</th>
-					<th>
-						<div className="heading-content">
-							<abbr className={`${window.innerWidth <= 769 ? 'is-cherry' : ''}`} title="Password">
-								{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'P' : 'PWD') : 'Password'}
-							</abbr>
-						</div>
-					</th>
-					<th>
-						<div className="heading-content">
-							<abbr className={`${window.innerWidth <= 769 ? 'is-blue' : ''}`} title="Hospital">
-								{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'H' : 'HOS') : 'Hospital'}
-							</abbr>
-						</div>
-					</th>
-					<th>
-						<div className="heading-content">
-							<abbr className={`${window.innerWidth <= 769 ? 'is-blue' : ''}`} title="Telephone">
-								{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'T' : 'Tel') : 'Telephone'}
-							</abbr>
-						</div>
-					</th>
-					<th>
-						<div className="heading-content">
-							<abbr className={`${window.innerWidth <= 769 ? 'is-blue' : ''}`} title="Email">
-								{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'E' : 'Email') : 'Email'}
-							</abbr>
-						</div>
-					</th>
-					<th>
-						<div className="heading-content">
-							<abbr className={`${window.innerWidth <= 769 ? 'is-blue' : ''}`} title="Name">
-								{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'N' : 'Name') : 'Name'}
-							</abbr>
-						</div>
-					</th>
-					<th>
-						<div className="heading-content">
-							<abbr className={`${window.innerWidth <= 769 ? 'is-blue' : ''}`} title="Department">
-								{window.innerWidth <= 769
-									? window.innerWidth <= 375
-										? 'D'
-										: 'Dept'
-									: 'Department'}
-							</abbr>
-						</div>
-					</th>
-					<th>
-						<div className="heading-content">
-							<abbr className={`${window.innerWidth <= 769 ? 'is-blue' : ''}`} title="Post">
-								{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'P' : 'Post') : 'Post'}
-							</abbr>
-						</div>
-					</th>
-					<th>
-						<div className="heading-content">
-							<abbr className={`${window.innerWidth <= 769 ? 'is-blue' : ''}`} title="UPI ID">
-								{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'U' : 'UPI ID') : 'UPI ID'}
-							</abbr>
-						</div>
-					</th>
-					<th>
-						<div className="heading-content">
-							<abbr className={`${window.innerWidth <= 769 ? 'is-blue' : ''}`} title="Fees">
-								{window.innerWidth <= 769 ? (window.innerWidth <= 375 ? 'F' : 'Fees') : 'Fees'}
-							</abbr>
-						</div>
-					</th>
+					<th>Username</th>
+					<th>Password</th>
+					<th>Village</th>
 				</tr>
 			</thead>
-
-			{doctors.map((doctor, index) => {
-				return (
-					<tbody>
-						<Row key={index} doctor={doctor} delete={deleteDoctor} edit={edit} />
-					</tbody>
-				);
-			})}
+			{nurses.map((nurse, index) => (
+				<tbody key={index}>
+					<NurseRow nurse={nurse} delete={deleteNurse} edit={edit} />
+				</tbody>
+			))}
 			<div className="pagination">
 				<button onClick={() => setPage(Math.max(1, page - 1))} className="arrow">
 					<Icon.ArrowLeft size={16} />
 				</button>
 				<button
-					onClick={() => {
-						setDoctors(
+					onClick={() =>
+						setNurses(
 							[
 								{
 									username: '',
 									password: '',
-									hospital: '',
-									_id: false
-								}
-							].concat(doctors)
-						);
-					}}
+									village: '',
+									_id: false,
+								},
+							].concat(nurses)
+						)
+					}
 					className="arrow"
 				>
 					<Icon.Plus size={16} />
 				</button>
-				<button onClick={() => setPage(doctors.length ? page + 1 : page)} className="arrow">
+				<button onClick={() => setPage(nurses.length ? page + 1 : page)} className="arrow">
 					<Icon.ArrowRight size={16} />
 				</button>
 			</div>
@@ -193,4 +107,4 @@ function Table2(props) {
 	);
 }
 
-export default Table2;
+export default TableNurses;

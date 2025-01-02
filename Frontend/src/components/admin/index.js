@@ -5,7 +5,7 @@ import axios from 'axios';
 import Table from './table';
 // import $ from 'jquery';
 import { ENDPOINT } from '../../config';
-import Table2 from './table2';
+import TableNurses from './table2';
 
 axios.defaults.withCredentials = true;
 
@@ -144,7 +144,7 @@ class Doctor extends React.Component {
 						</button>
 					</form>
 					<Table />
-					<Table2 />
+					<TableNurses />
 					<button onClick={this.handleNavigation} className="download-btn">
 						See All Patients
 					</button>

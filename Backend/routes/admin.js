@@ -5,6 +5,7 @@ const Admin = require('../models/admin');
 const Patient = require('../models/patient');
 
 const { mail } = require('../helper/mail');
+const nurse = require('../models/nurse');
 
 const router = express.Router();
 /**
@@ -174,4 +175,76 @@ router.post('/login', (req, res) => {
 	res.json({ login: true, username });
 });
 
+
+router.get('/nurse-list', async (req, res) => {
+	const page = parseInt(req.query.page, 10) || 1;
+	const limit = 10; // Number of nurses per page
+	const startIndex = (page - 1) * limit;
+	const endIndex = page * limit;
+	const nurses = await nurse.find();
+	const paginatedNurses = nurses.slice(startIndex, endIndex);
+	res.json({ nurses: paginatedNurses });
+});
+
+// Delete a nurse
+router.delete('/nurse/:id', async (req, res) => {
+	try {
+		const { id } = req.params;
+
+		// Delete nurse from the database
+		const deletedNurse = await nurse.findByIdAndDelete(id);
+
+		if (!deletedNurse) {
+			return res.status(404).json({ message: 'Nurse not found' });
+		}
+
+		res.status(200).json({ message: 'Nurse deleted successfully' });
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ message: 'An error occurred while deleting the nurse' });
+	}
+});
+
+// Update an existing nurse
+router.post('/nurse/:id', async (req, res) => {
+	try {
+		const { id } = req.params;
+		const updatedData = req.body;
+
+		// Find the nurse by ID and update
+		const updatedNurse = await nurse.findByIdAndUpdate(id, updatedData, { new: true });
+
+		if (!updatedNurse) {
+			return res.status(404).json({ message: 'Nurse not found' });
+		}
+
+		res.status(200).json({ message: 'Nurse updated successfully', nurse: updatedNurse });
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ message: 'An error occurred while updating the nurse' });
+	}
+});
+
+// Add a new nurse
+router.put('/nurse', async (req, res) => {
+	try {
+		const { username, password, village } = req.body;
+
+		if (!username || !password || !village) {
+			return res.status(400).json({ message: 'All fields are required' });
+		}
+
+		// Create a new nurse document
+		const newNurse = new nurse({ username, password, village });
+
+		// Save the new nurse to the database
+		await newNurse.save();
+
+		res.status(201).json({ message: 'Nurse added successfully', nurse: newNurse });
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ message: 'An error occurred while adding the nurse' });
+	}
+});
 module.exports = router;
+

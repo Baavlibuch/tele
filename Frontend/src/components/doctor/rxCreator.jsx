@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const PrescriptionCreator = ({prescriptions, setPrescriptions}) => {
+const PrescriptionCreator = ({ prescriptions, setPrescriptions }) => {
 
     const handleRxChange = (id, field, value) => {
         setPrescriptions((prev) =>
@@ -19,24 +19,25 @@ const PrescriptionCreator = ({prescriptions, setPrescriptions}) => {
     ];
 
     const saltNames = [
-        "Acebrophylline 100mg", "Ambroxol", "Amlodipine 5mg", "Amoxiclave 625mg",
-        "Antacid", "Azirthromycine", "Azirthromycine 500mg",
+        "Acebrophylline 100mg", "Ambroxol", "Amlodipine 5mg", "Amoxiclave 375mg",
+        "Amoxiclave 625mg", "Antacid", "Azirthromycine", "Azirthromycine 500mg",
         "Baclomethason + Neomycin + Clotrimazole", "Calcium 500mg & Vit. D3",
-        "Cefixime 200mg", "Ciprofloxacin + prednisolone", "Ciprofloxacine",
-        "Deriphylline 150mg", "Dextrometharphan", "Diacyclomine 100mg",
-        "Diclofenac gel", "Furosemide 40mg", "Gliclazide + Metformine",
-        "Idodine povidine", "Iron Folic Acid", "Itraconazole 100 mg",
-        "Ketoconazole", "Levocetrizine 5mg", "Levofloxacine 500mg",
-        "Mefenemic acid + dicyclomine", "Mefenemic acid + paracetamole",
-        "Metformine + Glimepride (500mg/2gm)", "Metformine + Glimepride (500mg/1gm)",
-        "Metformine + Glimepride (500mg/3gm)", "Metformine 500mg",
-        "Metronidazole", "Montelukast + levocitrizine", "Multivitamine",
-        "Naproxen 500mg", "Normal saline", "Ofloxacine 500mg", "Omeprazole 20mg",
-        "Ornidazole 200mg", "ORS", "Pantopr̥azole 40mg", "Paracetamole",
-        "Paracetamole + diclofenac", "Paracetamole + ibuprofen",
-        "Paracetamole 500mg", "Ranitidine 90mg", "Salbutamol",
-        "Telmisartan 40mg", "Tobramycine", "Voglibose", "Xylometazoline",
-        "Prednisolon 5mg",
+        "Carboxymethylcellulose", "Cefixime 200mg", "Ciprofloxacin + prednisolone",
+        "Ciprofloxacine", "Deriphylline 150mg", "Dextrometharphan",
+        "Diacyclomine 100mg", "Diclofenac gel", "Furosemide 40mg",
+        "Gliclazide + Metformine", "Idodine povidine", "Iron Folic Acid",
+        "Itraconazole 100 mg", "Ketoconazole", "Levocetrizine 5mg",
+        "Levofloxacine 500mg", "Mefenemic acid + dicyclomine",
+        "Mefenemic acid + paracetamole", "Metformine + Glimepride (500mg/2gm)",
+        "Metformine + Glimepride (500mg/1gm)", "Metformine + Glimepride (500mg/3gm)",
+        "Metformine 500mg", "Metronidazole", "Montelukast + levocitrizine",
+        "Multivitamine", "Naproxen 500mg", "Nitrofurantoin 100 mg",
+        "Normal saline", "Ofloxacine 500mg", "Omeprazole 20mg",
+        "Ondansetron 4 mg", "Ornidazole 200mg", "ORS", "Pantopr̥azole 40mg",
+        "Paracetamole", "Paracetamole + diclofenac", "Paracetamole + ibuprofen",
+        "Paracetamole 500mg", "Prednisolon 5mg", "Ranitidine 90mg",
+        "Salbutamol", "Silver Nitrate", "Telmisartan 40mg", "Tobramycine",
+        "Urine Alkalizer", "Voglibose", "Xylometazoline"
     ];
 
     const dosages = ["OD", "BD", "TDS", "SOS", "HS"];
@@ -76,7 +77,7 @@ const PrescriptionCreator = ({prescriptions, setPrescriptions}) => {
                             onChange={(e) =>
                                 handleRxChange(rx.id, "saltName", e.target.value)
                             }
-                            style={{marginLeft:'4px'}}
+                            style={{ marginLeft: '4px' }}
                         />
                         <datalist id={`saltNames-${rx.id}`}>
                             {saltNames.map((salt) => (
@@ -93,7 +94,7 @@ const PrescriptionCreator = ({prescriptions, setPrescriptions}) => {
                             onChange={(e) =>
                                 handleRxChange(rx.id, "dosage", e.target.value)
                             }
-                            style={{marginLeft:'0.5px'}}
+                            style={{ marginLeft: '0.5px' }}
                         />
                         <datalist id={`dosages-${rx.id}`}>
                             {dosages.map((dosage) => (
@@ -108,7 +109,7 @@ const PrescriptionCreator = ({prescriptions, setPrescriptions}) => {
                             onChange={(e) =>
                                 handleRxChange(rx.id, "remarks", e.target.value)
                             }
-                            style={{height: '15px', width: '85%', marginLeft: '6px' }}
+                            style={{ height: '15px', width: '85%', marginLeft: '6px' }}
                         />
                     </div>
                     {index === prescriptions.length - 1 && (
