@@ -6,7 +6,7 @@ import { ENDPOINT } from '../../config';
 import toast from 'react-hot-toast';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
-const ToggleBox = ({ patient, doctorCred, index, setpresUploaded}) => {
+const ToggleBox = ({ patient, doctorCred, index, setpresUploaded }) => {
     const filteredKeys = ['name', 'telephone', 'age', 'gender', 'symptoms', 'symptoms_Duration', 'village', 'latitude', 'longitude', 'doctor', 'Last Visited', 'Registered', 'followup', 'BP_systolic', 'BP_diastolic', 'SPO2_value', 'heart_rate'];
 
     const [prescriptions, setPrescriptions] = useState(patient.prescriptions ? patient.prescriptions : [
@@ -59,7 +59,7 @@ const ToggleBox = ({ patient, doctorCred, index, setpresUploaded}) => {
                 .replace(/\n+/g, ' ')      // Replace newlines with spaces
                 .replace(/[\u0325]/g, '');  // Remove problematic characters
         };
-        
+
         // Utility function to split text into multiple lines
         function splitTextIntoLines(text, maxWidth, font, fontSize) {
             const sanitizedText = sanitizeText(text);
@@ -160,15 +160,27 @@ const ToggleBox = ({ patient, doctorCred, index, setpresUploaded}) => {
             });
             yPosition3 -= fontSize + 5; // Move down for the next line
         });
-        const imageBytes = await fetch(`https://teleniir.com${doctorCred.signature}`).then((res) => res.arrayBuffer());
-        const signatureImage = await pdfDoc.embedPng(imageBytes);
-        const { width, height } = signatureImage.size();
-        firstPage.drawImage(signatureImage, {
-            x: 320,
-            y: 76,
-            width: 60, // You can adjust the size of the image
-            height: (height / width) * 60, // Maintain aspect ratio
-        });
+        console.log(doctorCred.signaturePreview)
+        try {
+            const response = await fetch(`${doctorCred.signaturePreview}`);
+            console.log(response)
+            const imageBytes = await response.arrayBuffer();  // Await the arrayBuffer here
+            console.log(imageBytes)
+            const signatureImage = await pdfDoc.embedPng(imageBytes);  // Embed the image in the PDF
+            console.log(signatureImage)
+            const { width, height } = signatureImage.size();  // Get the image's width and height
+            console.log(width, height)
+            // Draw the image onto the first page of the PDF
+            firstPage.drawImage(signatureImage, {
+                x: 20,
+                y: 16,
+                width: 60, // Adjust the size of the image
+                height: (height / width) * 60, // Maintain aspect ratio
+            });
+        } catch (err) {
+            console.log("Error fetching or processing the image:", err);
+        }
+
 
 
         // Save the PDF
@@ -176,10 +188,10 @@ const ToggleBox = ({ patient, doctorCred, index, setpresUploaded}) => {
 
         // Download the modified PDF
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-        if(index>1){
+        if (index > 1) {
             handleFileUpload(blob, patient.id, "prescription")
         }
-        else{
+        else {
             handleFileUpload(blob, patient._id, "prescription")
         }
         setPdfFile(blob);
@@ -195,7 +207,7 @@ const ToggleBox = ({ patient, doctorCred, index, setpresUploaded}) => {
                     patient_Id: patient.id,
                     date: patient['Last Visited']?.split(',')[0] ? patient['Registered']?.split(',')[0] : "Nil",
                     time: patient['Last Visited']?.split(',')[1]?.trim() ? patient['Registered']?.split(',')[1]?.trim() : "Nil",
-                    Visit: patient['Visit']? patient['Visit'] > 1 ? `Follow-up(${patient['Visit']})` : 'First': patient['followup'],
+                    Visit: patient['Visit'] ? patient['Visit'] > 1 ? `Follow-up(${patient['Visit']})` : 'First' : patient['followup'],
                     Address: patient.village,
                     Gender: patient.gender,
                     Consulted_via: "Telemedicine Portal",
@@ -233,7 +245,7 @@ const ToggleBox = ({ patient, doctorCred, index, setpresUploaded}) => {
                     patient_Id: patient._id,
                     date: patient['Registered']?.split(',')[0],
                     time: patient['Registered']?.split(',')[1]?.trim(),
-                    Visit: patient['Visit']? patient['Visit'] > 1 ? `Follow-up(${patient['Visit']})` : 'First': patient['followup'],
+                    Visit: patient['Visit'] ? patient['Visit'] > 1 ? `Follow-up(${patient['Visit']})` : 'First' : patient['followup'],
                     Address: patient.village,
                     Gender: patient.gender,
                     Consulted_via: "Telemedicine Portal",
@@ -357,7 +369,7 @@ const ToggleBox = ({ patient, doctorCred, index, setpresUploaded}) => {
                         </div>
                         <div className='key-value-out'>
                             <div>⁠Visit :</div>
-                            <div>{patient['Visit']? patient['Visit'] > 1 ? `Follow-up(${patient['Visit']})` : 'First': patient['followup']
+                            <div>{patient['Visit'] ? patient['Visit'] > 1 ? `Follow-up(${patient['Visit']})` : 'First' : patient['followup']
                             }</div>
                         </div>
                         <div className='key-value-out'>
