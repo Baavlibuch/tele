@@ -76,8 +76,6 @@ const Patient = ({ patient, fetchPatients }) => {
         }));
     };
 
-
-
     return (
         <>
             <TableRow key={newPatient._id}>
@@ -173,7 +171,7 @@ const Patient = ({ patient, fetchPatients }) => {
                 <TableCell>
                     {editingRow === (newPatient.id ? newPatient.id : newPatient._id) ? (
                         <textarea
-                            name="symptomsDuration"
+                            name="symptoms_Duration"
                             value={newPatient.symptoms_Duration}
                             onChange={(e) => newPatient.Visit > 1 ? handleInputChange(e, newPatient.id, newPatient.Visit) : handleInputChange(e, (newPatient.id ? newPatient.id : newPatient._id), newPatient.Visit)}
                         />
@@ -182,15 +180,15 @@ const Patient = ({ patient, fetchPatients }) => {
                     )}
                 </TableCell>
                 <TableCell>
-                    {editingRow === (newPatient.id ? newPatient.id : newPatient._id) ? (
+                    {/* {editingRow === (newPatient.id ? newPatient.id : newPatient._id) ? (
                         <textarea
                             name="followUp"
                             value={newPatient.Visit}
                             onChange={(e) => newPatient.Visit > 1 ? handleInputChange(e, newPatient.id, newPatient.Visit) : handleInputChange(e, (newPatient.id ? newPatient.id : newPatient._id), newPatient.Visit)}
                         />
-                    ) : (
-                        newPatient.Visit
-                    )}
+                    ) : ( */}
+                        {newPatient.Visit}
+                    {/* // )} */}
                 </TableCell>
                 <TableCell>
                     {editingRow === (newPatient.id ? newPatient.id : newPatient._id) ? (
@@ -206,7 +204,7 @@ const Patient = ({ patient, fetchPatients }) => {
                 <TableCell>
                     {editingRow === (newPatient.id ? newPatient.id : newPatient._id) ? (
                         <textarea
-                            name="registered"
+                            name="Registered"
                             value={newPatient.Registered}
                             onChange={(e) => newPatient.Visit > 1 ? handleInputChange(e, newPatient.id, newPatient.Visit) : handleInputChange(e, (newPatient.id ? newPatient.id : newPatient._id), newPatient.Visit)}
                         />
@@ -239,7 +237,7 @@ const Patient = ({ patient, fetchPatients }) => {
                 <TableCell>
                     {editingRow === (newPatient.id ? newPatient.id : newPatient._id) ? (
                         <textarea
-                            name="bpSystolic"
+                            name="BP_systolic"
                             value={newPatient.BP_systolic}
                             onChange={(e) => newPatient.Visit > 1 ? handleInputChange(e, newPatient.id, newPatient.Visit) : handleInputChange(e, (newPatient.id ? newPatient.id : newPatient._id), newPatient.Visit)}
                         />
@@ -250,7 +248,7 @@ const Patient = ({ patient, fetchPatients }) => {
                 <TableCell>
                     {editingRow === (newPatient.id ? newPatient.id : newPatient._id) ? (
                         <textarea
-                            name="bpDiastolic"
+                            name="BP_diastolic"
                             value={newPatient.BP_diastolic}
                             onChange={(e) => newPatient.Visit > 1 ? handleInputChange(e, newPatient.id, newPatient.Visit) : handleInputChange(e, (newPatient.id ? newPatient.id : newPatient._id), newPatient.Visit)}
                         />
@@ -261,7 +259,7 @@ const Patient = ({ patient, fetchPatients }) => {
                 <TableCell>
                     {editingRow === (newPatient.id ? newPatient.id : newPatient._id) ? (
                         <textarea
-                            name="spo2"
+                            name="SPO2_value"
                             value={newPatient.SPO2_value}
                             onChange={(e) => newPatient.Visit > 1 ? handleInputChange(e, newPatient.id, newPatient.Visit) : handleInputChange(e, (newPatient.id ? newPatient.id : newPatient._id), newPatient.Visit)}
                         />
@@ -272,7 +270,7 @@ const Patient = ({ patient, fetchPatients }) => {
                 <TableCell>
                     {editingRow === (newPatient.id ? newPatient.id : newPatient._id) ? (
                         <textarea
-                            name="heartRate"
+                            name="heart_rate"
                             value={newPatient.heart_rate}
                             onChange={(e) => newPatient.Visit > 1 ? handleInputChange(e, newPatient.id, newPatient.Visit) : handleInputChange(e, (newPatient.id ? newPatient.id : newPatient._id), newPatient.Visit)}
                         />

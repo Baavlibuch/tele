@@ -192,7 +192,7 @@ function ManagePatients() {
                             <TableCell>Village</TableCell>
                             <TableCell>Symptoms</TableCell>
                             <TableCell>Symptoms Duration</TableCell>
-                            <TableCell>Follow-up</TableCell>
+                            <TableCell>Visit</TableCell>
                             <TableCell>Last Visited</TableCell>
                             <TableCell>Registered</TableCell>
                             <TableCell>Latitude</TableCell>

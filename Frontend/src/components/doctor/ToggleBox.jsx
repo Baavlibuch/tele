@@ -53,10 +53,13 @@ const ToggleBox = ({ patient, doctorCred, index, setpresUploaded}) => {
         const sanitizeText = (text) => {
             if (typeof text !== 'string') {
                 console.warn('sanitizeText received non-string input:', text);
-                return ''; // Return an empty string for invalid input
+                return ''; // Early return for invalid input
             }
-            return text.replace(/\n/g, ' '); // Replace newline characters with a space
+            return text.normalize('NFC')  // Normalize to a composed form
+                .replace(/\n+/g, ' ')      // Replace newlines with spaces
+                .replace(/[\u0325]/g, '');  // Remove problematic characters
         };
+        
         // Utility function to split text into multiple lines
         function splitTextIntoLines(text, maxWidth, font, fontSize) {
             const sanitizedText = sanitizeText(text);
@@ -157,15 +160,15 @@ const ToggleBox = ({ patient, doctorCred, index, setpresUploaded}) => {
             });
             yPosition3 -= fontSize + 5; // Move down for the next line
         });
-        // const imageBytes = await fetch(`https://teleniir.com${doctorCred.signature}`).then((res) => res.arrayBuffer());
-        // const signatureImage = await pdfDoc.embedPng(imageBytes);
-        // const { width, height } = signatureImage.size();
-        // firstPage.drawImage(signatureImage, {
-        //     x: 320,
-        //     y: 76,
-        //     width: 60, // You can adjust the size of the image
-        //     height: (height / width) * 60, // Maintain aspect ratio
-        // });
+        const imageBytes = await fetch(`https://teleniir.com${doctorCred.signature}`).then((res) => res.arrayBuffer());
+        const signatureImage = await pdfDoc.embedPng(imageBytes);
+        const { width, height } = signatureImage.size();
+        firstPage.drawImage(signatureImage, {
+            x: 320,
+            y: 76,
+            width: 60, // You can adjust the size of the image
+            height: (height / width) * 60, // Maintain aspect ratio
+        });
 
 
         // Save the PDF

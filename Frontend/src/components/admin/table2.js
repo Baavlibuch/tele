@@ -59,7 +59,7 @@ function TableNurses(props) {
 	};
 
 	return (
-		<table className="table fadeInUp" style={{ animationDelay: '1s' }}>
+		<table className="table fadeInUp" style={{ animationDelay: '1s', marginTop:'30px' }}>
 			<h5 className="affected-count">
 				<button onClick={getNurses} className="refresh">
 					<Icon.RefreshCw size={10} />

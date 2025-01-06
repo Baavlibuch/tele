@@ -343,6 +343,14 @@ router.post('/assessment', (req, res) => {
 						]
 					});
 				}
+
+				const changeAnswer = (answer) => {
+					let extractedPart = answer.split('/images/')[1];
+					console.log(extractedPart);
+					extractedPart = `chat-img-${extractedPart}`
+					return extractedPart
+				}
+
 				patient.followup = (patient.followup || 0) + 1;
 				patient.chat.push(
 					{
@@ -383,13 +391,6 @@ router.post('/assessment', (req, res) => {
 					"Siner-Gura",
 					"Siner-thanmata Hinglaj"
 				];
-
-				const changeAnswer = (answer) => {
-					let extractedPart = answer.split('/images/')[1];
-					console.log(extractedPart);
-					extractedPart = `chat-img-${extractedPart}`
-					return extractedPart
-				}
 
 				FollowUpPatient.create(
 					{

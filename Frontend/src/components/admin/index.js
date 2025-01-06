@@ -145,7 +145,7 @@ class Doctor extends React.Component {
 					</form>
 					<Table />
 					<TableNurses />
-					<button onClick={this.handleNavigation} className="download-btn">
+					<button onClick={this.handleNavigation} style={{'marginTop':'15px'}} className="download-btn">
 						See All Patients
 					</button>
 				</div>
