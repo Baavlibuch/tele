@@ -172,8 +172,8 @@ const ToggleBox = ({ patient, doctorCred, index, setpresUploaded }) => {
             console.log(width, height)
             // Draw the image onto the first page of the PDF
             firstPage.drawImage(signatureImage, {
-                x: 20,
-                y: 16,
+                x: 320,
+                y: 76,
                 width: 60, // Adjust the size of the image
                 height: (height / width) * 60, // Maintain aspect ratio
             });
