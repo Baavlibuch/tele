@@ -305,192 +305,216 @@ router.post('/assessment', (req, res) => {
 			console.log('post /assessment new patient callback')
 			const { name, telephone, hospital } = model;
 			console.log(hospital);
-			Doctor.findOne({ //Todo , adding hospital 
-				$or: [
-					{ status: "idle" },
-					{ status: "online" }
-				]
-			}, async (err, doc) => {
-				console.log('post /assessment new patient callback find hospital')
-				if (err || !doc) {
-					console.log('post /assessment new patient doctor not found')
-					return res.json({
-						incomingChats: [
-							{
-								statement: {
-									en: 'We could not find any doctors 🙁',
-									hi: 'हम किसी भी डॉक्टर का पता नहीं लगा सके 🙁',
-									bn: 'আমরা কোনও ডাক্তার খুঁজে পাইনি 🙁'
-								},
-								type: 'incoming'
-							}
-						]
-					});
-				}
-				const patient = await Patient.findById({ _id: getId(name, telephone) });
-				if (!patient) {
-					console.log(patient)
-					return res.json({
-						incomingChats: [
-							{
-								statement: {
-									en: 'We are unable to find your previous records 🙁',
-									hi: 'हम आपके पिछले रिकॉर्ड नहीं ढूंढ पा रहे हैं 🙁',
-									bn: 'আমরা আপনার আগের রেকর্ডগুলি সন্ধান করতে অক্ষম 🙁'
-								},
-								type: 'incoming'
-							}
-						]
-					});
-				}
+			// Doctor.findOne({ //Todo , adding hospital 
+			// $or: [
+			// { status: "idle" },
+			// { status: "online" }
+			// ]
+			// }, 
+			// async (err, doc) => {
+			// console.log('post /assessment new patient callback find hospital')
+			// if (err || !doc) {
+			// console.log('post /assessment new patient doctor not found')
+			// return res.json({
+			// 	incomingChats: [
+			// 		{
+			// 			statement: {
+			// 				en: 'We could not find any doctors 🙁',
+			// 				hi: 'हम किसी भी डॉक्टर का पता नहीं लगा सके 🙁',
+			// 				bn: 'আমরা কোনও ডাক্তার খুঁজে পাইনি 🙁'
+			// 			},
+			// 			type: 'incoming'
+			// 		}
+			// 	]
+			// });
+			// }
 
-				const changeAnswer = (answer) => {
-					let extractedPart = answer.split('/images/')[1];
-					console.log(extractedPart);
-					extractedPart = `chat-img-${extractedPart}`
-					return extractedPart
-				}
+			const patient = await Patient.findById({ _id: getId(name, telephone) });
 
-				patient.followup = (patient.followup || 0) + 1;
-				patient.chat.push(
-					{
-						statement: "session-closed",
-						type: 'incoming',
-					},
-					{
-						"statement": answers['25.4'] ? changeAnswer(answers['25.4']) : "",
-						"type": "outgoing",
-					},
-					{
-						"statement": answers['25.7'] ? changeAnswer(answers['25.7']) : "",
-						"type": "outgoing",
-					},
-					{
-						"statement": answers['25.8'] ? changeAnswer(answers['25.8']) : "",
-						"type": "outgoing",
-					},
-				);
-				await patient.save();
-				// res.json({
-				// 	connectToDoctor: true,
-				// 	patientId: _id,
-				// 	// incomingChats: patient.chat,
-				// 	question: questions[questions.length - 1]
-				// });
-				let villages = [
-					// "Ramniya-Kathadi",
-					// "Ramniya-Mangi",
-					// "Ramniya-Dhira",
-					// "Ramniya-Bhagva",
-					// "Ramniya-Telvada",
-					// "Ramniya-Raghunath Gad",
-					// "Ramniya-Dharbahlo Ki Dhani",
-					"Siner",
-					"Siner-Dharna",
-					"Siner-Baliyana",
-					"Siner-Gura",
-					"Siner-thanmata Hinglaj"
-				];
+			if (!patient) {
+				console.log(patient)
+				return res.json({
+					incomingChats: [
+						{
+							statement: {
+								en: 'We are unable to find your previous records 🙁',
+								hi: 'हम आपके पिछले रिकॉर्ड नहीं ढूंढ पा रहे हैं 🙁',
+								bn: 'আমরা আপনার আগের রেকর্ডগুলি সন্ধান করতে অক্ষম 🙁'
+							},
+							type: 'incoming'
+						}
+					]
+				});
+			}
+			const allotedDoctor = await Doctor.findOne(
+				{ username: patient.doctor });
 
-				FollowUpPatient.create(
-					{
-						id: getId(name, telephone),
-						...model,																			// data prepared through callback from answersToModel
-						latitude,
-						longitude,
-						ip: req.headers['x-real-ip'] || req.ip,
-						created_at: Date.now(),
-						last_notified_at: Date.now() - 2000,
-						chat_id: '',
-						doctor: doc.username,
-						last_messaged_at: Date.now(),
-						chat: chat.slice(4),
-						conversation_sessions: [conversation_session_id],
-						village: villages[answers['25.1']],
-						symptoms: answers['2.4'],
-						symptoms_Duration: answers['2.41'],
-						BP_systolic: answers['26'],
-						BP_diastolic: answers['25.3'],
-						SPO2_value: answers['25.5'],
-						heart_rate: answers['25.6'],
-						BP_Image: answers['25.4'],
-						Spo2_Image: answers['25.7'],
-						ECG_Image: answers['25.8'],
-						prescriptions: [{ id: Date.now(), notation: "", saltName: "", dosage: "", remarks: "" }],
-						chat: [
-							{
-								"statement": answers['25.4'] ? changeAnswer(answers['25.4']) : "",
-								"type": "outgoing",
+			if (allotedDoctor.status === 'buzy' || allotedDoctor.status === 'offline') {
+
+				return res.json({
+					incomingChats: [
+						{
+							"statement": {
+								"en": "No doctors are online 🙁",
+								"hi": "कोई भी डॉक्टर ऑनलाइन नहीं है 🙁",
+								"bn": "কোনও ডাক্তার অনলাইনে নেই 🙁"
 							},
-							{
-								"statement": answers['25.7'] ? changeAnswer(answers['25.7']) : "",
-								"type": "outgoing",
-							},
-							{
-								"statement": answers['25.8'] ? changeAnswer(answers['25.8']) : "",
-								"type": "outgoing",
-							},
-						],
-						followup: patient.followup,
-						Visit: patient.followup,
-					},
-					(err, patient) => {
-						console.log("this is the err", err)
-						if (err) {
-							if (err.code === 11000 && err.message.includes('dup key')) {
-								// Duplicate key error (patient already registered)
-								return res.json({
-									incomingChats: [
-										{
-											statement: {
-												en: 'You have already registered. You can call your doctor directly by choosing from the table.',
-												hi: 'आप पहले से पंजीकृत हैं। आप सीधे तालिका से अपने डॉक्टर को कॉल कर सकते हैं।',
-												bn: 'আপনি ইতিমধ্যেই নিবন্ধিত হয়েছেন। আপনি টেবিল থেকে সরাসরি আপনার ডাক্তারকে কল করতে পারেন।'
-											},
-											type: 'incoming'
-										}
-									]
-								});
-							} else {
-								// Other errors (e.g., doctor not found)
-								console.error(err);
-								return res.json({
-									incomingChats: [
-										{
-											statement: {
-												en: 'We could not find any doctors 🙁',
-												hi: 'हम किसी भी डॉक्टर का पता नहीं लगा सके 🙁',
-												bn: 'আমরা কোনও ডাক্তার খুঁজে পাইনি 🙁'
-											},
-											type: 'incoming'
-										}
-									]
-								});
-							}
+							"type": "incoming"
 						}
 
+					]
+				})
 
-						// no error in patient creation - begin call
+			}
 
-						const { id } = patient;
+			const changeAnswer = (answer) => {
+				let extractedPart = answer.split('/images/')[1];
+				console.log(extractedPart);
+				extractedPart = `chat-img-${extractedPart}`
+				return extractedPart
+			}
 
-						// mail(
-						// 	doc.username,
-						// 	'Your Patient is Online',
-						// 	`Your patient ${name.toUpperCase()}, ${telephone}, has paid a visit, and is waiting for you.`
-						// );
+			patient.followup = (patient.followup || 0) + 1;
+			patient.chat.push(
+				{
+					statement: "session-closed",
+					type: 'incoming',
+				},
+				{
+					"statement": answers['25.4'] ? changeAnswer(answers['25.4']) : "",
+					"type": "outgoing",
+				},
+				{
+					"statement": answers['25.7'] ? changeAnswer(answers['25.7']) : "",
+					"type": "outgoing",
+				},
+				{
+					"statement": answers['25.8'] ? changeAnswer(answers['25.8']) : "",
+					"type": "outgoing",
+				},
+			);
+			await patient.save();
+			// res.json({
+			// 	connectToDoctor: true,
+			// 	patientId: _id,
+			// 	// incomingChats: patient.chat,
+			// 	question: questions[questions.length - 1]
+			// });
+			let villages = [
+				// "Ramniya-Kathadi",
+				// "Ramniya-Mangi",
+				// "Ramniya-Dhira",
+				// "Ramniya-Bhagva",
+				// "Ramniya-Telvada",
+				// "Ramniya-Raghunath Gad",
+				// "Ramniya-Dharbahlo Ki Dhani",
+				"Siner",
+				"Siner-Dharna",
+				"Siner-Baliyana",
+				"Siner-Gura",
+				"Siner-thanmata Hinglaj"
+			];
 
-						console.log('post /assessment new patient connect to doctor')
-						res.json({
-							connectToDoctor: true,
-							patientId: id,
-							// incomingChats: patient.chat,
-							question: questions[questions.length - 1]
-						});
+			FollowUpPatient.create(
+				{
+					id: getId(name, telephone),
+					...model,																			// data prepared through callback from answersToModel
+					latitude,
+					longitude,
+					ip: req.headers['x-real-ip'] || req.ip,
+					created_at: Date.now(),
+					last_notified_at: Date.now() - 2000,
+					chat_id: '',
+					doctor: patient.doctor,
+					last_messaged_at: Date.now(),
+					chat: chat.slice(4),
+					conversation_sessions: [conversation_session_id],
+					village: villages[answers['25.1']],
+					symptoms: answers['2.4'],
+					symptoms_Duration: answers['2.41'],
+					BP_systolic: answers['26'],
+					BP_diastolic: answers['25.3'],
+					SPO2_value: answers['25.5'],
+					heart_rate: answers['25.6'],
+					BP_Image: answers['25.4'],
+					Spo2_Image: answers['25.7'],
+					ECG_Image: answers['25.8'],
+					prescriptions: [{ id: Date.now(), notation: "", saltName: "", dosage: "", remarks: "" }],
+					chat: [
+						{
+							"statement": answers['25.4'] ? changeAnswer(answers['25.4']) : "",
+							"type": "outgoing",
+						},
+						{
+							"statement": answers['25.7'] ? changeAnswer(answers['25.7']) : "",
+							"type": "outgoing",
+						},
+						{
+							"statement": answers['25.8'] ? changeAnswer(answers['25.8']) : "",
+							"type": "outgoing",
+						},
+					],
+					followup: patient.followup,
+					Visit: patient.followup,
+				},
+				(err, patient) => {
+					console.log("this is the err", err)
+					if (err) {
+						if (err.code === 11000 && err.message.includes('dup key')) {
+							// Duplicate key error (patient already registered)
+							return res.json({
+								incomingChats: [
+									{
+										statement: {
+											en: 'You have already registered. You can call your doctor directly by choosing from the table.',
+											hi: 'आप पहले से पंजीकृत हैं। आप सीधे तालिका से अपने डॉक्टर को कॉल कर सकते हैं।',
+											bn: 'আপনি ইতিমধ্যেই নিবন্ধিত হয়েছেন। আপনি টেবিল থেকে সরাসরি আপনার ডাক্তারকে কল করতে পারেন।'
+										},
+										type: 'incoming'
+									}
+								]
+							});
+						} else {
+							// Other errors (e.g., doctor not found)
+							console.error(err);
+							return res.json({
+								incomingChats: [
+									{
+										statement: {
+											en: 'We could not find any doctors 🙁',
+											hi: 'हम किसी भी डॉक्टर का पता नहीं लगा सके 🙁',
+											bn: 'আমরা কোনও ডাক্তার খুঁজে পাইনি 🙁'
+										},
+										type: 'incoming'
+									}
+								]
+							});
+						}
 					}
-				);
 
-			});
+
+					// no error in patient creation - begin call
+
+					const { id } = patient;
+
+					// mail(
+					// 	doc.username,
+					// 	'Your Patient is Online',
+					// 	`Your patient ${name.toUpperCase()}, ${telephone}, has paid a visit, and is waiting for you.`
+					// );
+
+					console.log('post /assessment new patient connect to doctor')
+					res.json({
+						connectToDoctor: true,
+						patientId: id,
+						// incomingChats: patient.chat,
+						question: questions[questions.length - 1]
+					});
+				}
+			);
+
+			// }
+			// );
 		});
 
 	} else {
@@ -500,12 +524,17 @@ router.post('/assessment', (req, res) => {
 			console.log('post /assessment new patient callback')
 			const { name, telephone, hospital } = model;
 			console.log(hospital);
-			Doctor.findOne({ //Todo , adding hospital 
-				$or: [
-					{ status: "idle" },
-					{ status: "online" }
-				]
-			}, (err, doc) => {
+			Doctor.aggregate([
+				{
+					$match: {
+						$or: [
+							{ status: "idle" },
+							{ status: "online" }
+						]
+					}
+				},
+				{ $sample: { size: 1 } } // This will randomly pick one document
+			], (err, doc) => {
 				console.log('post /assessment new patient callback find hospital')
 				if (err || !doc) {
 					console.log('post /assessment new patient doctor not found')
@@ -1121,10 +1150,10 @@ router.get('/allpatient-listexcel', async (req, res) => {
 	}
 });
 router.get('/allpatient-listexcel/:village', async (req, res) => {
-	const{village}=req.params;
+	const { village } = req.params;
 	try {
 		// Fetch patients from the `Patient` collection
-		const patients = await Patient.find({village:village}).sort({ last_messaged_at: -1 }).exec();
+		const patients = await Patient.find({ village: village }).sort({ last_messaged_at: -1 }).exec();
 
 		// Fetch all follow-up records from `FollowUpPatient`
 		const followUpPatients = await FollowUpPatient.find({
@@ -1220,8 +1249,8 @@ router.post("/add-patient", async (req, res) => {
 			age,
 			gender,
 			telephone,
-			Visit:1,
-			followup:1,
+			Visit: 1,
+			followup: 1,
 		})
 		res.status(201).json({
 			success: true,
@@ -1659,13 +1688,13 @@ router.put('/doctor/:id', upload2.single('signature'), async (req, res) => {
 });
 
 router.post('/nurseregister', async (req, res) => {
-	const { username, password, village} = req.body;
+	const { username, password, village } = req.body;
 	try {
 		const existingNurse = await Nurse.findOne({ username });
 		if (existingNurse) {
 			return res.status(400).json({ message: 'Username already exists' });
 		}
-		const nurse = new Nurse({ username, password, village});
+		const nurse = new Nurse({ username, password, village });
 		await nurse.save();
 		res.status(201).json({ message: 'Registration successful' });
 	} catch (error) {

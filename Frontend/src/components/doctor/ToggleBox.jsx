@@ -53,12 +53,17 @@ const ToggleBox = ({ patient, doctorCred, index, setpresUploaded }) => {
         const sanitizeText = (text) => {
             if (typeof text !== 'string') {
                 console.warn('sanitizeText received non-string input:', text);
-                return ''; // Early return for invalid input
+                return text || ''; // Return empty string if text is null/undefined
             }
-            return text.normalize('NFC')  // Normalize to a composed form
+            if (text.includes('\u0325')) {
+                console.warn('Removing problematic character from text:', text);
+            }
+            return text.normalize('NFC')  // Normalize to composed form
                 .replace(/\n+/g, ' ')      // Replace newlines with spaces
-                .replace(/[\u0325]/g, '');  // Remove problematic characters
+                .replace(/[\u0300-\u036F]/g, '')  // Remove combining diacritical marks
+                .replace(/[^\x00-\x7F]/g, '');    // Remove non-ASCII characters
         };
+        
 
         // Utility function to split text into multiple lines
         function splitTextIntoLines(text, maxWidth, font, fontSize) {
@@ -118,7 +123,7 @@ const ToggleBox = ({ patient, doctorCred, index, setpresUploaded }) => {
         firstPage.drawText(`${data.Gender}`, { x: 190, y: 372, size: fontSize, font: helveticaFont, color: rgb(0, 0, 0) });
         firstPage.drawText(`${data.pastHistory}`, { x: 190, y: 347, size: fontSize, font: helveticaFont, color: rgb(0, 0, 0) });
 
-        const CCLines = splitTextIntoLines(data.diagnosis, 200, helveticaFont, fontSize);
+        const CCLines = splitTextIntoLines(data.diagnosis, 180, helveticaFont, fontSize);
         let yPosition2 = 322; // Starting y position for the advice text
 
         CCLines.forEach(line => {
