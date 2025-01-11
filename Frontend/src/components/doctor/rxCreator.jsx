@@ -33,7 +33,7 @@ const PrescriptionCreator = ({ prescriptions, setPrescriptions }) => {
         "Metformine 500mg", "Metronidazole", "Montelukast + levocitrizine",
         "Multivitamine", "Naproxen 500mg", "Nitrofurantoin 100 mg",
         "Normal saline", "Ofloxacine 500mg", "Omeprazole 20mg",
-        "Ondansetron 4 mg", "Ornidazole 200mg", "ORS", "Pantopr̥azole 40mg",
+        "Ondansetron 4 mg", "Ornidazole 200mg", "ORS", "Pantoprazole 40mg",
         "Paracetamole", "Paracetamole + diclofenac", "Paracetamole + ibuprofen",
         "Paracetamole 500mg", "Prednisolon 5mg", "Ranitidine 90mg",
         "Salbutamol", "Silver Nitrate", "Telmisartan 40mg", "Tobramycine",
