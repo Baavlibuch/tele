@@ -17,7 +17,7 @@
   3. Built files in `/var/www/tele`
   4. `tele/Backend` packege
   5. `mongodb` running as a service or as a container.
-  6. 
+  6. `redis` running as a service or as a container
 
 ### How do I get set up?
 
@@ -30,10 +30,10 @@
 6. mongodb
 7. nginx
 
-* **Summary of set up**
+### Summary of set up
 1. Make sure that you have installed `nodejs 18`, `yarn`, `git`, `nginx`.
 2. [Download](https://github.com/maniksejwal/tele) the repository using the command `git clone https://github.com/maniksejwal/tele.git`
-3. Setting up the frontend service
+3. **Setting up the frontend service**
    * Navigate to `./Frontend` and run `yarn install`.
    * To deploy in the development environment, `yarn start`.
    * Run `yarn build-linux` for production, or `yarn build-linux-deobfuscated` to enable client side logging in production. For Windows, `yarn build`.
@@ -41,25 +41,25 @@
    * Copy the contents of `./Frontend/build` to `/var/www/tele`.
    * Run `sudo nginx -t` to verify the `etc/nginx/nginx.conf` and `/etc/nginx/sites-enabled/*`.
    * Execute using `sudo systemctl restart nginx`. Make sure that the express service is running first.
-6. Setting up the frontend service
+6. **Setting up the backend service**
   * Navigate to `./Backend` and run `yarn install`.
   * Start in the development mode using `yarn start`.
   * Start the production service using `pm2 --name tele start yarn -- start`.
   * OR
-  * For a dockerized deployment,
+  * **For a dockerized deployment**,
     * Navigate to to the project root.
     * First start using `sudo docker compose up --build -d backend`.
     * Restart using `sudo docker compose up -d backend`.
     * Check status using `sudo docker ps` and `sudo docker logs backend`.
     * To enter the container and use it like a VM, `sudo docker exec -it backend bash`.
   * Dependencies - redis and mongodb
-7. Mongodb can be started as a service using `sudo systemctl restart mongod`, or
+7. **Mongodb** can be started as a service using `sudo systemctl restart mongod`, or
   * As a container (preferred) by navigating to the project root and executing `sudo docker compose up --build -d mongo`
   * Restart using `sudo docker compose up -d mongo`.
   * Check logs using `sudo docker ps` and `sudo docker logs backend`.
   * Use the mongo shell using `mongosh`, or `sudo docker exec -it mongo mongosh`.
   * The container can be accessed using `sudo docker exec -it mongo bash`.
-9. Redis can be started as a service using `redis-server --daemonize yes`, or
+9. **Redis** can be started as a service using `redis-server --daemonize yes`, or
   * as a container by navigating to the project root and executing `sudo docker compose up --build -d redis`
   * Restart using `sudo docker compose up -d redis`
 
