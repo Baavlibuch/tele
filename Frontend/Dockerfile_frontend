@@ -3,25 +3,25 @@ ENV DEBUG True
 ENV TZ Asia/Kolkata
 ENV NODE_OPTIONS=--openssl-legacy-provider
 # EXPOSE 80
-WORKDIR /app
-COPY ./ /app
+WORKDIR /code
+COPY ./ /code
 # RUN npm install -g yarn
-RUN yarn install
+RUN yarn install --network-timeout 600000
 RUN yarn run build-linux
 
 # RUN mkdir /etc/nginx/
 # RUN mkdir /etc/nginx/conf.d/
 
 FROM nginx:alpine
-WORKDIR /app
-COPY --from=frontend_build /app/build /var/www/tele
+WORKDIR /code
+COPY --from=frontend_build /code/build /var/www/tele
 
 # RUN cp -pr /code/build/ /var/www/html
 # RUN echo ls /etc/nginx/conf.d/
 
 COPY ./nginx_default /etc/nginx/sites-enabled/nginx_default
-COPY nginx.sh /app/nginx.sh
-RUN chmod +x /app/nginx.sh
+COPY nginx.sh /code/nginx.sh
+RUN chmod +x /code/nginx.sh
 
 ENV PORT 80
-CMD ["/app/nginx.sh"]
+CMD ["/code/nginx.sh"]

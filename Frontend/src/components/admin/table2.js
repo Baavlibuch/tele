@@ -1,3 +1,8 @@
+/**
+ * Admin Nurses Table Component
+ * This file implements the table for displaying and managing nurse data in the admin dashboard.
+ * Features include listing nurses, editing, deleting, and updating nurse information.
+ */
 import React, { useState, useEffect } from 'react';
 import * as Icon from 'react-feather';
 import axios from 'axios';
@@ -59,7 +64,7 @@ function TableNurses(props) {
 	};
 
 	return (
-		<table className="table fadeInUp" style={{ animationDelay: '1s', marginTop:'30px' }}>
+		<table className="table admin-table fadeInUp" style={{ animationDelay: '1s', marginTop:'30px' }}>
 			<h5 className="affected-count">
 				<button onClick={getNurses} className="refresh">
 					<Icon.RefreshCw size={10} />

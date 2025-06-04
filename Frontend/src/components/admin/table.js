@@ -1,3 +1,9 @@
+/**
+ * Admin Doctors Table Component
+ * This file implements the table for displaying and managing doctor data in the admin dashboard.
+ * Features include listing doctors, editing, deleting, and updating doctor information.
+ */
+
 import React, { useState, useEffect } from 'react';
 import * as Icon from 'react-feather';
 import axios from 'axios';
@@ -73,7 +79,7 @@ function Table(props) {
 	// setInterval(getDoctors, 60 * 1000);
 
 	return (
-		<table className="table fadeInUp" style={{ animationDelay: '1s' }}>
+		<table className="table admin-table fadeInUp" style={{ animationDelay: '1s' }}>
 			<h5 className="affected-count">
 				<button onClick={getDoctors} class="refresh">
 					<Icon.RefreshCw size={10} />

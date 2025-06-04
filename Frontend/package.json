@@ -43,8 +43,8 @@
     "xlsx": "^0.18.5"
   },
   "scripts": {
-    "start": "set PORT=3001 && react-scripts --openssl-legacy-provider start css-watch",
-    "build": "react-scripts build && copy build\\index.html build\\404.html && del build\\static\\js\\*.map build\\static\\css\\*.map",
+    "start": "set PORT=3005 && react-scripts --openssl-legacy-provider start css-watch",
+    "build": "react-scripts build && copy build\\index.html build\\404.html  && del build\\static\\js\\*.map build\\static\\css\\*.map",
     "build-linux": "react-scripts build && cp build/index.html build/404.html && rm build/static/js/*.map build/static/css/*.map",
     "build-linux-deobfuscated": "react-scripts build && cp build/index.html build/404.html",
     "test": " react-scripts test --env=jsdom ",

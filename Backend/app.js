@@ -13,11 +13,14 @@ const dotenv = require("dotenv").config({
   path: path.join(__dirname, ".env"),
 });
 
+const MONGODB_HOST = process.env.MONGODB_HOST || "mongo";
+
 mongoose.Promise = global.Promise;
-mongoose.connect("mongodb://127.0.0.1:27017/covid", {
+mongoose.connect(`mongodb://${MONGODB_HOST}:27017/tele`, {
   useFindAndModify: false,
   useUnifiedTopology: true,
   useNewUrlParser: true,
+  serverSelectionTimeoutMS: 30000
 });
 
 mongoose.connection

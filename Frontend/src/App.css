@@ -968,13 +968,14 @@ abbr.is-gray {
   color: #6c757d;
 }
 
-table {
+/* table {   No clue which table this is
+table {   
   position: relative;
   width: 45rem;
   align-self: center;
   text-transform: uppercase;
   margin-bottom: 1rem;
-}
+} */
 table thead {
   background: rgba(108, 117, 125, 0.062745098);
   color: #343a40;

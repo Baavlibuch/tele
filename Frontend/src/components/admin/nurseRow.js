@@ -1,3 +1,8 @@
+/**
+ * Admin Nurse Row Component
+ * This file implements a single row for the nurse table in the admin dashboard.
+ * Handles rendering, editing, and deleting a nurse's information.
+ */
 import React, { useState, useEffect } from 'react';
 import * as Icon from 'react-feather';
 

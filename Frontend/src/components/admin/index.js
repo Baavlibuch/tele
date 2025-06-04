@@ -1,3 +1,10 @@
+/**
+ * Admin Dashboard Page
+ * This file implements the main Admin dashboard for the Telemedicine portal.
+ * It handles admin authentication, logout, and displays tables for management of users (doctors and nurses).
+ * Features include admin login/logout, viewing and managing doctors and nurses, and navigation to patient lists.
+*/
+
 import React from 'react';
 // import { useState, useEffect } from 'react';
 import * as Icon from 'react-feather';

@@ -1,10 +1,13 @@
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
+const EXPRESS_SERVER_IP = process.env.EXPRESS_SERVER_IP || "127.0.0.1";
+const EXPRESS_SERVER_PORT = process.env.EXPRESS_SERVER_PORT || "3006";
+
 module.exports = function (app) {
 	app.use(
 	  ['/api', '/admin'],
 	  createProxyMiddleware({
-		  target: 'http://127.0.0.1:3000',
+		  target: `http://${EXPRESS_SERVER_IP}:${EXPRESS_SERVER_PORT}`,
 		  changeOrigin: true
 	  })
 	);
@@ -12,7 +15,7 @@ module.exports = function (app) {
 	app.use(
 	  '/socket.io',
 	  createProxyMiddleware({
-		  target: 'http://127.0.0.1:3000',
+		  target: `http://${EXPRESS_SERVER_IP}:${EXPRESS_SERVER_PORT}`,
 		  changeOrigin: true,
 		  ws: true,
 		  logLevel: 'debug',

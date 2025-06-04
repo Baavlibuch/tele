@@ -1,0 +1,63 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# Node.js
+node_modules/
+yarn.lock
+package-lock.json
+npm-debug.log*
+
+# Build output
+build/
+dist/
+*.log
+
+# Backend
+Backend/node_modules/
+Backend/.DS_Store
+Backend/yarn.lock
+Backend/package-lock.json
+Backend/.env
+
+# Frontend
+Frontend/node_modules/
+Frontend/.DS_Store
+Frontend/build/
+Frontend/yarn.lock
+Frontend/package-lock.json
+Frontend/.env
+
+# Android/Java
+*.apk
+*.ap_ 
+*.dex
+*.class
+*.jar
+*.keystore
+*.jks
+*.gradle
+.gradle/
+Frontend/app/.gradle/
+Frontend/app/build/
+
+# Certificates and keys
+*.pem
+*.crt
+*.key
+Cert/
+
+# Large files
+*.tar
+
+# Misc
+*.swp
+*.swo
+
+# Ignore PDF instructions
+Tele setup instructions..pdf 
