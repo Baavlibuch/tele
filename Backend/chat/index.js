@@ -2,7 +2,7 @@ const debug = require('debug')('server:server');
 
 const Patient = require('../models/patient');
 const Doctor = require('../models/doctor');
-const nsp = '/app_chat:'
+const NAMESPACE = '/app_chat';
 // seems like doctor patient conversation
 
 const { mail, mailPatient } = require('../helper/mail');

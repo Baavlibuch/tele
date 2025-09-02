@@ -563,27 +563,120 @@ module.exports = {
                 // },
                 {
                     "dbValue": "ICMR",
-                    "nextQuestion": NEXT_QUESTION_ENDS_FLOW,//27.0,
+                    "nextQuestion": "doctor_selection",
                     "statement": {
                         "hi": "ICMR",
                         "en": "ICMR"
                     },
                     "value": 0
                 },
-                // {
-                //     "dbValue": "AIIMS Jodhpur",
-                //     "nextQuestion": NEXT_QUESTION_ENDS_FLOW,//27.0,
-                //     "statement": {
-                //         "hi": "AIIMS Jodhpur",
-                //         "en": "AIIMS Jodhpur"
-                //     },
-                //     "value": 0
-                // }
-
+                {
+                    "dbValue": "AIIMS Jodhpur",
+                    "nextQuestion": "doctor_selection",
+                    "statement": {
+                        "hi": "AIIMS जोधपुर",
+                        "en": "AIIMS Jodhpur"
+                    },
+                    "value": 0
+                },
+                {
+                    "dbValue": "Apollo Hospital",
+                    "nextQuestion": "doctor_selection",
+                    "statement": {
+                        "hi": "अपोलो हॉस्पिटल",
+                        "en": "Apollo Hospital"
+                    },
+                    "value": 0
+                },
+                {
+                    "dbValue": "Fortis Hospital",
+                    "nextQuestion": "doctor_selection",
+                    "statement": {
+                        "hi": "फोर्टिस हॉस्पिटल",
+                        "en": "Fortis Hospital"
+                    },
+                    "value": 0
+                }
             ],
             "statement": {
-                "hi": "डॉक्टर या अस्पताल चुनकर जांच शुरू करें",
-                "en": "Start the investigation by choosing a doctor or hospital"
+                "hi": "कृपया अस्पताल चुनें",
+                "en": "Please select a hospital"
+            },
+            "type": "select"
+        },
+        {
+            "id": "doctor_selection",
+            "options": [
+                {
+                    "dbValue": "Dr. Rajesh Sharma",
+                    "nextQuestion": "consultation_fee",
+                    "statement": { "hi": "डॉ. राजेश शर्मा", "en": "Dr. Rajesh Sharma" },
+                    "value": 0
+                },
+                {
+                    "dbValue": "Dr. Priya Patel",
+                    "nextQuestion": "consultation_fee",
+                    "statement": { "hi": "डॉ. प्रिया पटेल", "en": "Dr. Priya Patel" },
+                    "value": 1
+                },
+                {
+                    "dbValue": "Dr. Arun Reddy",
+                    "nextQuestion": "consultation_fee",
+                    "statement": { "hi": "डॉ. अरुण रेड्डी", "en": "Dr. Arun Reddy" },
+                    "value": 2
+                },
+                {
+                    "dbValue": "Dr. Anjali Verma",
+                    "nextQuestion": "consultation_fee",
+                    "statement": { "hi": "डॉ. अंजलि वर्मा", "en": "Dr. Anjali Verma" },
+                    "value": 3
+                },
+                {
+                    "dbValue": "Dr. Karthik Iyer",
+                    "nextQuestion": "consultation_fee",
+                    "statement": { "hi": "डॉ. कार्तिक अय्यर", "en": "Dr. Karthik Iyer" },
+                    "value": 4
+                },
+                {
+                    "dbValue": "Dr. Neha Kapoor",
+                    "nextQuestion": "consultation_fee",
+                    "statement": { "hi": "डॉ. नेहा कपूर", "en": "Dr. Neha Kapoor" },
+                    "value": 5
+                },
+                {
+                    "dbValue": "Dr. Vikram Singh",
+                    "nextQuestion": "consultation_fee",
+                    "statement": { "hi": "डॉ. विक्रम सिंह", "en": "Dr. Vikram Singh" },
+                    "value": 6
+                },
+                {
+                    "dbValue": "Dr. Meera Menon",
+                    "nextQuestion": "consultation_fee",
+                    "statement": { "hi": "डॉ. मीरा मेनन", "en": "Dr. Meera Menon" },
+                    "value": 7
+                },
+                {
+                    "dbValue": "Dr. Amit Joshi",
+                    "nextQuestion": "consultation_fee",
+                    "statement": { "hi": "डॉ. अमित जोशी", "en": "Dr. Amit Joshi" },
+                    "value": 8
+                },
+                {
+                    "dbValue": "Dr. Sunita Naidu",
+                    "nextQuestion": "consultation_fee",
+                    "statement": { "hi": "डॉ. सुनीता नायडू", "en": "Dr. Sunita Naidu" },
+                    "value": 9
+                },
+                {
+                    "dbValue": "Dr. Mohit Shukla",
+                    "nextQuestion": "consultation_fee",
+                    "statement": { "hi": "डॉ. मोहित शुक्ला", "en": "Dr. Mohit Shukla" },
+                    "value": 10
+                }
+            ],
+            "statement": {
+                "hi": "कृपया डॉक्टर चुनें",
+                "en": "Please select a doctor"
             },
             "type": "select"
         },
@@ -598,30 +691,49 @@ module.exports = {
         },
         // TODO
         {
-            "id": 26.1,
+            "id": "consultation_fee",
+            "nextQuestion": "transaction_id",
+            "statement": {
+                "hi": "परामर्श शुल्क: ₹500\nकृपया निम्न UPI ID पर भुगतान करें: telemedicine@upi\nभुगतान के बाद, कृपया अपना लेन-देन आईडी यहाँ दर्ज करें।",
+                "en": "Consultation fee: ₹500\nPlease make payment to UPI ID: telemedicine@upi\nAfter payment, please enter your transaction ID here."
+            },
+            "type": "text"
+        },
+        {
+            "id": "transaction_id",
+            "nextQuestion": "video_call_start",
+            "statement": {
+                "hi": "क्या आप वीडियो कॉल शुरू करना चाहेंगे?",
+                "en": "Would you like to start the video call?"
+            },
+            "type": "button",
             "options": [
                 {
-                    "nextQuestion": 26.2,
+                    "dbValue": "Yes",
                     "statement": {
-                        "hi": "रसीद अपलोड करें",
-                        "en": "Upload receipt"
+                        "hi": "हाँ",
+                        "en": "Yes"
                     },
-                    "value": 0
+                    "nextQuestion": "video_call_start"
                 },
                 {
-                    [NEXT_QUESTION]: NEXT_QUESTION_ENDS_FLOW,
+                    "dbValue": "No",
                     "statement": {
-                        "hi": "छोड़ें",
-                        "en": "Skip"
+                        "hi": "नहीं",
+                        "en": "No"
                     },
-                    "value": 1
+                    "nextQuestion": NEXT_QUESTION_ENDS_FLOW
                 }
-            ],
+            ]
+        },
+        {
+            "id": "video_call_start",
+            "nextQuestion": NEXT_QUESTION_ENDS_FLOW,
             "statement": {
-                "hi": "कृपया यूपीआई आईडी पर शुल्क का भुगतान करें और रसीद या स्क्रीनशॉट अपलोड करें। पिछले मैसेज में UPI और फीस लिखी हुई है। अगर नहीं लिखा है तो कृपया स्किप करें।",
-                "en": "Please pay the fees on the UPI ID and upload the receipt or screenshot. UPI and fees are written in the previous message. Please skip if not written."
+                "hi": "वीडियो कॉल शुरू की जा रही है... कृपया कैमरा एक्सेस की अनुमति दें।",
+                "en": "Starting video call... Please allow camera access."
             },
-            "type": "button"
+            "type": "custom"
         },
         {
             "id": 26.2,

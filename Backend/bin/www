@@ -15,17 +15,71 @@ const subClient = pubClient.duplicate();
 pubClient.connect()
 subClient.connect()
 
+// Configure Socket.IO server with more permissive settings
 const io = new Server(server, {
+  // Redis adapter for scaling
   adapter: createAdapter(pubClient, subClient),
-  cors: { origin: "*" },
-  methods: ["GET", "POST"],
-})
-// io.adapter(createAdapter(pubClient, subClient));
+  
+  // CORS settings - allow all origins in development
+  cors: {
+    origin: true, // Allow all origins in development
+    methods: ["GET", "POST", "OPTIONS", "PUT", "DELETE"],
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Access-Control-Allow-Origin"]
+  },
+  
+  // Transport settings
+  transports: ['websocket', 'polling'], // Allow both WebSocket and polling
+  allowUpgrades: true, // Allow protocol upgrade
+  
+  // Timeout settings
+  pingTimeout: 60000,
+  pingInterval: 25000,
+  
+  // Session and security
+  cookie: false,
+  serveClient: false,
+  path: '/socket.io',
+  
+  // Compression
+  perMessageDeflate: {
+    threshold: 1024,
+    clientNoContextTakeover: true
+  },
+  
+  // Connection state recovery
+  connectionStateRecovery: {
+    maxDisconnectionDuration: 2 * 60 * 1000,
+    skipMiddlewares: true
+  },
+  
+  // Message handling
+  maxHttpBufferSize: 1e8,
+  
+  // Debugging
+  allowEIO3: true, // Enable v2/v3 compatibility
+  allowRequest: (req, callback) => {
+    console.log('Incoming connection from:', req.headers.origin);
+    callback(null, true); // Allow all connections for now
+  }
+});
 
-const live_chat = makeChatNameSpace(io.of('/app_chat'))
-console.log('Log www namespaces created', io.sockets.name)
+// Create and configure the chat namespace
+const chatNamespace = io.of('/app_chat');
 
-let port = normalizePort(process.env.PORT || '3000');
+// Apply additional configuration to the namespace
+chatNamespace.use((socket, next) => {
+  // Add any authentication/authorization logic here if needed
+  next();
+});
+
+// Initialize the chat namespace
+const live_chat = makeChatNameSpace(chatNamespace);
+console.log('Socket.IO namespaces created');
+console.log('- Main namespace: /');
+console.log('- Chat namespace: /app_chat');
+
+let port = normalizePort(process.env.PORT || '3001');
 app.set('port', port);
 
 server.listen(port);

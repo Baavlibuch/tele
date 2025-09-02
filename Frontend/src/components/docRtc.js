@@ -3,6 +3,106 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ENDPOINT } from '../config';
 import * as Icon from 'react-feather';
 import CallModal from './webrtc/CallModal';
+import styled from 'styled-components';
+
+// Styled Components
+const TableContainer = styled.div`
+  width: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+  background: white;
+`;
+
+const TableGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  padding: 15px;
+`;
+
+const TableHead = styled.div`
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  padding: 12px 15px;
+  background-color: #f8f9fa;
+  font-weight: 600;
+  border-bottom: 1px solid #e9ecef;
+`;
+
+const TableRow = styled.div`
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  padding: 12px 15px;
+  align-items: center;
+  border-bottom: 1px solid #f1f3f5;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const TableCell = styled.div`
+  padding: 8px 0;
+  display: flex;
+  align-items: center;
+`;
+
+const HeaderText = styled.div`
+  font-weight: 600;
+  color: #495057;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+`;
+
+const StatusContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const StatusDot = styled.div`
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  background-color: ${props => {
+    if (props.status === 'online') return '#2ecc71';
+    if (props.status === 'busy') return '#f1c40f';
+    if (props.status === 'idle') return '#3498db';
+    return '#e74c3c';
+  }};
+`;
+
+const StatusText = styled.span`
+  font-size: 0.85rem;
+  color: #495057;
+  text-transform: capitalize;
+`;
+
+const CallButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:hover {
+    background-color: #f1f3f5;
+  }
+  
+  svg {
+    width: 20px;
+    height: 20px;
+    color: #495057;
+  }
+`;
 import PeerConnection from './webrtc/PeerConnection';
 import CallWindow from './webrtc/CallWindow';
 import _ from 'lodash';
@@ -353,94 +453,70 @@ export default function DocRtc(props) {
                 )}
             </div>
             {!showForm && !showForm2 && (
-                <div className="tablecontainer">
-                    <div className="tablegrid">
-                        <div className="tablehead">
-                            <div className='htext'>NAME</div>
-                            <div className='htext'>STATUS</div>
-                            <div className='htext'>CALL</div>
-                        </div>
-                        {
-                            currentDoctors.map((doc, index) => (
-                                <div key={index} className={`${docIndex === index ? "active-tablerow" : "tablerow"}`}>
-                                    <div className="ctext">{doc.name}</div>
-                                    <div className="ctext">
-                                        {(doc.status === "online") ? (
-                                            <div className='ofcontainer'>
-                                                <div className='gdot'></div>
-                                                <div className='oftext'>online</div>
-                                            </div>
-                                        ) : doc.status === "buzy" ? (
-                                            <div className='ofcontainer'>
-                                                <div className='ydot'></div>
-                                                <div className='oftext'>busy</div>
-                                            </div>
-                                        )
-                                            : doc.status === "idle" ? (
-                                                <div className='ofcontainer'>
-                                                    <div className='bdot'></div>
-                                                    <div className='oftext'>idle</div>
-                                                </div>
-                                            ) :
-                                                (
-                                                    <div className='ofcontainer'>
-                                                        <div className='rdot'></div>
-                                                        <div className='oftext'>offline</div>
-                                                    </div>
-                                                )}
-                                    </div>
-                                    {(doc.status === "idle" || doc.status === "online") ? (
-                                        <div className="ctextq">
-                                            {patientId !== null ? (
-                                                <>
-                                                    <button type="button" onClick={() => callWithVideo(true)} className="send">
-                                                        <Icon.Video />
-                                                    </button>
-                                                    <button type="button" onClick={() => callWithVideo(false)} className="send">
-                                                        <Icon.PhoneCall />
-                                                    </button>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <button type="button" onClick={() => {
-                                                        formSub();
-                                                        setDocIndex(index);
-                                                        setSelectedDoctor(doctors[index].username);
-                                                        setDoctor(doctors[index].username)
-                                                        setSelectedHospital(doctors[index].hospital);
-                                                    }} className="send">
-                                                        <Icon.Video />
-                                                    </button>
-                                                    <button type="button" onClick={() => {
-                                                        formSub();
-                                                        setDocIndex(index);
-                                                        setSelectedDoctor(doctors[index].username);
-                                                        setDoctor(doctors[index].username)
-                                                        setSelectedHospital(doctors[index].hospital);
-                                                    }} className="send">
-                                                        <Icon.PhoneCall />
-                                                    </button>
-                                                </>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <div className='ctextq'>
-                                            <button type="button" onClick={() => {
-                                                formSub2();
-                                                setDocIndex(index);
-                                                setSelectedDoctor(doctors[index].username);
-                                                setDoctor(doctors[index].username)
-                                                setSelectedHospital(doctors[index].hospital);
-                                            }} className="send">
+                <TableContainer>
+                    <TableGrid>
+                        <TableHead>
+                            <HeaderText>NAME</HeaderText>
+                            <HeaderText>STATUS</HeaderText>
+                            <HeaderText>CALL</HeaderText>
+                        </TableHead>
+                        {currentDoctors.map((doc, index) => (
+                            <TableRow key={doc._id || index}>
+                                <TableCell>{doc.name || 'Doctor'}</TableCell>
+                                <TableCell>
+                                    <StatusContainer>
+                                        <StatusDot status={doc.status?.toLowerCase()} />
+                                        <StatusText>
+                                            {doc.status ? doc.status.toLowerCase() : 'offline'}
+                                        </StatusText>
+                                    </StatusContainer>
+                                </TableCell>
+                                <TableCell>
+                                    {(doc.status && (doc.status.toLowerCase() === 'online' || doc.status.toLowerCase() === 'idle')) && (
+                                        <CallButton 
+                                            type="button"
+                                            onClick={() => {
+                                                setSelectedDoctor(doc.name);
+                                                setDoctor(doc);
+                                                setShowForm(true);
+                                            }}
+                                        >
+                                            <Icon.PhoneCall />
+                                        </CallButton>
+                                    )}
+                                    {!(doc.status && (doc.status.toLowerCase() === 'online' || doc.status.toLowerCase() === 'idle')) && (
+                                        <div>
+                                            <CallButton 
+                                                type="button" 
+                                                onClick={() => {
+                                                    formSub();
+                                                    setDocIndex(index);
+                                                    setSelectedDoctor(doctors[index].username);
+                                                    setDoctor(doctors[index].username);
+                                                    setSelectedHospital(doctors[index].hospital);
+                                                }}
+                                            >
+                                                <Icon.Video />
+                                            </CallButton>
+                                            <CallButton 
+                                                type="button" 
+                                                onClick={() => {
+                                                    formSub2();
+                                                    setDocIndex(index);
+                                                    setSelectedDoctor(doctors[index].username);
+                                                    setDoctor(doctors[index].username);
+                                                    setSelectedHospital(doctors[index].hospital);
+                                                }}
+                                            >
                                                 <Icon.MessageCircle />
-                                            </button>
+                                            </CallButton>
                                         </div>
                                     )}
-                                </div>
-                            ))
-                        }
-                    </div>
-                </div>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableGrid>
+                </TableContainer>
             )}
             {showForm && (
                 <div className="form">

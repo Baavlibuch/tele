@@ -4,6 +4,7 @@ import $ from "jquery";
 import _ from "lodash";
 
 import Progress from "react-progressbar";
+import { CircularProgress } from "@mui/material";
 
 import axios from "axios";
 import { ENDPOINT, languages } from "../config";
@@ -16,6 +17,7 @@ import Cookies from 'universal-cookie';
 import { getDescriptionImage } from "./componentHelper";
 import { LANG_ENGLISH, LANG_HINDI, LANG_MARWARI } from "../apiHelper";
 import doctor from "./doctor";
+import VideoCallStart from "./VideoCallStart";
 
 const bson = require('bson');
 const { commands } = require('../data/commands'); // TODO: Should be fetched from backend or be executed at the backend via APIs
@@ -53,7 +55,7 @@ export default class Chat extends React.Component {
 		messageReceivedTimestamp: null,
 		currentQuestion: {},
 
-		languageSelected: null, // TODO: Save and load from cookie
+		languageSelected: 'hi', // Default to Hindi
 		helpline: '011-23978046', // TODO: Fetch location specific ambulance numbers
 
 		optionSelected: null,
@@ -78,7 +80,11 @@ export default class Chat extends React.Component {
 		localSrc: null,
 		peerSrc: null,
 
-		mute: SPEAK_ALL
+		mute: SPEAK_ALL,
+
+		uploadingImage: false,
+		callStatus: 'idle', // 'idle', 'starting', 'active', 'error'
+		callError: null
 	};
 
 	socket = null;
@@ -402,8 +408,13 @@ export default class Chat extends React.Component {
 		const idToUse = PatientID || patientId;
 
 		console.log('Initializing new socket');
-		this.socket = client('/app_chat', {
+		this.socket = client(ENDPOINT, {
+			path: '/app_chat',
 			transports: ['websocket'],
+			withCredentials: true,
+			extraHeaders: {
+				"Access-Control-Allow-Origin": ENDPOINT
+			},
 			query: {
 				type: 'patient',
 				patientId: idToUse,
@@ -492,11 +503,42 @@ export default class Chat extends React.Component {
 		this.config = config;
 		this.pc = new PeerConnection(this.socket, this.state.doctor)
 			.on('localStream', (src) => {
-				const newState = { callWindow: 'active', localSrc: src };
+				const newState = { 
+					callWindow: 'active', 
+					localSrc: src,
+					answerBoxHidden: true, // Hide answer box when call starts
+					callStatus: 'active',
+					callError: null
+				};
 				if (!isCaller) newState.callModal = '';
-				this.setState(newState);
+				this.setState(newState, () => {
+					// Notify the other party that the call has started
+					if (isCaller && this.socket) {
+						this.socket.emit('call', { 
+							to: this.state.doctor,
+							type: 'video',
+							callerId: this.state.userId // Assuming you have userId in state
+						});
+					}
+				});
 			})
-			.on('peerStream', (src) => this.setState({ peerSrc: src }))
+			.on('peerStream', (src) => this.setState({ 
+				peerSrc: src,
+				callStatus: 'active',
+				callError: null
+			}))
+			.on('error', (error) => {
+				console.error('WebRTC error:', error);
+				// Handle error and show appropriate message to user
+				const errorMessage = 'Failed to start video call. Please check your camera and microphone permissions.';
+				this.enterMessageIntoChat(errorMessage, INCOMING_MESSAGE);
+				this.setState({
+					callStatus: 'error',
+					callError: errorMessage,
+					callWindow: '',
+					answerBoxHidden: false
+				});
+			})
 			.start(isCaller, config);
 	};
 
@@ -523,15 +565,37 @@ export default class Chat extends React.Component {
 		);
 	};
 
+	startVideoCall = () => {
+		// Start video call with both audio and video
+		this.setState({ callStatus: 'starting', callError: null });
+		const config = { audio: true, video: true };
+		this.startCall(true, config);
+	};
+
 	answer = (event, textOverrides) => {
 		console.debug('answer()')
 		const { optionSelected, questionDetails, answerFormat, answers, tempSelection } = this.state;
 		console.log(`answer : optionSelected = ${optionSelected}`)
 		const { options, type } = answerFormat;
 		// noinspection JSUnusedLocalSymbols
-		const { id, paramsFrom, branches, loopStart } = questionDetails;
+		const { id, paramsFrom, branches, loopStart, nextQuestion } = questionDetails;
 		let { textAnswered, reset } = this.state;
 		let textTypeAnswer = [TYPE_CUSTOM_TEXT, TYPE_TEXT, 'tel', 'password', 'email', 'date'].includes(type);
+
+		// Handle video call confirmation
+		if (id === 'transaction_id') {
+			if (optionSelected === 0) { // 'Yes' was selected
+				// Show loading message
+				this.enterMessageIntoChat("Starting video call...", OUTGOING_MESSAGE);
+				// Set the next question to video_call_start
+				const nextQuestion = this.getQuestionById('video_call_start');
+				if (nextQuestion) {
+					this.setQuestion(nextQuestion);
+					return; // Exit early to prevent default answer handling
+				}
+			}
+			// Continue with normal answer flow if video_call_start not found or 'No' was selected
+		}
 
 		// prevent Default followup to the event. No idea when?
 		if (event && event.preventDefault) event.preventDefault();
@@ -597,12 +661,18 @@ export default class Chat extends React.Component {
 			else if (type !== TYPE_NONE) {
 				console.debug('answer() type != none')
 				// button
+				const selectedOption = (optionSelected !== null && optionSelected !== undefined && options && options[optionSelected])
+					? options[optionSelected].statement 
+					: textAnswered || 'No option selected';
 				this.enterMessageIntoChat(
-					textTypeAnswer ? textAnswered : options[optionSelected].statement,
+					textTypeAnswer ? textAnswered : selectedOption,
 					OUTGOING_MESSAGE
 				);
 			}
-			let value = textTypeAnswer ? textAnswered : options[optionSelected].value;
+			let value = textTypeAnswer ? textAnswered : 
+				(optionSelected !== null && optionSelected !== undefined && options && options[optionSelected] 
+					? options[optionSelected].value 
+					: '');
 			if (loopStart) {
 				value = [value];
 				if (answers[id]) {
@@ -720,8 +790,13 @@ export default class Chat extends React.Component {
 			answerFormat, questionDetails, tempSelection, questions } = this.state;
 		const { type, options } = answerFormat;
 		//const textTypeAnswer = ['text', 'tel', 'password', 'email', 'date', 'list'].includes(type);
-		let { nextQuestion } = options && typeof options[optionSelected].nextQuestion != 'undefined'
-			? options[optionSelected] : questionDetails;
+		let nextQuestion;
+		if (options && optionSelected !== null && optionSelected !== undefined && 
+			options[optionSelected] && typeof options[optionSelected].nextQuestion !== 'undefined') {
+			nextQuestion = options[optionSelected].nextQuestion;
+		} else {
+			nextQuestion = questionDetails?.nextQuestion;
+		}
 		const { command } = questionDetails;
 		console.debug('nextQuestion = ', nextQuestion, '. command = ', command, '. questionDetails = ', questionDetails)
 		console.debug("type =", type, "command = ", command)
@@ -898,15 +973,15 @@ export default class Chat extends React.Component {
 		} = this.state;
 		const { options } = answerFormat;
 		let nextQuestion;
-		if (back) nextQuestion = undefined
-		else {
-			if (options && options[optionSelected].nextQuestion) {
-				// question has options. type is button
-				nextQuestion = options[optionSelected].nextQuestion;
-			} else {
-				// question doesn't have options. other types
-				nextQuestion = currentQuestion.nextQuestion;
-			}
+		if (back) {
+			nextQuestion = undefined;
+		} else if (options && optionSelected !== null && optionSelected !== undefined && 
+			options[optionSelected] && options[optionSelected].nextQuestion) {
+			// question has options. type is button
+			nextQuestion = options[optionSelected].nextQuestion;
+		} else {
+			// question doesn't have options or invalid optionSelected. use default next question
+			nextQuestion = currentQuestion?.nextQuestion;
 		}
 		// console.debug('realtime().currentQuestion = ', currentQuestion)
 		// TODO : check if branch questions (with compute and decisions) are managed well
@@ -954,60 +1029,147 @@ export default class Chat extends React.Component {
 	}
 
 	imageUpload = (event) => {
-		const { questionDetails } = this.state;
-		const nextQuestion = questionDetails ? questionDetails.nextQuestion : null;
-		const file = event.target.files[0];
-		if (!file) return;
-		if (!this.socket) console.log("Not connected to doctor's chat");
-		this.setState({ uploadingImage: 0.01 });
-		const { doctor } = this.state;
+		try {
+			const { questionDetails } = this.state;
+			const nextQuestion = questionDetails ? questionDetails.nextQuestion : null;
+			const file = event.target.files[0];
+			
+			if (!file) {
+				this.setState({ error: 'No file selected' });
+				return;
+			}
 
-		const formData = new FormData();
-		formData.append('image', file);
+			// Validate file size (5MB max)
+			const maxSize = 5 * 1024 * 1024; // 5MB
+			if (file.size > maxSize) {
+				this.setState({ 
+					error: 'File is too large. Maximum size is 5MB.' 
+				});
+				return;
+			}
 
-		axios
-			.post('/api/image', formData, {
-				onUploadProgress: (progressEvent) => {
-					this.setState({
-						uploadingImage: progressEvent.loaded / progressEvent.total
-					});
-				}
-			})
-			.then((response) => {
-				const { image } = response.data;
-				this.enterMessageIntoChat('chat-img-' + image.filename, OUTGOING_MESSAGE);
-				if (this.socket) {
-					this.socket.emit('message', { message: 'chat-img-' + image.filename, to: doctor });
-				} else if (nextQuestion) {
-					// this.setQuestion(nextQuestion);
-					this.realtime()
-					this.setState(
-						{
-							answers: {
-								...this.state.answers,
-								[questionDetails.id]: `https://teleniir.com/aa/images/${image.filename}`
-							},
-							answerBoxHidden: true,
-							timestamps: {
-								...this.state.timestamps,
-								[questionDetails.id]: Date.now()
-							}
-						},
-						// this.answerEntered
-					);
-					// this.answer(null, false);
-				} else if (nextQuestion === 0) {
-					this.endChatbotSequence();
-				}
-				this.setState({ uploadingImage: 0, ...(image ? { image } : {}) });
-			})
-			.catch((err) => {
-				console.log(err);
-				if (nextQuestion) {
-					this.setQuestion(nextQuestion);
-				}
-				this.setState({ uploadingImage: 0 });
+			// Validate file type
+			const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+			if (!validTypes.includes(file.type)) {
+				this.setState({ 
+					error: 'Invalid file type. Please upload JPG, PNG, or PDF files only.' 
+				});
+				return;
+			}
+
+			this.setState({ 
+				uploadingImage: 0.01,
+				error: null // Clear any previous errors
 			});
+
+			const { answers } = this.state;
+			const formData = new FormData();
+			formData.append('image', file);
+
+			// Determine if this is a payment receipt upload
+			const isPaymentReceipt = questionDetails && questionDetails.id === 'payment_upload';
+			const endpoint = isPaymentReceipt ? '/api/upload-receipt' : '/api/image';
+
+			axios
+				.post(endpoint, formData, {
+					headers: {
+						'Content-Type': 'multipart/form-data',
+						'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+					},
+					onUploadProgress: (progressEvent) => {
+						const progress = progressEvent.loaded / progressEvent.total;
+						this.setState({ 
+							uploadingImage: progress,
+							error: null
+						});
+					}
+				})
+				.then((response) => {
+					const { data } = response;
+					
+					// Handle payment receipt upload
+					if (isPaymentReceipt) {
+						const receiptUrl = data.url || `https://teleniir.com/aa/images/${data.filename || (data.image && data.image.filename) || ''}`;
+						
+						if (!receiptUrl) {
+							throw new Error('Failed to get receipt URL from server');
+						}
+
+						this.enterMessageIntoChat('Payment receipt uploaded', OUTGOING_MESSAGE);
+						
+						// Update answers with receipt URL
+						this.setState({
+							answers: {
+								...answers,
+								payment_receipt: receiptUrl,
+								[questionDetails.id]: receiptUrl // Also store with question ID as key
+							},
+							uploadingImage: 0,
+							answerBoxHidden: true,
+							error: null
+						}, () => {
+							// Move to next question after state is updated
+							if (nextQuestion) {
+								setTimeout(() => this.setQuestion(nextQuestion), 500);
+							} else if (this.socket) {
+								// If no next question but in a chat, notify the other party
+								this.socket.emit('message', {
+									message: 'Payment receipt uploaded',
+									to: this.state.doctor,
+									metadata: { receiptUrl }
+								});
+							}
+						});
+					} else {
+						// Handle regular image upload
+						const fileName = data.filename || (data.image && data.image.filename) || '';
+						const message = `chat-img-${fileName}`;
+						
+						this.enterMessageIntoChat(message, OUTGOING_MESSAGE);
+						
+						if (this.socket) {
+							this.socket.emit('message', { 
+								message: message,
+								to: this.state.doctor
+							});
+						}
+
+						this.setState({ 
+							uploadingImage: 0,
+							error: null
+						});
+
+						// If there's a next question, proceed to it
+						if (nextQuestion) {
+							setTimeout(() => this.setQuestion(nextQuestion), 500);
+						}
+					}
+				})
+				.catch((error) => {
+					console.error('Upload error:', error);
+					const errorMessage = error.response?.data?.error || 
+						'Failed to upload file. Please try again.';
+					
+					this.setState({ 
+						uploadingImage: 0,
+						error: errorMessage
+					});
+					
+					// If there's a next question, proceed to it even on error
+					if (nextQuestion) {
+						setTimeout(() => this.setQuestion(nextQuestion), 1000);
+					}
+				});
+		} catch (error) {
+			console.error('Error in imageUpload:', error);
+			this.setState({
+				uploadingImage: 0,
+				error: 'An unexpected error occurred. Please try again.'
+			});
+		}
+		
+		// Reset file input to allow re-uploading the same file if needed
+		event.target.value = '';
 	};
 
 	/* Chat history box */
@@ -1160,264 +1322,208 @@ export default class Chat extends React.Component {
 
 	/* User inputs */
 	renderAnswers = () => {
-		console.log("renderAnswers()")
-		const {
-			optionSelected,
-			textAnswered,
-			answerBoxHidden,
-			doctor,
-			loadingChat,
-			uploadingImage
-		} = this.state;
-		const { options, type, pattern } = this.state.answerFormat;
-		console.log('renderAnswers type = ', type)
+    const { optionSelected, textAnswered, answerBoxHidden, doctor, loadingChat, uploadingImage } = this.state;
+    const { options, type, pattern } = this.state.answerFormat;
 
-		const callWithVideo = (video) => {
-			const config = { audio: true, video };
-			return () => this.startCall(true, config);
-		};
-		/* no answers allowed */
-		if (answerBoxHidden || loadingChat) return null;
-		/* chatting with a doctor, so different set of functions */
-		else if (uploadingImage) {
-			return (
-				<div className="answer-box text-row fadeInUp" style={{ animationDelay: '1s' }}>
-					<Progress completed={Math.floor(uploadingImage * 100)} />
-				</div>
-			);
-		}
-		else if (doctor) {
-			console.log("doctor****", doctor);
-			return (
-				<div className="answer-box text-row fadeInUp" style={{ animationDelay: '1s' }}>
-					<form onSubmit={this.sendMessage} className="message-form">
-						<input
-							id="textAnswered"
-							value={textAnswered}
-							onChange={this.handleMessageChange}
-							type="text"
-							autoComplete="off"
-							autoCorrect="off"
-							spellCheck="false"
-							onFocus={this.scrollDown}
-						/>
-						{textAnswered ? (
-							<button type="submit" className="send">
-								<Icon.Send />
-							</button>
-						) : null}
-						{!textAnswered ? (
-							<button type="button" onClick={callWithVideo(true)} className="send">
-								<Icon.Video />
-							</button>
-						) : null}
-						{!textAnswered ? (
-							<button type="button" onClick={callWithVideo(false)} className="send">
-								<Icon.PhoneCall />
-							</button>
-						) : null}
-						{!textAnswered ? (
-							<button
-								type="button"
-								onClick={() => {
-									$('#imageInput').click();
-								}}
-								className="send"
-							>
-								<Icon.Image />
-							</button>
-						) : null}
-						<div style={{ width: 0, height: 0, overflow: 'hidden' }}>
-							<input
-								type="file"
-								id="imageInput"
-								name="imageInput"
-								onChange={this.imageUpload}
-								accept="image/*,application/pdf"
-							/>
-						</div>
-					</form>
-				</div>
-			);
-		}
-		else if (type === TYPE_BUTTON) {
-			/* different types of answer*/
-			// User answer buttons
-			return (
-				<div>
-					<div className="answer-box button-row">
-						{options.map(({ value, statement, url, skip = false }, index) => {
-							console.log('renderAnswers() button index : ', index)
-							let chatStatement = undefined
-							let description_image = undefined
-							let audio = undefined
-							if (statement === undefined) chatStatement = undefined
-							else {
-								let output = this.setOutput(statement)
-								chatStatement = output.chatStatement
-								audio = output.audio
-								description_image = getDescriptionImage(statement, this.state.languageSelected);
-							}
-							console.log('renderAnswers() setting button options. chatStatement = ', chatStatement)
-							// noinspection HtmlRequiredAltAttribute
-							if (skip === undefined) skip = false
-							// console.log("render.answers answerBoxHidden skip = ", skip, '. value = ', value)
+    const callWithVideo = (video) => {
+        const config = { audio: true, video };
+        return () => this.startCall(true, config);
+    };
 
-							return (
-								<button
-									key={value}
-									value={value}
-									data-url={url}
-									id="optionSelected"									// important
-									onClick={this.handleChange}
-									className="fadeInUp"
-									style={{ animationDelay: `1.${index}s`, background: '#CCCCFF', color: '#111111', fontSize: 'larger', fontFamily: 'Georgia' }}
-									onMouseEnter={() => this.speak(chatStatement, false, audio, statement)}
-									onTouchStart={() => this.speak(chatStatement, true, audio, statement)}
-									onMouseLeave={() => { this.stopAudio() }}
-									hidden={skip}
-								>
-									{chatStatement}
-									<br />
-									{description_image &&
-										<img src={require("../data/" + description_image)} style={{
-											maxWidth: '80%', maxHeight: "300px", aspectRatio: 1, pointerEvents: "none"
-										}} alt={''} />
-									}
-								</button>
-							);
-						})}
-					</div>
-					{this.renderTextOverrideMessage()}
-				</div>
-			);
-		}
-		else if (type === TYPE_LIST) {
-			// checkboxes
-			console.log("renderAnswers list")
-			return (
-				<div>
-					<div style={{ display: "flex", "flexDirection": "column" }}>
-						<div className="answer-box button-row" style={{ "flexWrap": "wrap" }}>
-							{options.map(({ value, statement }, index) => {
-								let { chatStatement, audio } = this.setOutput(statement)
-								let description_image = getDescriptionImage(statement, this.state.languageSelected);
+    if (answerBoxHidden || loadingChat) return null;
 
-								// noinspection HtmlRequiredAltAttribute
-								return (
-									<label
-										style={{ animationDelay: `1.${index}s`, background: '#CCCCFF', color: '#111111', fontSize: 'Larger', flex: '1' }}
-										onMouseEnter={() => this.speak(chatStatement, false, audio, statement)}
-										onTouchStart={() => this.speak(chatStatement, true, audio, statement)}
-										onMouseLeave={() => { this.stopAudio() }}
-									>
-										<input type="checkbox"
-											id={value}
-											onChange={this.handleChange}
-											className="fadeInUp"
-											style={{ marginRight: "10px", background: '#CCCCFF', color: '#111111' }}
-										/>
-										{chatStatement}
-										{description_image && <img src={require("../data/" + description_image)} style={{
-											width: '100%', height: undefined, aspectRatio: 1, pointerEvents: "none"
-										}} />}
-									</label>
-								);
-							})}
-						</div>
-						<button
-							onClick={this.answer}
-							className="fadeInUp"
-							style={{ animationDelay: `2.0s`, background: '#CCCCFF', color: '#111111', fontSize: 'larger', position: 'relative', whiteSpace: 'nowrap' }}
-						>
-							<object>
-								{this.state.languageSelected === LANG_HINDI || this.state.languageSelected === LANG_MARWARI ? "भेजें" : "SUBMIT"}
-								<object height='1px' hspace="5mm" />
-								<Icon.Send />
-							</object>
-						</button>
-					</div>
-					{this.renderTextOverrideMessage()}
-				</div>
-			);
-		}
-		else if (type === TYPE_SELECT) {
-			// spinner
-			console.log("renderAnswers select")
-			return (
-				<div>
-					<div className="answer-box select-row fadeInUp" style={{ animationDelay: '1s' }}>
-						<select id="optionSelected" value={optionSelected} onChange={this.handleChange}>
-							{options && options.map(({ value, statement }) => {
-								let { chatStatement, audio } = this.setOutput(statement)
-								return <option value={value}>{chatStatement}</option>;
-							})}
-						</select>
-						<button onClick={this.answer} className="send">
-							<Icon.Send />
-						</button>
-					</div>
-					{this.renderTextOverrideMessage()}
-				</div>
-			);
-		}
-		else if (type === TYPE_UPLOAD) {
-			// Media upload
-			console.log("renderAnswers upload")
-			return (
-				<div>
-					<div className="answer-box text-row fadeInUp" style={{ animationDelay: '1s' }}>
-						<form className="message-form">
-							<button
-								type="button"
-								onClick={() => {
-									$('#imageInput').click();
-								}}
-								className="send"
-							>
-								<Icon.File />
-							</button>
-							<div style={{ width: 0, height: 0, overflow: 'hidden' }}>
-								<input
-									type="file"
-									id="imageInput"
-									name="imageInput"
-									onChange={this.imageUpload}
-									accept="image/*,application/pdf"
-								/>
-							</div>
-						</form>
-					</div>
-					{this.renderTextOverrideMessage()}
-				</div>
-			);
-		}
-		else if (type === TYPE_GENERIC_TEXT) {
-			return this.renderTextOverrideMessage()
-		}
-		else {
-			// text field updated but message not sent. send button is to be pressed
-			return (
-				<div className="answer-box text-row fadeInUp" style={{ animationDelay: '1s' }}>
-					<form onSubmit={this.answer} className="message-form">
-						<input
-							id="textAnswered"
-							value={textAnswered}
-							onChange={this.handleChange}
-							type={type}
-							pattern={pattern}
-							autoComplete="off"
-							autoCorrect="off"
-							spellCheck="false"
-							onFocus={this.scrollDown}
-						/>
-						<button type="submit" className="send">
-							<Icon.Send />
-						</button>
-					</form>
-				</div>
-			);
-		}
+    else if (uploadingImage) {
+        return (
+            <div className="answer-box text-row fadeInUp" style={{ animationDelay: '1s' }}>
+                <Progress completed={Math.floor(uploadingImage * 100)} />
+            </div>
+        );
+    }
+
+    else if (doctor) {
+        return (
+            <div className="answer-box text-row fadeInUp" style={{ animationDelay: '1s' }}>
+                <form onSubmit={this.sendMessage} className="message-form">
+                    <button
+                        type="button"
+                        onClick={() => { $('#imageInput').click(); }}
+                        className="upload-button"
+                        style={{ width: '100%', padding: '10px', border: '2px dashed #ccc', borderRadius: '4px', background: '#f8f9fa', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+                    >
+                        <Icon.Upload size={24} style={{ marginBottom: '8px' }} />
+                        <span>Click to upload or drag and drop</span>
+                        <small style={{ color: '#666', marginTop: '4px' }}>JPG, PNG, or PDF (max 5MB)</small>
+                    </button>
+                    <div style={{ display: 'flex', marginTop: '8px' }}>
+                        <button type="button" onClick={callWithVideo(true)} className="send">
+                            <Icon.Video />
+                        </button>
+                        <button type="button" onClick={callWithVideo(false)} className="send" style={{ marginLeft: '8px' }}>
+                            <Icon.PhoneCall />
+                        </button>
+                    </div>
+                    <div style={{ width: 0, height: 0, overflow: 'hidden' }}>
+                        <input type="file" id="imageInput" name="imageInput" onChange={this.imageUpload} accept="image/*,application/pdf" />
+                    </div>
+                </form>
+            </div>
+        );
+    }
+
+    else if (type === TYPE_BUTTON) {
+        return (
+            <div>
+                <div className="answer-box button-row">
+                    {options.map(({ value, statement, url, skip = false }, index) => {
+                        let chatStatement, audio, description_image;
+                        if (statement !== undefined) {
+                            const output = this.setOutput(statement);
+                            chatStatement = output.chatStatement;
+                            audio = output.audio;
+                            description_image = getDescriptionImage(statement, this.state.languageSelected);
+                        }
+                        return (
+                            <button
+                                key={value}
+                                value={value}
+                                data-url={url}
+                                id="optionSelected"
+                                onClick={this.handleChange}
+                                className="fadeInUp"
+                                style={{ animationDelay: `1.${index}s`, background: '#CCCCFF', color: '#111111', fontSize: 'larger', fontFamily: 'Georgia' }}
+                                onMouseEnter={() => this.speak(chatStatement, false, audio, statement)}
+                                onTouchStart={() => this.speak(chatStatement, true, audio, statement)}
+                                onMouseLeave={() => { this.stopAudio() }}
+                                hidden={skip}
+                            >
+                                {chatStatement}
+                                <br />
+                                {description_image && <img src={require("../data/" + description_image)} style={{ maxWidth: '80%', maxHeight: "300px", aspectRatio: 1, pointerEvents: "none" }} alt={''} />}
+                            </button>
+                        );
+                    })}
+                </div>
+                {this.renderTextOverrideMessage()}
+            </div>
+        );
+    }
+
+    else if (type === TYPE_LIST) {
+        return (
+            <div>
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                    <div className="answer-box button-row" style={{ flexWrap: "wrap" }}>
+                        {options.map(({ value, statement }, index) => {
+                            let { chatStatement, audio } = this.setOutput(statement);
+                            let description_image = getDescriptionImage(statement, this.state.languageSelected);
+                            return (
+                                <label style={{ animationDelay: `1.${index}s`, background: '#CCCCFF', color: '#111111', fontSize: 'Larger', flex: '1' }}
+                                    onMouseEnter={() => this.speak(chatStatement, false, audio, statement)}
+                                    onTouchStart={() => this.speak(chatStatement, true, audio, statement)}
+                                    onMouseLeave={() => { this.stopAudio() }}
+                                >
+                                    <input type="checkbox" id={value} onChange={this.handleChange} className="fadeInUp" style={{ marginRight: "10px", background: '#CCCCFF', color: '#111111' }} />
+                                    {chatStatement}
+                                    {description_image && <img src={require("../data/" + description_image)} style={{ width: '100%', height: undefined, aspectRatio: 1, pointerEvents: "none" }} />}
+                                </label>
+                            );
+                        })}
+                    </div>
+                    <button onClick={this.answer} className="fadeInUp" style={{ animationDelay: '2.0s', background: '#CCCCFF', color: '#111111', fontSize: 'larger', position: 'relative', whiteSpace: 'nowrap' }}>
+                        <object>
+                            {this.state.languageSelected === LANG_HINDI || this.state.languageSelected === LANG_MARWARI ? "भेजें" : "SUBMIT"}
+                            <object height='1px' hspace="5mm" />
+                            <Icon.Send />
+                        </object>
+                    </button>
+                </div>
+                {this.renderTextOverrideMessage()}
+            </div>
+        );
+    }
+
+    else if (type === TYPE_SELECT) {
+        return (
+            <div className="answer-box select-row fadeInUp" style={{ animationDelay: '1s' }}>
+                <select id="optionSelected" value={optionSelected} onChange={this.handleChange}>
+                    {options && options.map(({ value, statement }) => {
+                        const { chatStatement } = this.setOutput(statement);
+                        return <option key={value} value={value}>{chatStatement}</option>;
+                    })}
+                </select>
+                <button onClick={this.answer} className="send"><Icon.Send /></button>
+            </div>
+        );
+    }
+
+    // ✅ Custom Video Call Component
+    else if (type === 'custom' && this.state.questionDetails?.id === 'video_call_start') {
+        return (
+            <div className="answer-box fadeInUp" style={{ animationDelay: '1s' }}>
+                <p style={{ fontSize: '16px', marginBottom: '15px' }}>
+                    {this.state.languageSelected === LANG_HINDI ? 'क्या आप वीडियो कॉल शुरू करना चाहेंगे?' : 'Would you like to start the video call?'}
+                </p>
+                <VideoCallStart onError={(error) => {
+                    console.error('Error in VideoCallStart:', error);
+                    setTimeout(() => this.answer(null, true), 2000);
+                }} />
+                <button onClick={this.handleStartVideoCall} className="fadeInUp" style={{ animationDelay: '1.5s', background: '#4CAF50', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', marginTop: '20px', display: 'block', width: '100%', maxWidth: '200px', margin: '20px auto 0' }}>
+                    {this.state.languageSelected === LANG_HINDI ? 'हाँ, वीडियो शुरू करें' : 'Yes, start video'}
+                </button>
+                <button onClick={() => this.answer(null, true)} className="fadeInUp" style={{ animationDelay: '1.6s', background: '#f44336', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', marginTop: '10px', display: 'block', width: '100%', maxWidth: '200px', margin: '0 auto' }}>
+                    {this.state.languageSelected === LANG_HINDI ? 'नहीं' : 'No'}
+                </button>
+            </div>
+        );
+    }
+
+    else if (type === TYPE_UPLOAD) {
+        const { uploadingImage, error } = this.state;
+        const isPaymentReceipt = this.state.questionDetails?.id === 'payment_upload';
+
+        return (
+            <div>
+                {error && <div className="error-message" style={{ color: 'red', padding: '10px' }}>{error}</div>}
+                {uploadingImage ? (
+                    <div className="upload-progress" style={{ padding: '15px', textAlign: 'center' }}>
+                        <CircularProgress />
+                        <div>Uploading... {Math.round(uploadingImage * 100)}%</div>
+                    </div>
+                ) : (
+                    <div className="answer-box text-row fadeInUp" style={{ animationDelay: '1s' }}>
+                        <div className="upload-container" style={{ textAlign: 'center', padding: '20px', border: '2px dashed #ccc', borderRadius: '8px' }}>
+                            <Icon.Upload size={48} style={{ marginBottom: '10px', color: '#666' }} />
+                            <h4>{isPaymentReceipt ? 'Upload Payment Receipt' : 'Upload File'}</h4>
+                            <p style={{ color: '#666', marginBottom: '15px' }}>
+                                {isPaymentReceipt ? 'Please upload a clear photo or screenshot of your payment receipt' : 'Click below to select a file to upload'}
+                            </p>
+                            <label htmlFor="imageInput" style={{ padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', display: 'inline-block', fontSize: '16px' }}>
+                                {isPaymentReceipt ? 'Select Receipt' : 'Choose File'}
+                            </label>
+                            <input type="file" id="imageInput" name="imageInput" onChange={this.imageUpload} accept="image/*,application/pdf" style={{ display: 'none' }} />
+                            <p style={{ fontSize: '12px', color: '#999', marginTop: '10px' }}>Supported formats: JPG, PNG, PDF (Max 5MB)</p>
+                        </div>
+                    </div>
+                )}
+                {this.renderTextOverrideMessage()}
+            </div>
+        );
+    }
+
+    else if (type === TYPE_GENERIC_TEXT) {
+        return this.renderTextOverrideMessage();
+    }
+
+    else {
+        return (
+            <div className="answer-box text-row fadeInUp" style={{ animationDelay: '1s' }}>
+                <form onSubmit={this.answer} className="message-form">
+                    <input id="textAnswered" value={textAnswered} onChange={this.handleChange} type={type} pattern={pattern} autoComplete="off" autoCorrect="off" spellCheck="false" onFocus={this.scrollDown} />
+                    <button type="submit" className="send"><Icon.Send /></button>
+                </form>
+            </div>
+        	);
+    	}
 	};
 
 	resetConversation = (event) => {
@@ -1427,6 +1533,41 @@ export default class Chat extends React.Component {
 		this.setState(this.state)
 		this.handleChange(event)
 	}
+
+	handleStartVideoCall = async () => {
+		try {
+			// Request camera and microphone access
+			const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+	
+			// Update state to show call window and local video
+			this.setState({ 
+				callStatus: 'active', 
+				localSrc: stream, 
+				callWindow: 'active' 
+			});
+	
+			// Attach stream to peer connection if exists
+			if (this.pc) {
+				this.pc.mediaDevice = stream;
+				this.pc.addStream(stream);
+			}
+	
+			console.log("Camera access granted, video started.");
+	
+			// ✅ Explicitly pass "yes" as the selected option to update the chat correctly
+			this.answer("yes", true);
+	
+		} catch (err) {
+			console.error("Error accessing camera/microphone:", err);
+			this.setState({ 
+				callError: "Unable to access camera/microphone", 
+				callStatus: 'idle' 
+			});
+	
+			// ❌ Explicitly mark "no" if user denied or error occurred
+			this.answer("no", true);
+		}
+	};
 
 	// needs to be implemented properly using speach state and event
 	toggleMuter = (event) => {
@@ -1498,12 +1639,35 @@ export default class Chat extends React.Component {
 						</div>
 					</div>
 					<div className='callwindowcontainer'>
+						{this.state.callStatus === 'starting' && (
+							<div className="call-status-overlay">
+								<div className="call-status-message">
+									<div className="spinner"></div>
+									<p>Connecting to video call...</p>
+									<p className="hint">Please allow camera and microphone access when prompted</p>
+								</div>
+							</div>
+						)}
+						{this.state.callError && (
+							<div className="call-error-overlay">
+								<div className="call-error-message">
+									<Icon.AlertCircle size={48} color="#ff4d4f" />
+									<p>{this.state.callError}</p>
+									<button 
+										onClick={() => this.setState({ callError: null, callStatus: 'idle' })}
+										className="retry-button"
+									>
+										Try Again
+									</button>
+								</div>
+							</div>
+						)}
 						<CallWindow
 							status={callWindow}
 							localSrc={localSrc}
 							peerSrc={peerSrc}
 							config={this.config}
-							mediaDevice={this.pc.mediaDevice}
+							mediaDevice={this.pc?.mediaDevice}
 							endCall={this.endCall}
 							buttonRef={this.buttonRef}
 							callBtn={this.props.callBtn}

@@ -4,12 +4,13 @@ import {
     TableRow, Paper, Button, IconButton, Dialog,
     DialogActions, DialogContent, DialogContentText, DialogTitle, Typography
 } from '@mui/material';
-import { Edit, Delete, Save } from '@mui/icons-material';
+import { Edit, Delete, Save, Visibility } from '@mui/icons-material';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { ENDPOINT } from '../../config';
+import PatientDetails from './PatientDetails';
 
-const Patient = ({ patient, fetchPatients }) => {
+const Patient = ({ patient, fetchPatients, onViewDetails }) => {
     const [editingRow, setEditingRow] = useState(null);
     const [newPatient, setNewPatient] = useState(patient);
     const [searchQuery, setSearchQuery] = useState('');
@@ -88,7 +89,14 @@ const Patient = ({ patient, fetchPatients }) => {
                             onChange={(e) => handleInputChange(e, newPatient._id, newPatient.Visit)}
                         />
                     ) : (
-                        newPatient.name
+                        <Button 
+                            onClick={() => onViewDetails(newPatient)}
+                            color="primary"
+                            size="small"
+                            sx={{ textTransform: 'none', textAlign: 'left', p: 0, minWidth: 0 }}
+                        >
+                            {newPatient.name}
+                        </Button>
                     )}
                 </TableCell>
                 <TableCell>
@@ -397,4 +405,38 @@ const Patient = ({ patient, fetchPatients }) => {
     );
 };
 
-export default Patient;
+const PatientList = ({ patients, fetchPatients }) => {
+  const [selectedPatient, setSelectedPatient] = useState(null);
+
+  const handleViewDetails = (patient) => {
+    setSelectedPatient(patient);
+  };
+
+  const handleBackToList = () => {
+    setSelectedPatient(null);
+  };
+
+  if (selectedPatient) {
+    return (
+      <PatientDetails 
+        patient={selectedPatient} 
+        onBack={handleBackToList} 
+      />
+    );
+  }
+
+  return (
+    <>
+      {patients.map(patient => (
+        <Patient 
+          key={patient._id} 
+          patient={patient} 
+          fetchPatients={fetchPatients}
+          onViewDetails={handleViewDetails}
+        />
+      ))}
+    </>
+  );
+};
+
+export default PatientList;

@@ -1,7 +1,11 @@
 @font-face {
   font-family: "cambay";
+  src: local("Cambay"), local("Cambay-Regular"),
+       url("../public/fonts/cambay-regular.woff2") format('woff2'),
+       url("../public/fonts/cambay-regular.woff") format('woff');
   font-weight: 400;
   font-style: normal;
+  font-display: swap;
 }
 /* -- */
 .animate {
@@ -1216,6 +1220,111 @@ footer h6 {
   color: #28a745;
   font-weight: 700;
 }
+/* Video Call Status Overlay */
+.call-status-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  border-radius: 8px;
+}
+
+.call-status-message {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 80%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.call-status-message .spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 1rem;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #20c997;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.call-status-message p {
+  margin: 0.5rem 0;
+  color: #333;
+  font-size: 1rem;
+}
+
+.call-status-message .hint {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+.call-error-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  border-radius: 8px;
+}
+
+.call-error-message {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 80%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.call-error-message p {
+  margin: 1rem 0;
+  color: #ff4d4f;
+  font-weight: 500;
+}
+
+.retry-button {
+  background: #20c997;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background-color 0.2s;
+}
+
+.retry-button:hover {
+  background: #1aa179;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Call window container */
+.callwindowcontainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+}
+
 footer .logo-display img {
   width: 3rem;
   height: 3rem;
@@ -1689,8 +1798,7 @@ footer .profile .link :hover {
   height: -moz-fit-content;
   height: fit-content;
   align-items: center;
-  overflow: clip;
-  overflow-clip: fade-in;
+  overflow: hidden;
   padding: 5px 5px 5px 5px;
   cursor: pointer;
   font-size: 15px;
@@ -1894,8 +2002,7 @@ footer .profile .link :hover {
   flex-direction: column;
   align-items: center;
   gap: 3px;
-  overflow: clip;
-  overflow-clip: fade-in;
+  overflow: hidden;
   cursor: pointer;
 }
 

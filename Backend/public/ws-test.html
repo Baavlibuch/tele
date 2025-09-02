@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        #log { margin-top: 20px; padding: 10px; border: 1px solid #ccc; height: 300px; overflow-y: auto; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Connection Test</h1>
+    <div>
+        <button id="connectBtn">Connect to WebSocket</button>
+        <button id="disconnectBtn" disabled>Disconnect</button>
+    </div>
+    <div>
+        <h3>Connection Status: <span id="status">Disconnected</span></h3>
+    </div>
+    <div id="log"></div>
+
+    <script>
+        const log = document.getElementById('log');
+        const statusEl = document.getElementById('status');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        let socket;
+
+        function addLog(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = type;
+            entry.textContent = `[${new Date().toISOString()}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        connectBtn.addEventListener('click', () => {
+            addLog('Connecting to WebSocket server...');
+            
+            // Get the current host and protocol
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const host = window.location.hostname;
+            const port = '3001'; // Backend port
+            const path = '/socket.io';
+            
+            const socketOptions = {
+                path: path,
+                transports: ['websocket'],
+                reconnection: true,
+                reconnectionAttempts: 5,
+                reconnectionDelay: 1000,
+                timeout: 5000,
+                query: {
+                    type: 'test',
+                    username: 'test-client',
+                    version: '1.0',
+                    t: Date.now()
+                }
+            };
+
+            socket = io(`${protocol}//${host}:${port}`, socketOptions);
+
+            socket.on('connect', () => {
+                const socketId = socket.id;
+                statusEl.textContent = `Connected (ID: ${socketId})`;
+                statusEl.className = 'success';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                addLog(`Connected to WebSocket server with ID: ${socketId}`, 'success');
+                
+                // Join the chat namespace
+                socket.emit('join', { room: 'test-room' });
+            });
+
+            socket.on('connect_error', (error) => {
+                statusEl.textContent = 'Connection Failed';
+                statusEl.className = 'error';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                addLog(`Connection error: ${error.message}`, 'error');
+                console.error('WebSocket connection error:', error);
+            });
+
+            socket.on('disconnect', (reason) => {
+                statusEl.textContent = 'Disconnected';
+                statusEl.className = '';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                addLog(`Disconnected: ${reason}`, 'info');
+            });
+
+            socket.on('message', (data) => {
+                addLog(`Message received: ${JSON.stringify(data)}`, 'info');
+            });
+
+            socket.on('userAlloted', (data) => {
+                addLog(`User alloted: ${JSON.stringify(data)}`, 'info');
+            });
+
+            socket.onAny((event, ...args) => {
+                console.log(`Received event: ${event}`, args);
+            });
+        });
+
+        disconnectBtn.addEventListener('click', () => {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+            }
+        });
+
+        // Handle page unload
+        window.addEventListener('beforeunload', () => {
+            if (socket) {
+                socket.disconnect();
+            }
+        });
+    </script>
+</body>
+</html>

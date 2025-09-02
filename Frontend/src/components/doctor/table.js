@@ -50,32 +50,52 @@ function Table({ username, changePatient, callStarted, setpresUploaded, currPati
 	};
 
 
-	const getPatients = () => {
-		axios
-			.get(ENDPOINT + '/api/patient-list')
-			.then((response) => {
-				setPatients(response.data.patients);
-				reorderPatients();
-			})
-			.catch((err) => {
-				console.log(err);
-			});
-		axios
-			.get(ENDPOINT + '/api/patient-listexcel')
-			.then((response) => {
-				console.log(response.data.patients)
-				setPatientsexcel(response.data.patients);
-				reorderPatients();
-			})
-			.catch((err) => {
-				console.log(err);
-			});
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
+
+	const getPatients = async () => {
+		try {
+			setLoading(true);
+			setError(null);
+			
+			// Fetch paginated and filtered patient list
+			const [patientsRes, excelRes] = await Promise.all([
+				axios.get(`${ENDPOINT}/api/patient-list`, {
+					params: {
+						page,
+						limit: rowsPerPage,
+						search: searchQuery,
+						sortBy: 'created_at',
+						sortOrder: 'desc'
+					}
+				}),
+				axios.get(`${ENDPOINT}/api/patient-list`, {
+					params: { limit: 1000 } // For Excel export
+				})
+			]);
+
+			setPatients(patientsRes.data.patients);
+			setPatientsexcel(excelRes.data.patients || []);
+			reorderPatients();
+		} catch (err) {
+			console.error('Error fetching patients:', err);
+			setError('Failed to load patient data. Please try again.');
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	// const filteredKeys = ['symptoms', 'symptoms_Duration', 'village', 'latitude', 'longitude', 'doctor', 'Last Visited', 'Registered', 'followup'];
-	const filteredPatients = patients.filter(patient =>
-		(patient._id || '').toLowerCase().includes(searchQuery.toLowerCase())
-	);
+	const filteredPatients = patients.filter(patient => {
+		const searchLower = searchQuery.toLowerCase();
+		return (
+			(patient.name || '').toLowerCase().includes(searchLower) ||
+			(patient.telephone || '').includes(searchQuery) ||
+			(patient.village || '').toLowerCase().includes(searchLower) ||
+			(patient.diagnosis || '').toLowerCase().includes(searchLower) ||
+			(patient.symptoms || '').toLowerCase().includes(searchLower)
+		);
+	});
 
 	const displayedPatients = filteredPatients.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 	const totalPages = Math.ceil(filteredPatients.length / rowsPerPage);
@@ -83,59 +103,67 @@ function Table({ username, changePatient, callStarted, setpresUploaded, currPati
 	const followupCount = patients.filter(patient => patient.followup > 1).length;
 
 	const downloadExcel = () => {
-		// Clone and filter the data to include only the specified attributes
-		const processedData = patientsexcel.map(patient => {
-			// Format the prescriptions array
-			if (Array.isArray(patient.prescriptions)) {
-				patient.prescriptions = patient.prescriptions
-					.map(prescription =>
-						`Notation: ${prescription.notation || ''}, SaltName: ${prescription.saltName || ''}, Dosage: ${prescription.dosage || ''}, Remarks: ${prescription.remarks || ''}, ID: ${prescription.id || ''}`
-					)
-					.join('\n'); // Separate multiple prescriptions with a newline
-			}
+    try {
+        const processedData = patientsexcel.map(patient => {
+            // Format the prescriptions array
+            let prescriptionsText = '';
+            if (Array.isArray(patient.prescriptions)) {
+                prescriptionsText = patient.prescriptions
+                    .map(prescription => 
+                        `Notation: ${prescription.notation || ''}, SaltName: ${prescription.saltName || ''}, ` +
+                        `Dosage: ${prescription.dosage || ''}, Remarks: ${prescription.remarks || ''}`
+                    )
+                    .join('\n');
+            }
 
-			// Return only the required attributes
-			return {
-				Id: patient.id ? patient.id : patient._id || "Nil",
-				Name: patient.name || "Nil",
-				Age: patient.age || "Nil",
-				Gender: patient.gender || "Nil",
-				Telephone: patient.telephone || "Nil",
-				Hospital: patient.hospital || "Nil",
-				Timestamp: patient.timestamps || "Nil",
-				Ip: patient.ip || "Nil",
-				Doctor: patient.doctor || "Nil",
-				Village: patient.village || "Nil",
-				Symptoms: patient.symptoms || "Nil",
-				"Symptoms duration": patient.symptoms_Duration || "Nil",
-				"BP systolic": patient.BP_systolic || "Nil",
-				"BP diastolic": patient.BP_diastolic || "Nil",
-				"BP image": patient.BP_Image || "Nil",
-				Spo2: patient.SPO2_value || "Nil",
-				"Heart rate": patient.heart_rate || "Nil",
-				"Spo2 / heart rate image": patient.Spo2_Image || "Nil",
-				"ECG (yes no)": patient.ECG_Image ? "Yes" : "No" || "Nil",
-				"ECG pdf": patient.ECG_Image || "Nil",
-				Followup: patient.Visit ? patient.Visit : patient.followup || "Nil",
-				"Last visit": patient['Last Visited'] || "Nil",
-				"Register visit": patient['Registered'] || "Nil",
-				Longitude: patient.longitude || "Nil",
-				Latitude: patient.latitude || "Nil",
-				"Prescriptions": patient.prescriptions || "Nil",
-				"Prescription pdf": patient.prescription || "Nil",
-				"Diagnosis / chief complaint": patient.diagnosis || "Nil",
-				Behaviour: patient.behavior || "Nil",
-				Advice: patient.advice || "Nil",
-				"Special Remark": patient.specialRemark || "Nil",
-			};
-		});
+            return {
+                'Patient ID': patient._id || 'N/A',
+                'Name': patient.name || 'N/A',
+                'Phone': patient.telephone || 'N/A',
+                'Age': patient.age || 'N/A',
+                'Gender': patient.gender || 'N/A',
+                'Village': patient.village || 'N/A',
+                'IP Address': patient.ip || 'N/A',
+                'Symptoms': patient.symptoms || 'N/A',
+                'Symptom Duration': patient.symptoms_Duration || 'N/A',
+                'Diagnosis': patient.diagnosis || 'N/A',
+                'BP Systolic': patient.BP_systolic || 'N/A',
+                'BP Diastolic': patient.BP_diastolic || 'N/A',
+                'SpO2': patient.SPO2_value || 'N/A',
+                'Heart Rate': patient.heart_rate || 'N/A',
+                'ECG': patient.ECG_Image ? 'Yes' : 'No',
+                'Prescriptions': prescriptionsText || 'None',
+                'Behavior': patient.behavior || 'N/A',
+                'Advice': patient.advice || 'N/A',
+                'Special Remarks': patient.specialRemark || 'N/A',
+                'Last Visit': patient.last_messaged_at 
+                    ? new Date(patient.last_messaged_at).toLocaleDateString() 
+                    : 'N/A',
+                'Registered On': patient.created_at 
+                    ? new Date(patient.created_at).toLocaleDateString() 
+                    : 'N/A',
+                'Follow-ups': patient.followup || 0,
+                'Doctor': patient.doctor || 'N/A',
+                'Longitude': patient.longitude || 'N/A',
+                'Latitude': patient.latitude || 'N/A'
+            };
+        });
 
-		// Generate the Excel file
-		const worksheet = XLSX.utils.json_to_sheet(processedData);
-		const workbook = XLSX.utils.book_new();
-		XLSX.utils.book_append_sheet(workbook, worksheet, 'Patients');
-		XLSX.writeFile(workbook, 'patients.xlsx');
-	};
+        // Create a new workbook
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(processedData);
+        
+        // Add the worksheet to the workbook
+        XLSX.utils.book_append_sheet(wb, ws, 'Patients');
+        
+        // Generate Excel file and trigger download
+        XLSX.writeFile(wb, `patient_records_${new Date().toISOString().split('T')[0]}.xlsx`);
+        
+    } catch (error) {
+        console.error('Error generating Excel file:', error);
+        alert('Error generating Excel file. Please try again.');
+    }
+};
 
 
 	const handleNavigation = () => {
@@ -144,54 +172,115 @@ function Table({ username, changePatient, callStarted, setpresUploaded, currPati
 	
 
 	return (
-		<div>
-			<div>
-				<h5>Total Patients with Follow-up: {followupCount}</h5>
-				<button onClick={downloadExcel} className="download-btn">
-					Download Excel
-				</button>
-				<button onClick={handleNavigation} className="download-btn">
-					See All Patients
-				</button>
-			</div>
-			<div style={{ marginBottom: '10px' }}>
-				<input
-					type="text"
-					placeholder="Search Patients"
-					value={searchQuery}
-					onChange={(e) => setSearchQuery(e.target.value)}
-					style={{
-						width: '40%',
-						padding: '2px',
-						border: '1px solid #ddd',
-						borderRadius: '4px',
-					}}
-				/>
-			</div>
-			<table className="table fadeInUp" style={{ animationDelay: '1s' }}>
-				<h5 className="affected-count">
-					<button onClick={getPatients} className="refresh">
-						<Icon.RefreshCw size={10} />
-					</button>
-					Patients
-				</h5>
-				<div style={{ width: '100%', borderCollapse: 'collapse' }}>
-					<div style={{ border: '2px solid rgb(230, 230, 230)', fontWeight: 'bold' }}>
-						<div style={{ display: 'flex', backgroundColor: 'rgba(137, 137, 137, 0.18)' }}>
-							<div style={{ textAlign: 'left', padding: '10px', width: '10%', fontSize: '14px' }}>Sno.</div>
-							<div style={{ textAlign: 'left', padding: '10px', width: '80%', fontSize: '14px' }}>Patients</div>
-							<div style={{ textAlign: 'left', padding: '10px', width: '10%', fontSize: '14px' }}>Chat</div>
-						</div>
-					</div>
-					{displayedPatients.map((patient, index) => (
-						<div key={index}>
-							<div>
-								<Intable patient={patient} index={index} changePatient={changePatient} getPatient={getPatients} doctorCred={doctor} setpresUploaded={setpresUploaded} />
-							</div>
-						</div>
-					))}
+		<div className="table-container">
+			<div className="controls">
+				<div className="search-container">
+					<Icon.Search className="search-icon" />
+					<input
+						type="text"
+						placeholder="Search by name, phone, village, or symptoms..."
+						value={searchQuery}
+						onChange={(e) => setSearchQuery(e.target.value)}
+					/>
 				</div>
-				<div style={{ fontSize: '12px' }}>Count: {filteredPatients.length}</div>
+				<div className="table-actions">
+					<h5>Total Patients with Follow-up: {followupCount}</h5>
+					<button onClick={downloadExcel} className="download-btn">
+						Download Excel
+					</button>
+					<button onClick={handleNavigation} className="download-btn">
+						See All Patients
+					</button>
+				</div>
+			</div>
+			<div className="table-title">
+				<button onClick={getPatients} className="refresh">
+					<Icon.RefreshCw size={10} />
+				</button>
+				<span>Patients</span>
+			</div>
+			<div className="table-content">
+				<table>
+					<thead>
+						<tr>
+							<th>Patient</th>
+							<th>Contact</th>
+							<th>Symptoms</th>
+							<th>Diagnosis</th>
+							<th>Last Visit</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						{displayedPatients.map((patient, index) => (
+							<tr key={index} className={currPatient === patient._id ? 'active-patient' : ''}>
+								<td>
+									<div className="patient-info">
+										<div className="patient-name">{patient.name}</div>
+										<div className="patient-meta">
+											<span>ID: {patient._id}</span>
+											<span>•</span>
+											<span>{patient.age} years</span>
+											<span>•</span>
+											<span>{patient.gender}</span>
+										</div>
+										<div className="patient-village">
+											<Icon.MapPin size={12} /> {patient.village || 'N/A'}
+										</div>
+									</div>
+								</td>
+								<td>
+									<div className="contact-info">
+										<div><Icon.Phone size={14} /> {patient.telephone || 'N/A'}</div>
+										{patient.doctor && (
+											<div className="doctor-info">
+												<Icon.User size={14} /> Dr. {patient.doctor.replace('dr_', '')}
+											</div>
+										)}
+									</div>
+								</td>
+								<td className="symptoms-cell">
+									<div className="symptoms">
+										{patient.symptoms || 'No symptoms recorded'}
+										{patient.symptoms_Duration && (
+											<span className="duration">({patient.symptoms_Duration})</span>
+										)}
+									</div>
+								</td>
+								<td>
+									{patient.diagnosis || 'Pending diagnosis'}
+								</td>
+								<td>
+									{patient.last_messaged_at
+										? new Date(patient.last_messaged_at).toLocaleDateString('en-US', {
+											month: 'short',
+											day: 'numeric',
+											year: 'numeric'
+										}) 
+										: 'N/A'}
+									{patient.followup > 0 && (
+										<span className="followup-badge">
+											<Icon.RefreshCw size={12} /> {patient.followup}
+										</span>
+									)}
+								</td>
+								<td>
+									<Intable 
+										patient={patient} 
+										index={index} 
+										changePatient={changePatient} 
+										getPatient={getPatients} 
+										doctorCred={doctor} 
+										setpresUploaded={setpresUploaded} 
+									/>
+								</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+			<div className="table-footer">
+				<div className="patient-count">Count: {filteredPatients.length}</div>
 				<div className="pagination">
 					<button
 						onClick={() => setPage(Math.max(1, page - 1))}
@@ -211,7 +300,7 @@ function Table({ username, changePatient, callStarted, setpresUploaded, currPati
 						<Icon.ArrowRight size={16} />
 					</button>
 				</div>
-			</table>
+			</div>
 			<DoctorCred doctorId={doctorId} setDoctor={setDoctor} />
 		</div>
 	);

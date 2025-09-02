@@ -28,8 +28,7 @@ const prescriptionSchema = new Schema({
     id: {
         type: Number,
         required: true,
-        unique: true,
-        default: Date.now,
+        default: () => Math.floor(100000 + Math.random() * 900000), // Generate a random 6-digit ID
     },
     notation: {
         type: String,
@@ -54,8 +53,27 @@ const PatientSchema = new Schema(
 	{
 		_id: {
 			type: String,
-			unique: true,
 			required: true
+		},
+		patientId: {
+			type: String,
+			default: function() {
+				return this._id; // Use _id as patientId by default
+			}
+		},
+		// Add virtual for formatted registration date
+		registeredAt: {
+			type: Date,
+			get: function() {
+				return this.created_at ? new Date(this.created_at) : null;
+			}
+		},
+		// Add virtual for last visit date
+		lastVisitedAt: {
+			type: Date,
+			get: function() {
+				return this.last_messaged_at ? new Date(this.last_messaged_at) : null;
+			}
 		},
 		conversation_sessions: [String],
 		chat: [Chat],
@@ -148,8 +166,16 @@ const PatientSchema = new Schema(
 			required: false,
 			default: 'NA'
 		},
-		symptoms: String,
-		symptoms_Duration : String,
+		symptoms: {
+			type: String,
+			trim: true,
+			required: [true, 'Symptoms are required']
+		},
+		symptoms_Duration: {
+			type: String,
+			trim: true,
+			required: [true, 'Symptom duration is required']
+		},
 		vaccination_status: String,
 		symptomatic_forcovid: Boolean,
 		BP_Image: String,
@@ -250,9 +276,19 @@ const PatientSchema = new Schema(
 		 * provided by patient* under covid-19 consultancy
 		 */
 		additional_symptoms: String,
-		name: String,
+		name: {
+			type: String,
+			trim: true,
+			required: [true, 'Patient name is required'],
+			minlength: [2, 'Name must be at least 2 characters long']
+		},
 		email: String,
-		telephone: String,
+		telephone: {
+			type: String,
+			trim: true,
+			required: [true, 'Phone number is required'],
+			match: [/^[0-9]{10}$/, 'Please enter a valid 10-digit phone number']
+		},
 		gender: String,
 		age: String,
 		Profession: String,
@@ -286,7 +322,11 @@ const PatientSchema = new Schema(
 		 * this field changes only at referral
 		 */
 		doctor: String,
-		village: String,
+		village: {
+			type: String,
+			trim: true,
+			required: [true, 'Village name is required']
+		},
 		hospital: String,
 		aiims_id: String,
 		behavior: String,
@@ -297,9 +337,58 @@ const PatientSchema = new Schema(
 		opd_symptoms: String,
 		opd_symptoms_age: String,
 		timestamps: [Timestamps],
-		followup: Number
+		followup: {
+			type: Number,
+			default: 0,
+			min: [0, 'Follow-up count cannot be negative']
+		}
 	},
 	{ _id: false }
+);
+
+// Add indexes for frequently queried fields
+PatientSchema.index({ name: 1 });
+PatientSchema.index({ telephone: 1 }, { unique: true });
+PatientSchema.index({ doctor: 1 });
+PatientSchema.index({ village: 1 });
+PatientSchema.index({ created_at: -1 });
+PatientSchema.index({ last_messaged_at: -1 });
+
+// Virtual for patient's full details
+PatientSchema.virtual('patientDetails').get(function() {
+	return {
+		id: this._id,
+		name: this.name,
+		telephone: this.telephone,
+		village: this.village,
+		symptoms: this.symptoms,
+		symptoms_Duration: this.symptoms_Duration,
+		registeredAt: this.registeredAt,
+		lastVisitedAt: this.lastVisitedAt,
+		followup: this.followup,
+		doctor: this.doctor
+	};
+});
+
+// Create text index for search
+PatientSchema.index(
+	{ 
+		name: 'text',
+		telephone: 'text',
+		village: 'text',
+		symptoms: 'text',
+		diagnosis: 'text'
+	},
+	{
+		weights: {
+			name: 10,
+			telephone: 10,
+			village: 5,
+			symptoms: 3,
+			diagnosis: 2
+		},
+		name: 'patient_search_index'
+	}
 );
 
 // create the model

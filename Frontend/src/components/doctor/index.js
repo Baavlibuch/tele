@@ -113,7 +113,7 @@ class Doctor extends React.Component {
                 patientId: null,
                 chat: [
                     {
-                        statement: 'हम आपके परामर्श के लिए रोगियों को खोज रहे हैं',
+                        statement: 'Patient Name: Saroj Gupta',
                         type: 'incoming'
                     }
                 ]
@@ -353,17 +353,28 @@ class Doctor extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <Chat callStarted={callStarted} setchatStarted={this.setchatStarted} username={username} changePatient={this.changePatient} patient={patient} socket={this.socketRef} presUpload={presUpload} _event={_event} setCurrPatient={this.setCurrPatient} />
+                    <Chat 
+                        callStarted={callStarted} 
+                        setchatStarted={this.setchatStarted} 
+                        username={username} 
+                        changePatient={this.changePatient} 
+                        patient={patient} 
+                        socket={this.socketRef} 
+                        presUpload={presUpload} 
+                        _event={_event} 
+                        setCurrPatient={this.setCurrPatient}
+                        ENDPOINT={ENDPOINT}
+                    />
                 </div>
                 <div className="home-right" style={{ alignItems: 'center' }}>
                     {incomingTyping || requesting ? (
-                        <p className="incoming-message">
+                        <div className="incoming-message">
                             <div className="dots">
                                 <div className="dot" />
                                 <div className="dot" />
                                 <div className="dot" />
                             </div>
-                        </p>
+                        </div>
                     ) : null}
                     {/* <CallModal chatStarted={this.setchatStarted} status={callModal} startCall={this.startCall} rejectCall={this.rejectCall} /> */}
                     {/* {!_.isEmpty(this.configRef) &&

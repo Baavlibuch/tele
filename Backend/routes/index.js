@@ -197,14 +197,44 @@ router.post('/hits', async (req, res) => {
  * upload any image
  * this is used in chat of doctor and patient.
  */
+// Handle general image uploads
 router.post('/image', upload.any(), (req, res) => {
 	if (req.files.length) {
 		const image = req.files[0];
-		console.log(image);
+		console.log('Image uploaded:', image.filename);
 		res.json({ image });
 	} else {
-		console.log("oh no");
-		res.json({});
+		console.log("No files were uploaded");
+		res.status(400).json({ error: 'No files were uploaded' });
+	}
+});
+
+// Handle payment receipt uploads
+router.post('/upload-receipt', upload.single('image'), (req, res) => {
+	try {
+		if (!req.file) {
+			console.log('No receipt file uploaded');
+			return res.status(400).json({ error: 'No receipt file uploaded' });
+		}
+
+		const receipt = req.file;
+		console.log('Payment receipt uploaded:', receipt.filename);
+		
+		// Return the file information including the URL where it can be accessed
+		res.json({
+			success: true,
+			filename: receipt.filename,
+			url: `https://teleniir.com/aa/images/${receipt.filename}`,
+			size: receipt.size,
+			mimetype: receipt.mimetype
+		});
+	} catch (error) {
+		console.error('Error uploading receipt:', error);
+		res.status(500).json({ 
+			success: false, 
+			error: 'Failed to process receipt upload',
+			details: error.message 
+		});
 	}
 });
 

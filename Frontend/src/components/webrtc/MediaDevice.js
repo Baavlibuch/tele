@@ -7,28 +7,48 @@ import Emitter from './Emitter';
 class MediaDevice extends Emitter {
 	/**
 	 * Start media devices and send stream
+	 * @param {Object} config - Configuration for media devices
 	 */
-	start() {
+	start(config = { video: true, audio: true }) {
 		const constraints = {
-			video: {
+			video: config.video ? {
 				facingMode: 'user',
-				height: { min: 360, ideal: 720, max: 1080 }
-			},
-			audio: true
+				height: { min: 360, ideal: 720, max: 1080 },
+				width: { min: 480, ideal: 1280, max: 1920 },
+				frameRate: { ideal: 30, max: 60 }
+			} : false,
+			audio: config.audio
 		};
+
+		// Stop any existing tracks
+		if (this.stream) {
+			this.stop();
+		}
+
+		console.log('Requesting media with constraints:', constraints);
 
 		navigator.mediaDevices
 			.getUserMedia(constraints)
 			.then((stream) => {
+				console.log('Media stream obtained:', stream);
 				this.stream = stream;
 				this.emit('stream', stream);
 			})
 			.catch((err) => {
+				console.error('Error accessing media devices:', err);
 				if (err instanceof DOMException) {
-					alert('Cannot open webcam and/or microphone');
+					if (err.name === 'NotAllowedError') {
+						alert('Please allow camera and microphone access to continue');
+					} else if (err.name === 'NotFoundError') {
+						alert('No camera found. Please connect a camera and try again.');
+					} else {
+						alert(`Cannot access camera/microphone: ${err.message}`);
+					}
 				} else {
-					console.log(err);
+					console.error('Media device error:', err);
+					alert(`Error accessing media devices: ${err.message}`);
 				}
+				this.emit('error', err);
 			});
 
 		return this;
